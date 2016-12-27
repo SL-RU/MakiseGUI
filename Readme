@@ -1,0 +1,13 @@
+STAGE: ACTIVE DEVELOPMENT
+
+About
+Graphics library for embed ARM platforms. It will support variety of displays and controllers. It allows to draw only primitives or use GUI.
+It supports batch drawing(two buffers: one wich contains all pixels with low pixeldepth and second smaller with display's native pixeldepth in which data will be rendered from first using palette and after that sended to display using DMA).
+
+Supported displays:
+- 2.2 inch tft 240x320 on ILI9340C
+
+Supported platforms:
+- STM32
+
+Author: Alexander Lutsai <s.lyra@ya.ru>
