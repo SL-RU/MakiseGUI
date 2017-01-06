@@ -1,14 +1,20 @@
 #ifndef MAKISE_H
 #define MAKISE_H 1
+
 typedef struct _MakiseGUI MakiseGUI;
 typedef struct _MakiseBuffer MakiseBuffer;
 typedef struct _MakiseDriver MakiseDriver;
+
+#define M_OK            1
+#define M_ERROR         2
+#define M_ZERO_POINTER  3
+
 
 #include <stdlib.h>
 #include "makise_config.h"
 #include "makise_text.h"
 #include "makise_primitives.h"
-#include "makise_gui.h"
+//#include "makise_gui.h"
 #include "stm32f4xx_hal.h"
 
 typedef struct _MakiseBuffer
@@ -46,6 +52,8 @@ typedef struct _MakiseGUI
     MakiseBuffer* buffer;
     MakiseDriver* driver;
     void (*draw)(MakiseGUI* gui);
+    void (*predraw)(MakiseGUI* gui);
+    void (*update)(MakiseGUI* gui);
 } MakiseGUI;
 
 /**
@@ -56,7 +64,7 @@ typedef struct _MakiseGUI
  * @param buffer pointer to the empty buffer structure
  * @return size in bytes of required byte's array in buffer structure. And zero if was any error. You need to malloc buffer->buffer
  */
-uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer, MHost host);
+uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer);
 void makise_deinit(MakiseGUI* gui);
 uint8_t makise_start(MakiseGUI * gui);
 uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y);

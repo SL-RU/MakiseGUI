@@ -22,7 +22,7 @@ typedef struct _MakiseFont
 } MakiseFont;
 
 
-void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, MakiseFont *font, uint32_t c);
-void makise_d_string(MakiseBuffer *b, char *s, uint16_t x, uint16_t y, MakiseFont *font, uint32_t c);
+void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c);
+void makise_d_string(MakiseBuffer *b, char *s, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c);
 
 #endif

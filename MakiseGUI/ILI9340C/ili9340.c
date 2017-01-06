@@ -196,22 +196,24 @@ uint8_t ili_f = 0;
 extern uint16_t taaak = 0;
 void strt_tx(MakiseDriver* d)
 {
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    uint8_t dr = 0;
     if(d->posy >= d->lcd_height - taaak)
     {
 	ili_f = 0;
+	dr = 1;
 	d->posy = taaak;
 	
 	//se = HAL_GetTick();
 	//printf("delay %d\n", se - ss);
 	//ss = HAL_GetTick();
 	
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
 	if(d->gui->draw != 0)
 	{
 	    d->gui->draw(d->gui);
 	}
-	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
     }
 
 
@@ -237,9 +239,18 @@ void strt_tx(MakiseDriver* d)
 	SET_BIT(ILI9340_SPI.Instance->CR2, SPI_CR2_TXDMAEN);
 
     }
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
-
-    
+//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
+    if(dr)
+    {
+	if(d->gui->predraw != 0)
+	{
+	    d->gui->predraw(d->gui);
+	}
+	if(d->gui->update != 0)
+	{
+	    d->gui->update(d->gui);
+	}
+    }
 }
 
 uint8_t ili9340_start(MakiseGUI* gui)

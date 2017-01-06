@@ -2,7 +2,7 @@
 #define _MAKISE_H_G_EL 1
 
 typedef struct _MElement MElement;
-
+typedef struct _MPosition MPosition;
 
 #define MState_Disable 0b0000
 #define MState_Idle    0b0001
@@ -12,7 +12,7 @@ typedef struct _MElement MElement;
 #include "makise_gui.h"
 #include "makise_gui_container.h"
 
-typedef struct
+typedef struct _MPosition
 {
     int32_t x; //relative position
     int32_t y; //relative position
@@ -40,15 +40,18 @@ typedef struct _MElement
     uint8_t focus_prior; //relative position in focus queu. 0 means focus doesn't required
     
     void* data;
-    uint8_t (*draw    )(MElement* el);
-    uint8_t (*predraw )(MElement* el); //count real position for every element
-    uint8_t (*update  )(MElement* el);
-    uint8_t (*input   )(MElement* el, uint8_t event, uint32_t i);
-    uint8_t (*focus   )(MElement* el, uint8_t event);
-    uint8_t (*free    )(MElement* el);
+    uint8_t    (*draw    )(MElement* el);
+    uint8_t    (*predraw )(MElement* el); //count real position for every element
+    uint8_t    (*update  )(MElement* el);
+    MInputResultEnum (*input   )(MElement* el, MInputData data);
+    MFocusEnum (*focus   )(MElement* el, MFocusEnum act);
+    uint8_t    (*free    )(MElement* el);
     
 } MElement;
 
+uint8_t m_element_call(MElement* el, uint8_t type);
+uint8_t m_element_focus(MElement* el, uint8_t event);
+uint8_t m_element_input(MElement* el, uint8_t event, uint32_t i);
 
 typedef struct {
     MakiseGUI *gui;
@@ -65,14 +68,7 @@ void m_button_create(MButton* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
 		     char* text,
 		     uint32_t bgcolor, uint32_t fontcolor, uint32_t bordercolor);
-uint8_t _m_button_draw   (MElement* b);
-uint8_t _m_button_predraw(MElement* b);
-uint8_t _m_button_input  (MElement* b, uint8_t event, uint32_t i);
-uint8_t _m_button_focus  (MElement* b, uint8_t event);
-uint8_t _m_button_free   (MElement* b);
 
 
-typedef struct {
-    
-} MTextField;
+
 #endif

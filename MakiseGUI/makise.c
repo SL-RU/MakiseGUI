@@ -1,6 +1,6 @@
 #include "makise.h"
 
-uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer, MHost host)
+uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer)
 {
     gui->driver = driver;
     gui->buffer = buffer;
