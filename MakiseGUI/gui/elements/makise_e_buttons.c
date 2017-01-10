@@ -45,7 +45,7 @@ uint8_t _m_button_draw   (MElement* b)
 {
     makise_d_rect_filled(b->gui->buffer, b->position.real_x, b->position.real_y, b->position.width, b->position.height, ((MButton*)b->data)->bordercolor, ((MButton*)b->data)->bgcolor);
     makise_d_line(b->gui->buffer, b->position.real_x, b->position.real_y, 0, 0, 3);
-    makise_d_string(b->gui->buffer, ((MButton*)b->data)->text, b->position.real_x + 2, b->position.real_y, &F_Arial12, ((MButton*)b->data)->fontcolor);
+    makise_d_string(b->gui->buffer, ((MButton*)b->data)->text, b->position.real_x + 2, b->position.real_y, &F_Arial24, ((MButton*)b->data)->fontcolor);
 
     //printf("Button %d dr\n", b->id);
     return M_OK;

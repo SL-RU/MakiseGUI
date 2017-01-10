@@ -1,6 +1,6 @@
 #include "makise_text.h"
 
-void _makise_draw_char(MakiseBuffer *b, uint16_t ind, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c, uint16_t width)
+static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c, uint16_t width)
 {
     uint32_t bitCounter, rawIndex, colIndex;
     const uint8_t * ptrByte;
@@ -43,12 +43,12 @@ void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const M
 void makise_d_string(MakiseBuffer *b, char *s, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c)
 {
     uint32_t width, l = strlen(s) , i = 0;
-    uint16_t ch, xt = x, yt = y;
+    uint32_t ch, xt = x, yt = y;
 
     while (i < l) {
 	ch = s[i];
 	ch = (uint8_t)ch - font->offset;
-    
+
 	// Symbol width
 	if (ch > font->num_char) ch = 0;
 	width = font->width ? font->width : font->char_width[ch];
