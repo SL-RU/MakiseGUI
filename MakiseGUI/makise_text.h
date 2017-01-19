@@ -5,7 +5,16 @@
 #include "makise.h"
 
 
+#define MDTextLenAuto UINT32_MAX 
+
 typedef struct _MakiseFont MakiseFont;
+typedef enum
+{
+    MDTextPlacement_LeftUp = 0,
+    MDTextPlacement_Center,
+    MDTextPlacement_CenterUp,
+    MDTextPlacement_CenterDown,
+} MDTextPlacement;
 
 #include "fonts.h"
 
@@ -21,8 +30,9 @@ typedef struct _MakiseFont
     uint16_t space_char;    
 } MakiseFont;
 
+void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c); //draw single char
+void makise_d_string(MakiseBuffer *b, char *s, uint32_t len, uint16_t x, uint16_t y, MDTextPlacement place, const MakiseFont *font, uint32_t c); //draw string
+uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font); //get width of string being drew using that font
 
-void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c);
-void makise_d_string(MakiseBuffer *b, char *s, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c);
 
 #endif

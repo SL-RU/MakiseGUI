@@ -1,6 +1,7 @@
 //#ifdef MAKISE_ILI9340_USE
 #include "ili9340.h"
 #include "stm32f4xx_hal_tim.h"
+#include "dma.h"
 
 extern inline void _ili9340_delay(uint32_t x) { HAL_Delay(x); }
 extern inline void _ili9340_rst(uint8_t st){HAL_GPIO_WritePin(ILI9340_RST, st ? GPIO_PIN_SET : GPIO_PIN_RESET);}
@@ -19,7 +20,7 @@ void ili9340_driver(MakiseDriver * d)
     d->buffer        = 0;
     d->size          = MAKISE_BUF_H * MAKISE_BUF_W * 2;
     d->posx          = 0;
-    d->posy          = 0;
+    d->posy          = 321;
     d->init          = &ili9340_init;
     d->start         = &ili9340_start;
     d->sleep         = &ili9340_sleep;
@@ -193,33 +194,40 @@ void setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1,
 
 uint32_t t, ss, se, w=0;
 uint8_t ili_f = 0;
-extern uint16_t taaak = 0;
+uint8_t col = 0;
 void strt_tx(MakiseDriver* d)
 {
-//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
     uint8_t dr = 0;
-    if(d->posy >= d->lcd_height - taaak)
+    MakiseBuffer *bu = d->gui->buffer;
+    
+    if(d->posy >= d->lcd_height)
     {
 	ili_f = 0;
 	dr = 1;
-	d->posy = taaak;
+	d->posy = 0;
+
+	memset(bu->buffer +
+	       d->lcd_width * (d->lcd_height - d->buffer_height) * bu->pixeldepth / 8,
+	       col, d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
 	
-	//se = HAL_GetTick();
-	//printf("delay %d\n", se - ss);
-	//ss = HAL_GetTick();
-	
-//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
 	if(d->gui->draw != 0)
 	{
 	    d->gui->draw(d->gui);
 	}
-//	HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
     }
-
+    else if(d->posy != 0)
+    {
+	//HAL_DMA_Start_IT(&hdma_memtomem_dma2_stream0,
+	//(uint32_t)&col,
+	uint32_t g = 0;
+	memset(bu->buffer + (d->posy - d->buffer_height) *
+	       d->lcd_width * bu->pixeldepth / 32,
+	       g,
+	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
+    }
 
     setAddrWindow(0, d->posy, d->lcd_width, d->buffer_height - 1 + d->posy);
     ili9340_render(d->gui);
-
 
     _ili9340_dc(1);
     _ili9340_cs(0);
