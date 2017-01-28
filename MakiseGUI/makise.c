@@ -48,16 +48,66 @@ inline uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y)
 
 inline void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c)
 {
-    if((x) < (b)->width && (y) < (b)->height)				
+    if((x) < (b)->width && (y) < (b)->height)
+	
     {									
 	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
 	kpset32 = kpset/32;
 	kpsett = kpset - kpset32*32;
 
-	if((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett)) & c)
+	if(((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett))) == c)
 	    return;
 	
-	(b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c<<kpsett); 
+	(b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
     }
 }
+//if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
+void makise_render(MakiseGUI *gui, uint8_t partial_render)
+{
+    MakiseDriver * d = gui->driver;
+    uint16_t c;
+
+    uint32_t y = d->posy, //start position y
+	x = 0,
+	i = 0, //pixel in drivers's buffer
+	cu,
+	bu = 0,
+	m; //end position y
+
+    if(partial_render == 0) //render full buffer
+    {
+	m = d->posy + d->buffer_height;
+	d->posy += d->buffer_height;
+	partial_render = 1;
+    }
+    else if(partial_render == 1) //render first half (called by halfcplt callback)
+    {
+	m = d->posy + (d->buffer_height / 2);
+	y = d->posy;
+    }
+    else if(partial_render == 2) //render second half (called by cplt callback)
+    {
+	m = d->posy + d->buffer_height;
+	y = d->posy + (d->buffer_height / 2);
+	i = d->size / 4;
+	d->posy += d->buffer_height;
+    }
+
+    cu = (y * gui->buffer->width) * gui->buffer->pixeldepth/32;
+    for (; y < m; y++) {	
+	for (x = 0; x < d->buffer_width; x+=1)
+	{
+	    c = makise_color_get(((((uint32_t*)gui->buffer->buffer)[cu]) >> bu) & gui->buffer->depthmask);
+	    bu += gui->buffer->pixeldepth;
+	    if(bu>=32)
+	    {
+		bu = 0;
+		cu ++;
+	    }
+	    //c+=bc;
+	    ((uint16_t*)d->buffer)[i] = c;
+	    i+=1;
+	}
+    }
     
+}

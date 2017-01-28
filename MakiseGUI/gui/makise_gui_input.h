@@ -1,7 +1,7 @@
 #ifndef _MAKISE_H_G_Input
 #define _MAKISE_H_G_Input 1
 
-#include "makise_gui.h"
+#include <stdint.h>
 
 typedef enum
 {
@@ -35,5 +35,12 @@ typedef enum
     M_INPUT_HANDLED,
     M_INPUT_NOT_HANDLED
 } MInputResultEnum;
+
+#include "makise_gui.h"
+
+void makise_gui_input_send(MHost *h, MInputData d);
+void makise_gui_input_send_button(MHost *h, MInputKeyEnum key, MInputEventEnum event, uint32_t time);
+
+void makise_gui_input_perform(MHost *h);
 
 #endif

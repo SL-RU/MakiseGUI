@@ -166,9 +166,10 @@ uint8_t ili9340_init(MakiseGUI* gui)
     
     return HAL_OK;
 }
-uint8_t _ili9340_addr_kek[2];
-void setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1,
-		   uint16_t y1) {
+void _ili9340_setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1,
+		   uint16_t y1)
+{
+    uint8_t _ili9340_addr_kek[2];
 
     _ili9340_cs(0);
     ili9340_write_command(ILI9340_CASET); // Column addr set
@@ -192,73 +193,22 @@ void setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1,
     ili9340_write_command(ILI9340_RAMWR); // write to RAM
 }
 
-uint32_t t, ss, se, w=0;
-uint8_t ili_f = 0;
-uint8_t col = 0;
-void strt_tx(MakiseDriver* d)
-{
-    uint8_t dr = 0;
-    MakiseBuffer *bu = d->gui->buffer;
+void ili9340_tx(MakiseDriver* d)
+{    
+    d->posy = 0;   
     
-    if(d->posy >= d->lcd_height)
+    if(d->gui->draw != 0)
     {
-	ili_f = 0;
-	dr = 1;
-	d->posy = 0;
-
-	memset(bu->buffer +
-	       d->lcd_width * (d->lcd_height - d->buffer_height) * bu->pixeldepth / 8,
-	       col, d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
-	
-	if(d->gui->draw != 0)
-	{
-	    d->gui->draw(d->gui);
-	}
+	d->gui->draw(d->gui);
     }
-    else if(d->posy != 0)
-    {
-	//HAL_DMA_Start_IT(&hdma_memtomem_dma2_stream0,
-	//(uint32_t)&col,
-	uint32_t g = 0;
-	memset(bu->buffer + (d->posy - d->buffer_height) *
-	       d->lcd_width * bu->pixeldepth / 32,
-	       g,
-	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
-    }
-
-    setAddrWindow(0, d->posy, d->lcd_width, d->buffer_height - 1 + d->posy);
-    ili9340_render(d->gui);
+    
+    _ili9340_setAddrWindow(0, d->posy, d->lcd_width, d->buffer_height - 1 + d->posy);
+    makise_render(d->gui, 0);
 
     _ili9340_dc(1);
     _ili9340_cs(0);
 
-    if(w==0)
-    {
-	HAL_SPI_Transmit_DMA(&ILI9340_SPI, d->buffer, d->size);
-	w = 1;
-    }
-    else
-    {
-	HAL_DMA_Start_IT(ILI9340_SPI.hdmatx, (uint32_t)d->buffer, (uint32_t)&ILI9340_SPI.Instance->DR, d->size);
-	  /* Enable the SPI Error Interrupt Bit */
-	SET_BIT(ILI9340_SPI.Instance->CR2, SPI_CR2_ERRIE);
-
-	/* Enable Tx DMA Request */
-	SET_BIT(ILI9340_SPI.Instance->CR2, SPI_CR2_TXDMAEN);
-
-    }
-//    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_3);
-    if(dr)
-    {
-	if(d->gui->predraw != 0)
-	{
-	    d->gui->predraw(d->gui);
-	}
-	if(d->gui->update != 0)
-	{
-	    d->gui->update(d->gui);
-	}
-    }
+    HAL_SPI_Transmit_DMA(&ILI9340_SPI, d->buffer, d->size);
 }
 
 uint8_t ili9340_start(MakiseGUI* gui)
@@ -270,15 +220,17 @@ uint8_t ili9340_start(MakiseGUI* gui)
     }
 //    ili9340_set_backlight(1);
     ili9340_set_backlight(gui, 31);
-    strt_tx(gui->driver);
+    ili9340_tx(gui->driver);
+
+    return M_OK;
 }
 uint8_t ili9340_sleep(MakiseGUI* gui)
 {
-    
+    return M_OK;
 }
 uint8_t ili9340_awake(MakiseGUI* gui)
 {
-    
+    return M_OK;
 }
 uint8_t ili9340_set_backlight(MakiseGUI* gui, uint8_t val)
 {
@@ -286,83 +238,88 @@ uint8_t ili9340_set_backlight(MakiseGUI* gui, uint8_t val)
 	__HAL_TIM_SET_COMPARE(ILI9340_LED_PWM, ILI9340_LED_PWM_CHANNEL, val);
     else
 	HAL_GPIO_WritePin(ILI9340_LED, val ? GPIO_PIN_SET : GPIO_PIN_RESET);
+    return M_OK;
 }
 uint8_t ili9340_spi_txhalfcplt(MakiseDriver* d)
 {
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_4);
-    ili_f = 1;
     if(d->posy < d->lcd_height)
-	ili9340_render(d->gui);
-    HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_4);
+	makise_render(d->gui, 1);
+    return M_OK;
 }
-uint8_t ili9340_spi_txcplt(MakiseDriver* driver)
+uint8_t ili9340_spi_txcplt(MakiseDriver* d)
 {
-    ili_f = 2;
-    _ili9340_cs(1);
-    strt_tx(driver);
-}
+//    _ili9340_cs(1);
 
-uint16_t clrs[] = {ILI9340_BLACK, ILI9340_WHITE, ILI9340_RED,
-		   ILI9340_GREEN, ILI9340_BLUE, ILI9340_CYAN,
-		   ILI9340_YELLOW, ILI9340_MAGENTA};
-void    ili9340_render(MakiseGUI* gui)
-{
-    MakiseDriver * d = gui->driver;
-    uint16_t c;
+    uint8_t dr = 0;
+    MakiseBuffer *bu = d->gui->buffer;
 
-    uint32_t y = d->posy, x = 0, i = 0,
-	cu, bu = 0, m;
+    if(d->posy >= d->lcd_height)
+    {
+	dr = 1;
+	d->posy = 0;
 
-    if(ili_f == 0) //render full buffer
-    {
-	m = d->posy + d->buffer_height;
-	d->posy += d->buffer_height;
-	ili_f = 1;
-    }
-    else if(ili_f == 1) //render first half (called by halfcplt callback)
-    {
-	m = d->posy + (d->buffer_height / 2);
-	y = d->posy;
-    }
-    else if(ili_f == 2) //render second half (called by cplt callback)
-    {
-	m = d->posy + d->buffer_height;
-	y = d->posy + (d->buffer_height / 2);
-	i = d->size / 4;
-	d->posy += d->buffer_height;
-    }
-    
-    cu = (y * gui->buffer->width)*gui->buffer->pixeldepth/32;
-    for (; y < m; y++) {	
-	for (x = 0; x < d->buffer_width; x+=1)
+	memset(bu->buffer + 
+	       d->lcd_width * (d->lcd_height - d->buffer_height) * bu->pixeldepth / 32,
+	       0,
+	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
+	
+	if(d->gui->draw != 0)
 	{
-	    c = clrs[((((uint32_t*)gui->buffer->buffer)[cu]) >> bu) & gui->buffer->depthmask];
-	    bu += gui->buffer->pixeldepth;
-	    if(bu>=32)
-	    {
-		bu = 0;
-		cu ++;
-	    }
-	    //c+=bc;
-	    ((uint16_t*)d->buffer)[i] = c;
-	    i+=1;
+	    d->gui->draw(d->gui);
+	}
+	
+    }
+    else if(d->posy != 0)
+    {
+	//HAL_DMA_Start_IT(&hdma_memtomem_dma2_stream0,
+	//(uint32_t)&col,
+//	makise_render(d->gui, 2);
+	memset(bu->buffer + (d->posy - d->buffer_height) *
+	       d->lcd_width * bu->pixeldepth / 32,
+	       0,
+	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
+    }
+
+    _ili9340_setAddrWindow(0, d->posy, d->lcd_width, d->buffer_height - 1 + d->posy);
+    makise_render(d->gui, dr ? 0 : 2);
+    
+    _ili9340_dc(1);
+    _ili9340_cs(0);
+
+
+    HAL_DMA_Start_IT(ILI9340_SPI.hdmatx, (uint32_t)d->buffer, (uint32_t)&ILI9340_SPI.Instance->DR, d->size);
+    /* Enable the SPI Error Interrupt Bit */
+    SET_BIT(ILI9340_SPI.Instance->CR2, SPI_CR2_ERRIE);
+
+    /* Enable Tx DMA Request */
+    SET_BIT(ILI9340_SPI.Instance->CR2, SPI_CR2_TXDMAEN);
+    
+    if(dr)
+    {
+	if(d->gui->predraw != 0)
+	{
+	    d->gui->predraw(d->gui);
+	}
+	if(d->gui->update != 0)
+	{
+	    d->gui->update(d->gui);
 	}
     }
+    
+    return M_OK;
 }
-
 
 uint8_t ili9340_write_data(uint8_t d)
 {
     _ili9340_dc(1);
-
     HAL_SPI_Transmit(&ILI9340_SPI, &d, 1, 10);
+    return d;
 }
 
 uint8_t ili9340_write_command(uint8_t c)
 {
     _ili9340_dc(0);
-
     HAL_SPI_Transmit(&ILI9340_SPI, &c, 1, 10);
-    
+    return c;
 }
 //#endif

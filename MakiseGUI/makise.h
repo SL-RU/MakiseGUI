@@ -12,6 +12,7 @@ typedef struct _MakiseDriver MakiseDriver;
 
 #include <stdlib.h>
 #include "makise_config.h"
+#include "makise_colors.h"
 #include "makise_text.h"
 #include "makise_primitives.h"
 //#include "makise_gui.h"
@@ -69,5 +70,8 @@ void makise_deinit(MakiseGUI* gui);
 uint8_t makise_start(MakiseGUI * gui);
 uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y);
 void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c);
+
+//if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
+void makise_render(MakiseGUI *gui, uint8_t partial_render);
 
 #endif

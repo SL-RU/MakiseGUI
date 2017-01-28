@@ -49,26 +49,8 @@ typedef struct _MElement
     
 } MElement;
 
+
 uint8_t m_element_call(MElement* el, uint8_t type);
-uint8_t m_element_focus(MElement* el, uint8_t event);
-uint8_t m_element_input(MElement* el, uint8_t event, uint32_t i);
-
-typedef struct {
-    MakiseGUI *gui;
-    MElement el;
-
-    char* text;
-    uint32_t bgcolor;
-    uint32_t fontcolor;
-    uint32_t bordercolor;
-
-    uint8_t state;    
-} MButton;
-void m_button_create(MButton* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
-		     char* text,
-		     uint32_t bgcolor, uint32_t fontcolor, uint32_t bordercolor);
-
-
+uint8_t m_element_input(MElement* el, MInputData data);
 
 #endif

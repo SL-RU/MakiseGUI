@@ -36,7 +36,7 @@ uint8_t ili9340_set_backlight(MakiseGUI* gui, uint8_t);
 uint8_t ili9340_spi_txhalfcplt(MakiseDriver* driver);
 uint8_t ili9340_spi_txcplt(MakiseDriver* driver);
 
-void    ili9340_render(MakiseGUI* gui);
+//void    ili9340_render(MakiseGUI* gui);
 
 uint8_t ili9340_write_data(uint8_t d);
 uint8_t ili9340_write_command(uint8_t c);

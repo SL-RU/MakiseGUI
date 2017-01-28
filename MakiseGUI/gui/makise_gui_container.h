@@ -3,9 +3,9 @@
 
 typedef struct _MContainer MContainer;
 
-#include "makise_gui.h"
-#include "makise.h"
 
+#include "makise_gui.h"
+#include "makise_gui_elements.h"
 
 typedef struct _MContainer
 {
@@ -23,5 +23,6 @@ void makise_g_cont_rem(MContainer * cont, MElement *el);
 
 uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type);
 MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data);
-
+MFocusEnum makise_g_cont_focus_next(MContainer *cont);
+MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
 #endif
