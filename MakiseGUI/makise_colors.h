@@ -2,6 +2,8 @@
 #define MAKISE_COLORS_H 1
 #include "makise_config.h"
 
+#define MC_Transparent UINT16_MAX
+
 #if defined MAKISEGUI_BUFFER_DEPTH && MAKISEGUI_BUFFER_DEPTH <= 4
 typedef enum
 {

@@ -7,9 +7,9 @@ MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act);
 uint8_t _m_canvas_free   (MElement* b);
 
 
-void m_canvas_create(MCanvas* b, MContainer *c,
+void m_create_canvas(MCanvas* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
-		     uint32_t bgcolor, uint32_t bordercolor)
+		     MakiseStyle *style)
 {
     MElement *e = &b->el;
     e->gui = c->gui;
@@ -34,8 +34,7 @@ void m_canvas_create(MCanvas* b, MContainer *c,
     e->id = makise_g_newid();
     e->focus_prior = 1;
     
-    b->bgcolor = bgcolor;
-    b->bordercolor = bordercolor;
+    b->style = style;
 
     b->cont.gui = c->gui;
     b->cont.el  = e;
@@ -47,28 +46,15 @@ void m_canvas_create(MCanvas* b, MContainer *c,
 
 uint8_t _m_canvas_draw   (MElement* b)
 {
-    makise_d_rect_filled(b->gui->buffer,
-			 b->position.real_x,
-			 b->position.real_y,
-			 b->position.width,
-			 b->position.height,
-			 ((MCanvas*)b->data)->bordercolor,
-			 ((MCanvas*)b->data)->bgcolor);
+    MakiseStyleTheme *th = 0;
 
-    if(((MCanvas*)b->data)->state)
-	makise_d_rect(b->gui->buffer,
-		      b->position.real_x+2,
-		      b->position.real_y+2,
-		      b->position.width-4,
-		      b->position.height-4,
-		      ((MCanvas*)b->data)->bordercolor);
-	    
-
+    if(((MCanvas*)b->data)->state == 0)
+	th = &((MCanvas*)b->data)->style->normal;
+    else if(((MCanvas*)b->data)->state == 1)
+	th = &((MCanvas*)b->data)->style->focused;
     
-    makise_d_line(b->gui->buffer,
-		  b->position.real_x,
-		  b->position.real_y,
-		  0, 0, 2);
+    _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
+
 
     //printf("Canvas %d dr\n", b->id);
     return makise_g_cont_call(&((MCanvas*)b->data)->cont, M_G_CALL_DRAW);

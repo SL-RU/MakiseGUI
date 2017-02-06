@@ -1,3 +1,5 @@
+#ifndef MAKISE_STYLE_H
+#define MAKISE_STYLE_H 1
 #include "makise_gui.h"
 
 typedef struct _MakiseStyleTheme
@@ -10,9 +12,9 @@ typedef struct _MakiseStyleTheme
 } MakiseStyleTheme;
 
 typedef struct _MakiseStyle {
-    char* name;
-    
     uint32_t maincolor;
+    const MakiseFont * font;
+    uint32_t font_line_spacing;
 
     MakiseStyleTheme unactive;
     MakiseStyleTheme normal;
@@ -20,3 +22,6 @@ typedef struct _MakiseStyle {
     MakiseStyleTheme active;
     
 } MakiseStyle;
+
+
+#endif

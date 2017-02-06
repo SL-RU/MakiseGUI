@@ -9,6 +9,9 @@
 //**************************************************************************************
 void makise_d_clear(MakiseBuffer* b, uint32_t c)
 {
+    if(c == MC_Transparent)
+	return;
+    
     uint8_t k = 0;
     for (int i = 0; i < (8/b->pixeldepth); i++)
     {
@@ -19,12 +22,13 @@ void makise_d_clear(MakiseBuffer* b, uint32_t c)
 
 void makise_d_point(MakiseBuffer* b, uint16_t x, uint16_t y, uint32_t c)
 {
-    makise_pset(b, x, y, c);
+    if(c != MC_Transparent)
+	makise_pset(b, x, y, c);
 }
 void makise_d_rect(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
 		   uint16_t h, uint32_t c)
 {
-    if(x >= b->width || y >= b->height)
+    if(x >= b->width || y >= b->height || c == MC_Transparent)
 	return;
     if(x < 0)
     {
@@ -47,8 +51,6 @@ void makise_d_rect(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
     
     if(w == 0 || h == 0)
 	return;
-
-    uint32_t k, kb, j;
 
     uint8_t C = 0; //byte filled with colors for memset
     for (int i = 0; i < (8/b->pixeldepth); i++)
@@ -73,6 +75,11 @@ void makise_d_rect(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
 void makise_d_rect_filled(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
 			  uint16_t h, uint32_t c, uint32_t fill_c)
 {
+    if(fill_c == MC_Transparent)
+    {	
+	makise_d_rect(b, x, y, w, h, c);
+	return;
+    }
     if(x >= b->width || y >= b->height)
 	return;
     if(x < 0)
@@ -97,8 +104,6 @@ void makise_d_rect_filled(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
     if(w == 0 || h == 0)
 	return;
 
-    uint32_t k, kb, j;
-
     uint8_t C = 0; //byte filled with colors for memset
     for (int i = 0; i < (8/b->pixeldepth); i++)
     {
@@ -107,23 +112,29 @@ void makise_d_rect_filled(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
 
     h -= 1;
     w -= 1;
-    
-    makise_d_line(b, x, y, x + w, y, c);
-    makise_d_line(b, x, y + h, x + w, y + h, c);
-    makise_d_line(b, x, y, x, y + h, c);
-    makise_d_line(b, x + w, y, x + w, y + h, c);
+    if(c != MC_Transparent)
+    {
+	makise_d_line(b, x, y, x + w, y, c);
+	makise_d_line(b, x, y + h, x + w, y + h, c);
+	makise_d_line(b, x, y, x, y + h, c);
+	makise_d_line(b, x + w, y, x + w, y + h, c);
+    }
     /*
       if depth = 4bits
-      byte 1       byte 2
+                    byte 1       byte 2
       coordinates |1,0   0,0| |3,0   2,0|
       binaryvalue |0000 0000| |0100 0101|
     */
+    uint32_t is_tr = (c != MC_Transparent);
     for (int i = y+1; i < h + y; i++) {
-	makise_d_line(b, x + 1, i, x+w - 1, i, fill_c);
+	makise_d_line(b, x + is_tr, i, x+w - is_tr, i, fill_c);
     }    
 }
 void makise_d_circle(MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t r, uint32_t c)
 {
+    if(c == MC_Transparent)
+	return;
+    
     //middle point algorythm
     int16_t f = 1 - r;
     int16_t ddF_x = 1;
@@ -163,13 +174,18 @@ void makise_d_circle(MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t r, uint
 }
 void makise_d_circle_filled(MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t r, uint32_t c, uint32_t fill_c)
 {
+    if(fill_c == MC_Transparent)
+    {
+	makise_d_circle(b, xc, yc, r, c);
+	return;
+    }
     //middle point algorythm
     int16_t f = 1 - r;
     int16_t ddF_x = 1;
     int16_t ddF_y = -2 * r;
     int16_t x = 0;
     int16_t y = r;
-    int16_t dd;
+    int16_t is_tr = (c != MC_Transparent);
     makise_d_line(b, xc - r, yc, xc + r, yc, fill_c);
     makise_pset(b, xc, yc + r, c);
     makise_pset(b, xc, yc - r, c);
@@ -193,28 +209,33 @@ void makise_d_circle_filled(MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t 
 
 	if(y != r)
 	{
-	    makise_d_line(b, xc - x + 1, yc + y, xc + x - 1, yc + y, fill_c);
-	    makise_d_line(b, xc - x + 1, yc - y, xc + x - 1, yc - y, fill_c);
+	    makise_d_line(b, xc - x + is_tr, yc + y, xc + x - is_tr, yc + y, fill_c);
+	    makise_d_line(b, xc - x + is_tr, yc - y, xc + x - is_tr, yc - y, fill_c);
 	}
 	if(x != r)
 	{
-	    makise_d_line(b, xc - y + 1, yc + x, xc + y - 1, yc + x, fill_c);
-	    makise_d_line(b, xc - y + 1, yc - x, xc + y - 1, yc - x, fill_c);
+	    makise_d_line(b, xc - y + is_tr, yc + x, xc + y - is_tr, yc + x, fill_c);
+	    makise_d_line(b, xc - y + is_tr, yc - x, xc + y - is_tr, yc - x, fill_c);
 	}
-	makise_pset(b, xc + x, yc + y, c);
-	makise_pset(b, xc - x, yc + y, c);
-	makise_pset(b, xc + x, yc - y, c);
-	makise_pset(b, xc - x, yc - y, c);
-	makise_pset(b, xc + y, yc + x, c);
-	makise_pset(b, xc - y, yc + x, c);
-	makise_pset(b, xc + y, yc - x, c);
-	makise_pset(b, xc - y, yc - x, c);
+	if(is_tr)
+	{
+	    makise_pset(b, xc + x, yc + y, c);
+	    makise_pset(b, xc - x, yc + y, c);
+	    makise_pset(b, xc + x, yc - y, c);
+	    makise_pset(b, xc - x, yc - y, c);
+	    makise_pset(b, xc + y, yc + x, c);
+	    makise_pset(b, xc - y, yc + x, c);
+	    makise_pset(b, xc + y, yc - x, c);
+	    makise_pset(b, xc - y, yc - x, c);
+	}
     }
     
 }
 void makise_d_line(MakiseBuffer* b, int16_t x0, int16_t y0,
 		   int16_t x1, int16_t y1, uint32_t c)
 {
+    if(c == MC_Transparent)
+	return;
     if(x1 < 0 && x0 < 0)
 	return;
     if(x1 >= b->width && x0 >= b->width)
@@ -283,7 +304,7 @@ void makise_d_line(MakiseBuffer* b, int16_t x0, int16_t y0,
 }
 void makise_d_polyline(MakiseBuffer*b, MakisePoint* points, uint32_t count, uint32_t c)
 {
-    if(count == 0 || points == 0)
+    if(count == 0 || points == 0 || c == MC_Transparent)
 	return;
 
     uint32_t i = 0;
@@ -296,7 +317,7 @@ void makise_d_polyline(MakiseBuffer*b, MakisePoint* points, uint32_t count, uint
 
 void makise_dex_polyline(MakiseBuffer*b, int32_t x, int32_t y, double rot, MakisePoint* points, uint32_t count, uint32_t c)
 {
-    if(count == 0 || points == 0)
+    if(count == 0 || points == 0 || c == MC_Transparent)
 	return;
 
     if(x == 0 && y == 0 && rot == 0)

@@ -12,8 +12,8 @@ uint8_t ili9340_backlight = 0;
 
 void ili9340_driver(MakiseDriver * d)
 {
-    d->lcd_height    = 320;
-    d->lcd_width     = 240;
+    d->lcd_height    = 240;
+    d->lcd_width     = 320;
     d->buffer_height = MAKISE_BUF_H;
     d->buffer_width  = MAKISE_BUF_W;
     d->pixeldepth    = 16;
@@ -82,7 +82,7 @@ uint8_t ili9340_init(MakiseGUI* gui)
     //------------memory access control------------------------
     ili9340_write_command(0x36);
     // memory access control
-    ili9340_write_data(0x48); //0048 my,mx,mv,ml,BGR,mh,0.0
+    ili9340_write_data(0b11101000); //0048 my,mx,mv,ml,BGR,mh,0.0
     ili9340_write_command(0x3a); // pixel format set
     ili9340_write_data(0x55);//16bit /pixel
     //----------------- frame rate------------------------------
@@ -134,15 +134,15 @@ uint8_t ili9340_init(MakiseGUI* gui)
     // size = 239
     ili9340_write_data(0x00);
     ili9340_write_data(0x00);
-    ili9340_write_data(0x00);
-    ili9340_write_data(0xEF);
+    ili9340_write_data(0x01);
+    ili9340_write_data(0x3F);
     ili9340_write_command(0x2b);
     // page address set
     // size = 319
     ili9340_write_data(0x00);
     ili9340_write_data(0x00);
-    ili9340_write_data(0x01);
-    ili9340_write_data(0x3F);
+    ili9340_write_data(0x00);
+    ili9340_write_data(0xEF);
     ili9340_write_command(0x34);
     ili9340_write_command(0x35);
     ili9340_write_data(0x01);
@@ -257,27 +257,17 @@ uint8_t ili9340_spi_txcplt(MakiseDriver* d)
     {
 	dr = 1;
 	d->posy = 0;
-
+	
 	memset(bu->buffer + 
 	       d->lcd_width * (d->lcd_height - d->buffer_height) * bu->pixeldepth / 32,
 	       0,
 	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
-	
+
 	if(d->gui->draw != 0)
 	{
 	    d->gui->draw(d->gui);
 	}
 	
-    }
-    else if(d->posy != 0)
-    {
-	//HAL_DMA_Start_IT(&hdma_memtomem_dma2_stream0,
-	//(uint32_t)&col,
-//	makise_render(d->gui, 2);
-	memset(bu->buffer + (d->posy - d->buffer_height) *
-	       d->lcd_width * bu->pixeldepth / 32,
-	       0,
-	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
     }
 
     _ili9340_setAddrWindow(0, d->posy, d->lcd_width, d->buffer_height - 1 + d->posy);
@@ -304,6 +294,13 @@ uint8_t ili9340_spi_txcplt(MakiseDriver* d)
 	{
 	    d->gui->update(d->gui);
 	}
+    }
+    else
+    {
+	memset(bu->buffer + (d->posy - d->buffer_height * 2) *
+	       d->lcd_width * bu->pixeldepth / 32,
+	       0,
+	       d->lcd_width * d->buffer_height * bu->pixeldepth / 8);
     }
     
     return M_OK;

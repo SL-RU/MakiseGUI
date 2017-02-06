@@ -26,6 +26,7 @@ typedef enum
 typedef struct _MHost MHost;
 
 #include "makise.h"
+#include "makise_style.h"
 #include "makise_gui_input.h"
 #include "makise_gui_container.h"
 #include "makise_gui_elements.h"

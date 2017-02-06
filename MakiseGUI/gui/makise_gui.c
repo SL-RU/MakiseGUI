@@ -33,6 +33,9 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     if((p = el->parent) == 0)
 	return M_ZERO_POINTER;
 
+    if(el->focus_prior == 0)
+	return M_G_FOCUS_NOT_NEEDED;
+    
     if(event & M_G_FOCUS_GET)
     {
 	//focus parent
