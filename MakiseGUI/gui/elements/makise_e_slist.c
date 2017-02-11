@@ -9,6 +9,7 @@ void m_create_slist(MSList* b, MContainer *c,
 		    char* text,
 		    void (*onselection)(MSList *l, MSList_Item *selected),
 		    void (*click)(MSList *l, MSList_Item *selected),
+		    MSList_Type type,
 		    MakiseStyle *style,
 		    MakiseStyle *item_style)
 {
@@ -44,6 +45,8 @@ void m_create_slist(MSList* b, MContainer *c,
     b->is_array = 0;
     b->len = 0;
     b->selected = 0;
+
+    b->type = type;
     
     b->style = style;
     b->item_style = item_style;
@@ -51,6 +54,51 @@ void m_create_slist(MSList* b, MContainer *c,
     printf("Slist %d created\n", e->id);
 }
 
+void _m_slist_draw_item   (MSList_Item *ci, MSList *l, MakiseStyleTheme *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
+{
+    //draw line frome the list
+    
+    makise_d_rect_filled(l->el.gui->buffer,
+			 x, y, w, eh,
+			 c_th->border_c, c_th->bg_color);
+    
+    if(l->type == MSList_Checkbox)
+    {
+	makise_d_rect(l->el.gui->buffer,
+		      x, y, eh, eh,
+		      c_th->font_col);
+
+	if(ci->value)
+	    makise_d_rect_filled(l->el.gui->buffer,
+				 x + 2, y + 2, eh - 4, eh - 4,
+				 c_th->font_col, l->item_style->active.font_col);
+	x += eh;
+	w -= eh;
+    } else if(l->type == MSList_RadioButton)
+    {
+	makise_d_circle(l->el.gui->buffer,
+		      x + eh / 2, y + eh / 2, eh / 2 - 1,
+		      c_th->font_col);
+
+	if(ci->value)
+	    makise_d_circle_filled(l->el.gui->buffer,
+				 x + eh / 2, y + eh / 2, eh / 2 - 3,
+				 c_th->font_col, l->item_style->active.font_col);
+	x += eh + 1;
+	w -= eh + 1;
+    }
+    
+    
+    makise_d_string_frame(l->el.gui->buffer, ci->text, MDTextAll,
+			  x + 1,
+			  y,
+			  w - 2, eh,
+			  l->item_style->font,
+			  l->item_style->font_line_spacing,
+			  c_th->font_col);
+	    
+    
+}
 uint8_t _m_slist_draw   (MElement* b)
 {
     MSList *l = (MSList*)b->data;
@@ -63,7 +111,7 @@ uint8_t _m_slist_draw   (MElement* b)
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
 
     uint32_t i = 0, start = 0, end = 0;
-    int16_t y = b->position.real_y + 2,
+    int16_t y = b->position.real_y + 1,
 	x = b->position.real_x + 2;
     uint32_t
 	w = b->position.width - 5,
@@ -74,6 +122,23 @@ uint8_t _m_slist_draw   (MElement* b)
 	cuid = 0, //current id
 	len = 0;  //count of items
 
+
+
+    if(l->text != 0)
+    {
+	makise_d_string(b->gui->buffer,
+			l->text, MDTextAll,
+			x, y, MDTextPlacement_LeftUp,
+			l->style->font, th->font_col);
+	y += l->style->font->height;
+	h -= l->style->font->height;
+	makise_d_line(b->gui->buffer, b->position.x, y,
+		      b->position.x + b->position.width, y,
+		      th->border_c);
+	ec = h / (eh + 1);
+    }
+    y += 1;
+    
     MSList_Item *ci = 0;
 
     if(ec == 0)
@@ -129,6 +194,7 @@ uint8_t _m_slist_draw   (MElement* b)
     
     if(l->is_array)
     {
+	//array
 	for (i = start; i < end; i++)
 	{
 	    ci = &l->items[i];
@@ -136,22 +202,14 @@ uint8_t _m_slist_draw   (MElement* b)
 	    c_th = (ci == l->selected) ? i_foc : i_nom;
 	    if(ci == l->selected)
 		cuid = i;
-	    makise_d_rect_filled(b->gui->buffer,
-				 x, y, w, eh,
-				 c_th->border_c, c_th->bg_color);
-	    makise_d_string_frame(b->gui->buffer, ci->text, MDTextAll,
-				  x + 1,
-				  y,
-				  w - 2, eh,
-				  l->item_style->font,
-				  l->item_style->font_line_spacing,
-				  c_th->font_col);
 
+	    _m_slist_draw_item(ci, l, c_th, x, y, w, eh);
 	    y += eh + 1;
 	}
     }
     else
     {
+	//Linked list
 	ci = l->selected;
 	while (i != start) {
 	    i --;
@@ -161,16 +219,7 @@ uint8_t _m_slist_draw   (MElement* b)
 	{
 	    c_th = (ci == l->selected) ? i_foc : i_nom;
 
-	    makise_d_rect_filled(b->gui->buffer,
-				 x, y, w, eh,
-				 c_th->border_c, c_th->bg_color);
-	    makise_d_string_frame(b->gui->buffer, ci->text, MDTextAll,
-				  x + 1,
-				  y,
-				  w - 2, eh,
-				  l->item_style->font,
-				  l->item_style->font_line_spacing,
-				  c_th->font_col);
+	    _m_slist_draw_item(ci, l, c_th, x, y, w, eh);
 
 	    y += eh + 1;
 	    ci = ci->next;
@@ -320,6 +369,34 @@ MFocusEnum _m_slist_focus   (MElement* b,  MFocusEnum act)
 	: M_G_FOCUS_OK;
 
 }
+void _m_slist_input_item  (MSList *e, MSList_Item *it)
+{
+    if(e->type == MSList_List)
+    {
+    } else if(e->type == MSList_Checkbox)
+    {
+	it->value = !it->value;
+    } else if(e->type == MSList_RadioButton)
+    {
+	if(e->is_array)
+	{
+	    for (uint32_t i = 0; i < e->len; i++) {
+		e->items[i].value = 0;
+	    }
+	}
+	else
+	{
+	    MSList_Item *i = e->items;
+	    while (i != 0) {
+		i->value = 0;
+		i = i->next;
+	    }
+	}
+	it->value = 1;
+    }
+    if(e->click != 0)
+	e->click(e, it);
+}
 MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 {
     MSList *e = ((MSList*)b->data);
@@ -391,8 +468,8 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 	    }
 	} else if(data.key == M_KEY_OK)
 	{
-	    if(e->selected != 0 && e->click != 0)
-		e->click(e, e->selected);
+	    if(e->selected != 0)
+		_m_slist_input_item(e, e->selected);
 	}
 	
 	

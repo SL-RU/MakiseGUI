@@ -79,6 +79,12 @@ void m_create_text_field(MTextField* b, MContainer *c,
 //Simple list element.
 //Can display items. Supports scrolling.
 //Modes: list, radio buttons, checkboxes.
+typedef enum _MSList_Type
+{
+    MSList_List,
+    MSList_RadioButton,
+    MSList_Checkbox
+} MSList_Type;
 typedef struct _MSList_Item MSList_Item;
 typedef struct _MSList MSList;
 typedef struct _MSList_Item
@@ -105,7 +111,8 @@ typedef struct _MSList {
 
     void (*onselection)(MSList *l, MSList_Item *selected);//when selected item is changing
     void (*click)(MSList *l, MSList_Item *selected);      //when OK button clicked
-    
+
+    MSList_Type type;
     MakiseStyle* style;
     MakiseStyle *item_style;
 
@@ -117,6 +124,7 @@ void m_create_slist(MSList* b, MContainer *c,
 		    char* text,
 		    void (*onselection)(MSList *l, MSList_Item *selected),
 		    void (*click)(MSList *l, MSList_Item *selected),
+		    MSList_Type type,
 		    MakiseStyle *style,
 		    MakiseStyle *item_style);
 void m_slist_add(MSList *l, MSList_Item *item); //add one item to the list at the end. Only if NOT is_array. 
@@ -126,6 +134,41 @@ void m_slist_set_array(MSList *l, MSList_Item *array, uint32_t len); //set new d
 void m_slist_set_list(MSList *l, MSList_Item *first); //set linked list as new data source.
 /* void m_slist_set_onselection(MSList *l, void (*onselection)(MSList *l, MSList_Item selected)); */
 /* void m_slist_set_click(MSList *l, void (*click)(MSList *l, MSList_Item selected)); */
+
+
+typedef struct _MSlider MSlider;
+typedef struct _MSlider {
+    MakiseGUI *gui;
+    MElement el;
+
+    char* text;
+    int32_t value;
+    int32_t value_max;
+    int32_t value_min;
+
+    uint8_t show_value; //is required to display value on the screen
+    
+    MakiseStyle* style;
+
+    void    (*onchange   )(MSlider* b, uint32_t val);                 //When value changed by user
+    void    (*onfocus )(MSlider* b, MFocusEnum type);//type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
+
+    uint8_t state;    
+} MSlider;
+
+void m_create_slider(MSlider* b, MContainer *c,
+		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     char* text,
+		     int32_t value,
+		     int32_t value_max,
+		     int32_t value_min,
+		     uint8_t show_val,
+		     void    (*onchange   )(MSlider* b, uint32_t val),
+		     void    (*onfocus )(MSlider* b, MFocusEnum type),
+		     MakiseStyle *style);
+
+
+
 
 void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th);
 
