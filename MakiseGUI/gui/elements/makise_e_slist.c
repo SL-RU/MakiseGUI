@@ -7,8 +7,8 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data);
 void m_create_slist(MSList* b, MContainer *c,
 		    int32_t x, int32_t y, uint32_t w, uint32_t h,
 		    char* text,
-		    void (*onselection)(MSList *l, MSList_Item selected),
-		    void (*click)(MSList *l, MSList_Item selected),
+		    void (*onselection)(MSList *l, MSList_Item *selected),
+		    void (*click)(MSList *l, MSList_Item *selected),
 		    MakiseStyle *style,
 		    MakiseStyle *item_style)
 {
@@ -79,32 +79,56 @@ uint8_t _m_slist_draw   (MElement* b)
     if(ec == 0)
 	return M_ERROR;
     
+    len = l->len;
+	
     if(l->is_array)
     {
-	len = l->len;
-	
 	i = l->selected->id;
-	if(ec >= len)
+    }
+    else
+    {
+	//count index in stack of selected item.
+	ci = l->items;
+	uint32_t ti = 0;
+	i = UINT32_MAX;
+	while (ci != 0)
 	{
-	    start = 0;
-	    end = len;
+	    if(ci == l->selected)
+	    {
+		cuid = i = ti;
+		break;
+	    }
+	    ci = ci->next;
+	    ti ++;
 	}
-	else if ((i >= (ec / 2)) && ((len - i) > (ec - 1) / 2))
-	{
-	    start = i - (ec / 2);
-	    end = start + ec;
-	}
-	else if ((i > (ec / 2) && (len - i) <= (ec - 1) / 2))
-	{
-	    end = len;
-	    start = len - ec;
-	}
-	else if (i < (ec / 2) && (len - i) > (ec - 1) / 2)
-	{
-	    start = 0;
-	    end = ec;
-	}
-	
+	if(i == UINT32_MAX)
+	    //if we didn't found it
+	    return M_ERROR;
+    }
+    //compute start index of element to display & the last
+    if(ec >= len)
+    {
+	start = 0;
+	end = len;
+    }
+    else if ((i >= (ec / 2)) && ((len - i) > (ec - 1) / 2))
+    {
+	start = i - (ec / 2);
+	end = start + ec;
+    }
+    else if ((i > (ec / 2) && (len - i) <= (ec - 1) / 2))
+    {
+	end = len;
+	start = len - ec;
+    }
+    else if (i < (ec / 2) && (len - i) > (ec - 1) / 2)
+    {
+	start = 0;
+	end = ec;
+    }
+    
+    if(l->is_array)
+    {
 	for (i = start; i < end; i++)
 	{
 	    ci = &l->items[i];
@@ -124,6 +148,32 @@ uint8_t _m_slist_draw   (MElement* b)
 				  c_th->font_col);
 
 	    y += eh + 1;
+	}
+    }
+    else
+    {
+	ci = l->selected;
+	while (i != start) {
+	    i --;
+	    ci = ci->prev;
+	}
+	for (i = start; i < end; i++)
+	{
+	    c_th = (ci == l->selected) ? i_foc : i_nom;
+
+	    makise_d_rect_filled(b->gui->buffer,
+				 x, y, w, eh,
+				 c_th->border_c, c_th->bg_color);
+	    makise_d_string_frame(b->gui->buffer, ci->text, MDTextAll,
+				  x + 1,
+				  y,
+				  w - 2, eh,
+				  l->item_style->font,
+				  l->item_style->font_line_spacing,
+				  c_th->font_col);
+
+	    y += eh + 1;
+	    ci = ci->next;
 	}
     }
     h = b->position.height - 2;
@@ -152,9 +202,73 @@ uint8_t _m_slist_draw   (MElement* b)
     return M_OK;
 }
 
-void m_slist_add(MSList *l, MSList_Item *item); //add one item to the list at the end. Only if NOT is_array. 
-void m_slist_clear(MSList *l); //clear all pointers
-void m_slist_remove(MSList *l, MSList_Item *item); //remove item from linked list. Only if NOT is_array.
+void m_slist_add(MSList *l, MSList_Item *item)
+{
+    if(l->is_array)
+	return;
+    if(l->items == 0) //add first item
+    {
+	item->prev = 0;
+	item->next = 0;
+	l->items = item;
+	l->len = 1;
+	l->selected = item;
+	return;
+    }
+    MSList_Item *it = l->items;
+    while (it->next) {
+	it = it->next;
+    }
+    it->next = item;
+    item->next = 0;
+    item->prev = it;
+    l->len ++;
+}
+void m_slist_clear(MSList *l)
+{
+}
+void m_slist_remove(MSList *l, MSList_Item *item)
+{
+    if(l == 0 || item == 0 || l->items == 0)
+	return;
+    if(l->items == item) //if first element
+    {
+	if(item->next == 0)
+	{
+	    l->items = 0;
+	    l->len = 0;
+	    l->selected = 0;
+	    return;
+	}
+	l->items = l->items->next;
+	l->items->prev = 0;
+	item->next = 0;
+	item->prev = 0;
+	l->selected = l->items;
+	l->len --;
+	return;
+    }
+    if(item->next == 0) //if last element
+    {
+	if(item->prev == 0) //WTF
+	    return;
+	l->len --;
+	if(item == l->selected)
+	    l->selected = item->prev;
+	item->prev->next = 0;
+	item->prev = 0;
+	return;
+    }
+    if(item->prev == 0) //WTF???
+	return;
+    if(item == l->selected)
+	l->selected = item->prev;
+    item->next->prev = item->prev;
+    item->prev->next = item->next;
+    item->prev = 0;
+    item->next = 0;
+    l->len --;
+}
 void m_slist_set_array(MSList *l, MSList_Item *array, uint32_t len)
 {
     l->items = array;
@@ -172,7 +286,22 @@ void m_slist_set_array(MSList *l, MSList_Item *array, uint32_t len)
 	lst = &array[i];
     }
 }
-void m_slist_set_list(MSList *l, MSList_Item *first); //set linked list as new data source.
+void m_slist_set_list(MSList *l, MSList_Item *first)
+{
+    l->items = first;
+    l->selected = first;
+    l->is_array = 0;
+    l->len = (first != 0);
+    if(first != 0)
+    {
+	MSList_Item *lst = first;
+	while (lst->next != 0)
+	{
+	    l->len ++;
+	    lst = lst->next;
+	}
+    }
+}
 
 MFocusEnum _m_slist_focus   (MElement* b,  MFocusEnum act)
 {
@@ -221,6 +350,12 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 		    e->selected = n;
 		else
 		    e->selected = e->items;
+	    } else
+	    {
+		if(e->selected->next != 0)
+		    e->selected = e->selected->next;
+		else
+		    e->selected = e->items;
 	    }
 	} else if(data.key == M_KEY_UP)
 	{
@@ -240,9 +375,28 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 		else
 		    e->selected = &e->items[e->len - 1];
 	    }
+	    else
+	    {
+		if(e->selected->prev != 0)
+		    e->selected = e->selected->prev;
+		else
+		{
+		    MSList_Item *n = e->items;
+		    while (n->next != 0)
+		    {
+			n = n->next;
+		    }
+		    e->selected = n;
+		}
+	    }
+	} else if(data.key == M_KEY_OK)
+	{
+	    if(e->selected != 0 && e->click != 0)
+		e->click(e, e->selected);
 	}
 	
-	e->onselection(e, *e->selected);
+	
+	e->onselection(e, e->selected);
 	return M_INPUT_HANDLED;
     }
     

@@ -103,8 +103,8 @@ typedef struct _MSList {
 
     MSList_Item *selected;
 
-    void (*onselection)(MSList *l, MSList_Item selected);//when selected item is changing
-    void (*click)(MSList *l, MSList_Item selected);      //when OK button clicked
+    void (*onselection)(MSList *l, MSList_Item *selected);//when selected item is changing
+    void (*click)(MSList *l, MSList_Item *selected);      //when OK button clicked
     
     MakiseStyle* style;
     MakiseStyle *item_style;
@@ -115,8 +115,8 @@ typedef struct _MSList {
 void m_create_slist(MSList* b, MContainer *c,
 		    int32_t x, int32_t y, uint32_t w, uint32_t h,
 		    char* text,
-		    void (*onselection)(MSList *l, MSList_Item selected),
-		    void (*click)(MSList *l, MSList_Item selected),
+		    void (*onselection)(MSList *l, MSList_Item *selected),
+		    void (*click)(MSList *l, MSList_Item *selected),
 		    MakiseStyle *style,
 		    MakiseStyle *item_style);
 void m_slist_add(MSList *l, MSList_Item *item); //add one item to the list at the end. Only if NOT is_array. 
