@@ -136,17 +136,23 @@ void m_slist_set_list(MSList *l, MSList_Item *first); //set linked list as new d
 /* void m_slist_set_click(MSList *l, void (*click)(MSList *l, MSList_Item selected)); */
 
 
+typedef enum _MSlider_Type
+{
+    MSlider_vertical,
+    MSlider_horizontal
+} MSlider_Type;
 typedef struct _MSlider MSlider;
 typedef struct _MSlider {
     MakiseGUI *gui;
     MElement el;
 
     char* text;
-    int32_t value;
+    int32_t *value;
     int32_t value_max;
     int32_t value_min;
 
     uint8_t show_value; //is required to display value on the screen
+    MSlider_Type type;
     
     MakiseStyle* style;
 
@@ -159,10 +165,11 @@ typedef struct _MSlider {
 void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
 		     char* text,
-		     int32_t value,
+		     int32_t *value,
 		     int32_t value_max,
 		     int32_t value_min,
 		     uint8_t show_val,
+		     MSlider_Type type,
 		     void    (*onchange   )(MSlider* b, uint32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style);

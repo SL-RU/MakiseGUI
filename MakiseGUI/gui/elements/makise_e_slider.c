@@ -7,10 +7,11 @@ MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act);
 void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
 		     char* text,
-		     int32_t value,
+		     int32_t *value,
 		     int32_t value_max,
 		     int32_t value_min,
 		     uint8_t show_val,
+		     MSlider_Type type,
 		     void    (*onchange   )(MSlider* b, uint32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style)
@@ -41,7 +42,15 @@ void m_create_slider(MSlider* b, MContainer *c,
     b->value = value;
     b->value_max = value_max;
     b->value_min = value_min;
+    if(*b->value > value_max)
+	*b->value = value_max;
+    if(*b->value < value_min)
+	*b->value = value_min;
+    
+    b->show_value = show_val;
 
+    b->type = type;
+    
     b->onchange = onchange;
     b->onfocus = onfocus;
     
@@ -83,18 +92,14 @@ MInputResultEnum _m_slider_input  (MElement* b, MInputData data)
 {
     printf("but click %d %d\n", b->id, b->position.real_y);
     MSlider *e = ((MSlider*)b->data);
-    if(e->onkey != 0)
-	if(e->onkey(e, data) == M_INPUT_HANDLED)
-	    return M_INPUT_HANDLED;
 
-    if(data.key == M_KEY_OK && data.event == M_INPUT_CLICK &&
-       e->click != 0)
+    if(data.event == M_INPUT_CLICK)
     {
-	e->click(e);
-	e->state = 2;
-	return M_INPUT_HANDLED;
+	if(data.key == M_KEY_OK)
+	{
+	    return M_INPUT_HANDLED;
+	}
     }
-    
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act)
