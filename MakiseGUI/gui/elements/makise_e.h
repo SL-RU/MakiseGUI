@@ -142,12 +142,9 @@ typedef struct _MSlider {
     MakiseGUI *gui;
     MElement el;
 
-    char* text;
     int32_t *value;
     int32_t value_max;
     int32_t value_min;
-
-    uint8_t show_value; //is required to display value on the screen
     
     MakiseStyle* style;
 
@@ -159,14 +156,46 @@ typedef struct _MSlider {
 
 void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
-		     char* text,
 		     int32_t *value,
 		     int32_t value_max,
 		     int32_t value_min,
-		     uint8_t show_val,
 		     void    (*onchange   )(MSlider* b, uint32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style);
+
+//tabs
+typedef struct _MTabs_Tab {
+    char *header;
+    MContainer cont;
+} MTabs_Tab;
+typedef enum
+{
+    MTabs_Type_Up,
+    MTabs_Type_Left
+}MTabs_Type;
+typedef struct _MTabs MTabs;
+typedef struct _MTabs {
+    MakiseGUI *gui;
+    MElement el;
+    
+    MakiseStyle* style;
+
+    MTabs_Tab *tabs;
+    uint32_t len;
+
+    uint32_t selected;
+
+    MTabs_Type type;
+    
+    uint8_t state;    
+} MTabs;
+
+void m_create_tabs(MTabs* b, MContainer *c,
+		   int32_t x, int32_t y, uint32_t w, uint32_t h,
+		   MTabs_Tab *tabs,
+		   uint32_t len,
+		   MTabs_Type type,
+		   MakiseStyle *style);
 
 
 
