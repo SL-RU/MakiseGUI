@@ -87,7 +87,6 @@ uint8_t _m_tabs_predraw(MElement* b)
 }
 MInputResultEnum _m_tabs_input  (MElement* b, MInputData data)
 {
-    
     MTabs *t = ((MTabs*)b->data);
 
     if(t->len == 0 || t->tabs == 0)
@@ -102,7 +101,7 @@ MInputResultEnum _m_tabs_input  (MElement* b, MInputData data)
     if(t->tabs[t->selected].cont.focused == 0)
        makise_g_cont_focus_next(&t->tabs[t->selected].cont);
     if(t->tabs[t->selected].cont.focused != 0)
-	return m_element_input(t->tabs[t->selected].cont.focused, data);
+	return makise_g_cont_input(&t->tabs[t->selected].cont, data);
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act)
