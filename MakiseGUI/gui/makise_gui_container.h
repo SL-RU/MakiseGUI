@@ -11,6 +11,7 @@ typedef struct _MContainer
 {
     MakiseGUI *gui;
     MElement* el;
+    MPosition *position;
     MElement* first;
     MElement* last;
     MElement* focused;

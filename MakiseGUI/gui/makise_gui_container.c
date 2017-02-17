@@ -42,10 +42,10 @@ void makise_g_cont_rem(MContainer * cont, MElement *el)
 
 uint8_t makise_g_cont_call_common_predraw(MElement *b)
 {
-    if(b->parent != 0 && b->parent->el != 0)
+    if(b->parent != 0 && b->parent->position != 0)
     {
-	b->position.real_x = b->position.x + b->parent->el->position.real_x;
-	b->position.real_y = b->position.y + b->parent->el->position.real_y;
+	b->position.real_x = b->position.x + b->parent->position->real_x;
+	b->position.real_y = b->position.y + b->parent->position->real_y;
     }
     else
     {

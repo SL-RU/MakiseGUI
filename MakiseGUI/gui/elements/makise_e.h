@@ -168,10 +168,11 @@ typedef struct _MTabs_Tab {
     char *header;
     MContainer cont;
 } MTabs_Tab;
-typedef enum
+typedef enum //type of header
 {
-    MTabs_Type_Up,
-    MTabs_Type_Left
+    MTabs_Type_Up,  //show tabs on the top
+    MTabs_Type_Left,//show tabs on the left
+    MTabs_Type_None //don't show tabs
 }MTabs_Type;
 typedef struct _MTabs MTabs;
 typedef struct _MTabs {
@@ -185,7 +186,10 @@ typedef struct _MTabs {
 
     uint32_t selected;
 
-    MTabs_Type type;
+    MTabs_Type type; //type of tab's names to show
+    uint32_t size;   //height or width of tabs header
+
+    MPosition container_pos;
     
     uint8_t state;    
 } MTabs;
@@ -195,6 +199,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		   MTabs_Tab *tabs,
 		   uint32_t len,
 		   MTabs_Type type,
+		   uint32_t size,
 		   MakiseStyle *style);
 
 

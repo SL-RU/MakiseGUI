@@ -13,7 +13,9 @@ typedef enum
     M_KEY_ABOUT            , //view some info
     M_KEY_PROPERTY         , //change or view some properties
     M_KEY_CHARACTER        , //this is an character input
-    M_KEY_USER_0     = 100 , //this end all the next keys can be used and defined by user
+    M_KEY_TAB_NEXT         , //choose the next tab if possible
+    M_KEY_TAB_BACK         , //choose the previous tab if possible
+    M_KEY_USER_0     = 100 , //this and all the next keys can be used and defined by user
 } MInputKeyEnum;
 
 typedef enum

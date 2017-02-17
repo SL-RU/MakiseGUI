@@ -38,6 +38,7 @@ void m_create_canvas(MCanvas* b, MContainer *c,
 
     b->cont.gui = c->gui;
     b->cont.el  = e;
+    b->cont.position = &e->position;
 
     printf("Button %d created\n", e->id);
 
