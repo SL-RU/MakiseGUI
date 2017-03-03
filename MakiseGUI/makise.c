@@ -28,10 +28,10 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
 }
 uint8_t makise_start(MakiseGUI * gui)
 {
-    assert_param(gui == 0);
-    assert_param(gui->driver == 0);
+    if(gui == 0 || gui->driver == 0)
+	return M_ZERO_POINTER;
 
-    gui->driver->start(gui);
+    return gui->driver->start(gui);
 }
 
 uint32_t kpset, kpset32, kpsett;

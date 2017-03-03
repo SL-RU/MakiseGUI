@@ -236,6 +236,7 @@ MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act)
     case M_G_FOCUS_PREV:
 	return makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
 	break;
+    default: break;
     }
     
     return M_G_FOCUS_NOT_NEEDED;
@@ -245,6 +246,7 @@ void _m_tabs_init_tabs(MTabs* b)
 {
     if(b->tabs == 0)
 	return;
+    b->container_pos = b->el.position;
     for (uint32_t i = 0; i < b->len; i++) {
 	b->tabs[i].cont.gui = b->el.gui;
 	b->tabs[i].cont.el = &b->el;
@@ -253,5 +255,4 @@ void _m_tabs_init_tabs(MTabs* b)
 	b->tabs[i].cont.focused = 0;
 	b->tabs[i].cont.position = &b->container_pos;
     }
-    b->container_pos = b->el.position;
 }

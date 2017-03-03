@@ -1,4 +1,5 @@
-//#ifdef MAKISE_ILI9340_USE
+#include "makise_config.h"
+#if MAKISE_ILI9340_USE == 1
 #include "ili9340.h"
 #include "stm32f4xx_hal_tim.h"
 #include "dma.h"
@@ -319,4 +320,4 @@ uint8_t ili9340_write_command(uint8_t c)
     HAL_SPI_Transmit(&ILI9340_SPI, &c, 1, 10);
     return c;
 }
-//#endif
+#endif

@@ -4,7 +4,6 @@ uint8_t _m_canvas_draw   (MElement* b);
 uint8_t _m_canvas_predraw(MElement* b);
 MInputResultEnum _m_canvas_input  (MElement* b, MInputData data);
 MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act);
-uint8_t _m_canvas_free   (MElement* b);
 
 
 void m_create_canvas(MCanvas* b, MContainer *c,
@@ -23,7 +22,7 @@ void m_create_canvas(MCanvas* b, MContainer *c,
     e->update = 0;
     e->input = &_m_canvas_input;
     e->focus = &_m_canvas_focus;
-    e->free = &_m_canvas_free;
+    e->free = 0;
 
     e->position.x = x;
     e->position.y = y;
@@ -104,10 +103,8 @@ MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act)
     case M_G_FOCUS_PREV:
 	return makise_g_cont_focus_prev(&(((MCanvas*)b->data)->cont));
 	break;
+    default: break;
     }
     
     return M_G_FOCUS_NOT_NEEDED;
-}
-uint8_t _m_canvas_free   (MElement* b)
-{
 }

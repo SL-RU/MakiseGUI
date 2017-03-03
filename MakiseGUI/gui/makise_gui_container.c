@@ -42,7 +42,7 @@ void makise_g_cont_rem(MContainer * cont, MElement *el)
 
 uint8_t makise_g_cont_call_common_predraw(MElement *b)
 {
-    if(b->parent != 0 && b->parent->position != 0)
+    if(b != 0 && b->parent != 0 && b->parent->position != 0)
     {
 	b->position.real_x = b->position.x + b->parent->position->real_x;
 	b->position.real_y = b->position.y + b->parent->position->real_y;
@@ -52,6 +52,7 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
 	b->position.real_x = b->position.x;
 	b->position.real_y = b->position.y;
     }
+    return M_OK;
 }
 uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
 {
@@ -68,12 +69,12 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
     }
     
     MElement *e = cont->first;
-    uint8_t r = 0;
+
     while(e != 0)
     {
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(e);
-	r = m_element_call(e, type);
+	m_element_call(e, type);
 	e = e->next;
     }
     return M_OK;

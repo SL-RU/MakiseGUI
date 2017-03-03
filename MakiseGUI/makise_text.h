@@ -7,7 +7,6 @@
 
 #define MDTextAll UINT32_MAX 
 
-typedef struct _MakiseFont MakiseFont;
 typedef enum
 {
     MDTextPlacement_LeftUp = 0,
@@ -16,7 +15,6 @@ typedef enum
     MDTextPlacement_CenterDown,
 } MDTextPlacement;
 
-#include "fonts.h"
 
 typedef struct _MakiseFont
 {
@@ -30,6 +28,7 @@ typedef struct _MakiseFont
     uint16_t space_char;    
 } MakiseFont;
 
+#include "fonts.h"
 
 void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c); //draw single char
 void makise_d_string(MakiseBuffer *b, char *s, uint32_t len, uint16_t x, uint16_t y, MDTextPlacement place, const MakiseFont *font, uint32_t c); //draw string

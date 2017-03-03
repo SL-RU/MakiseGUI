@@ -12,7 +12,6 @@ void m_create_text_field(MTextField* b, MContainer *c,
 
     e->data = b;
     
-    makise_g_cont_add(c, e);
 
     e->draw = &_m_textfield_draw;
     e->predraw = 0;
@@ -33,6 +32,8 @@ void m_create_text_field(MTextField* b, MContainer *c,
     b->text = text;
     
     b->style = style;
+    
+    makise_g_cont_add(c, e);
     
     printf("Text field %d created\n", e->id);
 }

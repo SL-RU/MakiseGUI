@@ -354,7 +354,7 @@ void m_slist_set_list(MSList *l, MSList_Item *first)
 
 MFocusEnum _m_slist_focus   (MElement* b,  MFocusEnum act)
 {
-    MSList *e = ((MSList*)b->data);
+    //MSList *e = ((MSList*)b->data);
     if(act & M_G_FOCUS_GET)
     {
 	((MSList*)b->data)->state = 1;

@@ -9,38 +9,39 @@ typedef struct _MakiseDriver MakiseDriver;
 #define M_ERROR         2
 #define M_ZERO_POINTER  3
 
-
+#include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 #include "makise_config.h"
 #include "makise_colors.h"
 #include "makise_text.h"
 #include "makise_primitives.h"
-//#include "makise_gui.h"
-#include "stm32f4xx_hal.h"
+
 
 typedef struct _MakiseBuffer
 {
     MakiseGUI *gui;
     uint16_t height;     //real height
     uint16_t width;      //real width 
-    uint16_t pixeldepth; //smaller or equl to real depth
-    uint8_t depthmask;  //mask like 0b111 for depth 3bit
-    uint32_t * buffer;    //virtual buffer
+    uint32_t pixeldepth; //smaller or equals to real depth
+    uint32_t depthmask;   //example: mask like 0b111 is for depth 3bit
+    uint32_t * buffer;   //virtual buffer
     uint32_t size;       //size of the buffer
 } MakiseBuffer;
 
 typedef struct _MakiseDriver
 {
     MakiseGUI *gui;
-    uint16_t lcd_height; //real height
-    uint16_t lcd_width;  //real width
+    uint16_t lcd_height;    //real height
+    uint16_t lcd_width;     //real width
     uint16_t buffer_height; //small buffer
-    uint16_t buffer_width; //small buffer
-    uint16_t pixeldepth; //real pixeldepth
-    uint32_t * buffer;   //floating buffer
-    uint32_t size;       //size of the buffer
-    uint16_t posx;       //last pos of floating buffer
-    uint16_t posy;       //last pos of floating buffer
+    uint16_t buffer_width;  //small buffer
+    uint16_t pixeldepth;    //real pixeldepth
+    uint32_t * buffer;      //floating buffer
+    uint32_t size;          //size of the buffer
+    uint16_t posx;          //last pos of floating buffer
+    uint16_t posy;          //last pos of floating buffer
+    
     uint8_t (*init) (MakiseGUI* gui);
     uint8_t (*start)(MakiseGUI* gui);
     uint8_t (*sleep)(MakiseGUI* gui);

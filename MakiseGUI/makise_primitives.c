@@ -52,11 +52,6 @@ void makise_d_rect(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
     if(w == 0 || h == 0)
 	return;
 
-    uint8_t C = 0; //byte filled with colors for memset
-    for (int i = 0; i < (8/b->pixeldepth); i++)
-    {
-	C |= (c & b->depthmask) << i*b->pixeldepth;
-    }
 
     w-=1;
     h-=1;
@@ -103,12 +98,6 @@ void makise_d_rect_filled(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
     
     if(w == 0 || h == 0)
 	return;
-
-    uint8_t C = 0; //byte filled with colors for memset
-    for (int i = 0; i < (8/b->pixeldepth); i++)
-    {
-	C |= (c & b->depthmask) << i*b->pixeldepth;
-    }
 
     h -= 1;
     w -= 1;

@@ -1,3 +1,4 @@
+#if MAKISE_ILI9340_USE == 1
 #define ILI9340_TFTWIDTH  240
 #define ILI9340_TFTHEIGHT 320
 
@@ -66,3 +67,4 @@
 /*
 #define ILI9340_PWCTR6  0xFC
 */
+#endif
