@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <SDL2/SDL.h>
 
-void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Renderer *r);
+void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Surface *s);
 
 uint8_t makise_sdl2_init (MakiseGUI* gui);
 uint8_t makise_sdl2_start(MakiseGUI* gui);

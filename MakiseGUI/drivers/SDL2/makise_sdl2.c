@@ -2,9 +2,9 @@
 #if MAKISE_SDL2_USE == 1
 #include "makise_sdl2.h"
 
-SDL_Renderer *_makise_sdl2_renderer;
+SDL_Surface *_makise_sdl2_screen;
 
-void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Renderer* rnd)
+void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Surface *s)
 {
     d->lcd_height    = height;
     d->lcd_width     = width;
@@ -21,7 +21,7 @@ void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Re
     d->awake         = &makise_sdl2_awake;
     d->set_backlight = &makise_sdl2_set_backlight;
 
-    _makise_sdl2_renderer = rnd;
+    _makise_sdl2_screen = s;
 }
 
 uint8_t makise_sdl2_init (MakiseGUI* gui)
@@ -60,6 +60,7 @@ void makise_sdl2_draw(MakiseGUI* gui)
 	cu = 0,
 	bu = 0;
     
+    Uint32 *pixmem32;
     for (; y < d->lcd_height; y++) {	
 	for (x = 0; x < d->lcd_width; x+=1)
 	{
@@ -77,8 +78,9 @@ void makise_sdl2_draw(MakiseGUI* gui)
 	    uint16_t B8 = (((c     ) & 0b11111 ) * 8 );
 //	    printf("%d", B8);
 	    
-	    SDL_SetRenderDrawColor(_makise_sdl2_renderer, R8, G8, B8, 255);
-	    SDL_RenderDrawPoint(_makise_sdl2_renderer, x, y);
+	    
+	    pixmem32 = (Uint32*) _makise_sdl2_screen->pixels  + y*_makise_sdl2_screen->pitch/4 + x;
+	    *pixmem32 = (R8 << 16) | (G8<<8) | (B8 << 0) ;
 
 	}
     }

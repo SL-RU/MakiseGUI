@@ -14,7 +14,11 @@
 #define MAKISE_BUF_H 12
 #define MAKISE_BUF_W 320
 
+//Control section
+//len of buffer with input events
 #define MAKISE_GUI_INPUT_BUFFER_LEN 10
+//use x-y pointing control devices. like mouse or touchscreen
+#define MAKISE_GUI_INPUT_USE_CURSOR 1
 
 
 #ifdef MAKISE_ILI9340_USE
