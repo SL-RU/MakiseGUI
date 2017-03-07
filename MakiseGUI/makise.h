@@ -17,6 +17,23 @@ typedef struct _MakiseDriver MakiseDriver;
 #include "makise_text.h"
 #include "makise_primitives.h"
 
+typedef struct
+{
+    int32_t x;
+    int32_t y;
+    uint32_t w;
+    uint32_t h;
+
+    //will be counted by system
+    int32_t ex; //border's end. doesn't included in the region
+    int32_t ey; //border's end. doesn't included in the region
+} MakiseBufferBorder;
+
+typedef struct 
+{
+    MakiseBufferBorder border;
+    MakiseBufferBorder last_border;
+} MakiseBufferBorderData;
 
 typedef struct _MakiseBuffer
 {
@@ -27,6 +44,8 @@ typedef struct _MakiseBuffer
     uint32_t depthmask;   //example: mask like 0b111 is for depth 3bit
     uint32_t * buffer;   //virtual buffer
     uint32_t size;       //size of the buffer
+
+    MakiseBufferBorder border; //allowed region for new drawing
 } MakiseBuffer;
 
 typedef struct _MakiseDriver
@@ -74,5 +93,18 @@ void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c);
 
 //if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
 void makise_render(MakiseGUI *gui, uint8_t partial_render);
+
+/**
+ * set new border. This region must be smaller then previous. It will be cropped.
+ * Borders need for drawing GUI. For gui elements do not leave their & their parent's
+ * borders.
+ * After setting border & drawing it you need to call makise_rem_border.
+ * 
+ * @param buffer 
+ * @param b new region
+ * @return Border data needed to restore previous border. Needed for makise_rem_border
+ */
+MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorder b);
+void makise_rem_border(MakiseBuffer *buffer, MakiseBufferBorderData b);
 
 #endif

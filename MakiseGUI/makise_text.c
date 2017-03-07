@@ -4,6 +4,12 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, uint16_t x, uint16_
 {
     uint32_t bitCounter, rawIndex, colIndex;
     const uint8_t * ptrByte;
+
+    if(b->border.ex + b->border.w < x ||
+	b->border.ey + b->border.h < y ||
+       x <= b->border.x - width ||
+       y <= b->border.y - font->height)
+	return;
     
     ptrByte = &font->table[font->char_index[ind]];
     for(rawIndex = 0; rawIndex < font->height; rawIndex++)

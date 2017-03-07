@@ -1,6 +1,25 @@
 #include "makise_gui.h"
 
 
+void makise_gui_init(MHost *host)
+{
+    if(host == 0)
+	return;
+    MInputHostData *inp = &host->input;
+
+    inp->cur_buf = 0;
+    inp->buf_index[0] = 0;
+    inp->buf_index[1] = 0;
+    inp->result_handler = 0;
+
+    #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+    inp->cursor_session = 0;
+    inp->last = (MInputCursorEvent){0};
+#endif    
+
+}
+
+
 uint32_t _makise_new_id = 0;
 uint32_t makise_g_newid()
 {

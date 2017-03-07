@@ -233,15 +233,15 @@ void makise_d_line(MakiseBuffer* b, int16_t x0, int16_t y0,
 	return;
     if(y1 >= b->height && y0 >= b->height)
 	return;
-    x1 = x1 < 0 ? 0 : x1;
-    y1 = y1 < 0 ? 0 : y1;
-    x0 = x0 < 0 ? 0 : x0;
-    y0 = y0 < 0 ? 0 : y0;
+    x1 = x1 < b->border.x ? b->border.x : x1;
+    y1 = y1 < b->border.y ? b->border.y : y1;
+    x0 = x0 < b->border.x ? b->border.x : x0;
+    y0 = y0 < b->border.y ? b->border.y : y0;
     
-    x0 =  x0 < b->width-1 ? x0 : b->width - 1;
-    x1 =  x1 < b->width-1 ? x1 : b->width - 1;
-    y0 =  y0 < b->height-1 ? y0 : b->height - 1;
-    y1 =  y1 < b->height-1 ? y1 : b->height - 1;
+    x0 =  x0 < b->border.ex-1 ? x0 : b->border.ex - 1;
+    x1 =  x1 < b->border.ex-1 ? x1 : b->border.ex - 1;
+    y0 =  y0 < b->border.ey-1 ? y0 : b->border.ey - 1;
+    y1 =  y1 < b->border.ey-1 ? y1 : b->border.ey - 1;
     
     int16_t dy = 0;
     

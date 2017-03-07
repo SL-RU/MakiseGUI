@@ -34,10 +34,11 @@ typedef struct _MHost MHost;
 //Root container for all elements
 typedef struct _MHost
 {
-    MContainer *host;    
-    MInputData input_buffer[MAKISE_GUI_INPUT_BUFFER_LEN];
+    MContainer *host;
+    MInputHostData input;
 } MHost;
 
+void makise_gui_init(MHost *host);
 
 uint32_t makise_g_newid();
 MFocusEnum makise_g_focus(MElement *el, MFocusEnum event);

@@ -5,8 +5,14 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     gui->driver = driver;
     gui->buffer = buffer;
     gui->draw = 0;
+    
     buffer->height = driver->lcd_height;
     buffer->width = driver->lcd_width;
+    buffer->border = (MakiseBufferBorder){0, 0, driver->lcd_width,
+					  driver->lcd_height,
+					  driver->lcd_width,
+					  driver->lcd_height}; //allowed region
+                                                               //for new drawings
     driver->gui = gui;
     buffer->gui = gui;
     
@@ -14,6 +20,7 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     buffer->pixeldepth = MAKISEGUI_BUFFER_DEPTH;
     buffer->width = driver->lcd_width;
     buffer->height = driver->lcd_height;
+
     
     //buffer len in bits
     uint32_t len = buffer->height * buffer->width * buffer->pixeldepth;
@@ -37,7 +44,7 @@ uint8_t makise_start(MakiseGUI * gui)
 uint32_t kpset, kpset32, kpsett;
 inline uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y)
 {
-    if((x) < b->width && (y) < (b)->height)		
+    if((x) < (b)->width && (y) < (b)->height)
     {							
 	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
 	kpset32 = kpset/32;
@@ -48,8 +55,8 @@ inline uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y)
 
 inline void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c)
 {
-    if((x) < (b)->width && (y) < (b)->height)
-	
+    if((x) < b->border.ex && (y) < b->border.ey &&
+       (x) >= b->border.x && (y) >= b->border.y)		
     {									
 	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
 	kpset32 = kpset/32;
@@ -110,4 +117,35 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render)
 	}
     }
     
+}
+
+MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorder b)
+{
+    if(buffer == 0)
+	return (MakiseBufferBorderData){0};
+
+    if(b.x < buffer->border.x)
+	b.x = buffer->border.x;
+    if(b.y < buffer->border.y)
+	b.y = buffer->border.y;
+    if(b.w > buffer->border.w + buffer->border.x  - b.x)
+	b.w = buffer->border.w + buffer->border.x - b.x;
+    if(b.h > buffer->border.h + buffer->border.y - b.y)
+	b.h = buffer->border.h + buffer->border.y - b.y;
+
+    b.ex = b.x + b.w;
+    b.ey = b.y + b.h;
+
+    MakiseBufferBorder l = buffer->border;
+    
+    buffer->border = b;
+    
+    return (MakiseBufferBorderData){b, l};
+}
+void makise_rem_border(MakiseBuffer *buffer, MakiseBufferBorderData b)
+{
+    if(buffer == 0)
+	return;
+
+    buffer->border = b.last_border;
 }

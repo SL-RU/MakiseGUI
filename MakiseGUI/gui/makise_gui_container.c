@@ -85,6 +85,10 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
     if(cont == 0)
 	return M_ZERO_POINTER;
 
+#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+    
+#endif
+    
     if(cont->focused != 0)
 	return cont->focused->input(cont->focused, data);
 

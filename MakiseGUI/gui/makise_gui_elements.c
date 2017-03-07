@@ -6,7 +6,18 @@ uint8_t m_element_call(MElement* el, uint8_t type)
 	return M_ZERO_POINTER;
 
     if(type == M_G_CALL_DRAW && el->draw != 0)
-	return el->draw(el);
+    {
+	MakiseBufferBorderData d =makise_add_border(el->gui->buffer,
+						    (MakiseBufferBorder){
+							el->position.real_x,
+							    el->position.real_y,
+							    el->position.width,
+							    el->position.height,
+							    0, 0});
+	uint8_t r = el->draw(el);
+	makise_rem_border(el->gui->buffer, d);
+	return r;
+    }
     if(type == M_G_CALL_PREDRAW && el->predraw != 0)
 	return el->predraw(el);
     if(type == M_G_CALL_UPDATE && el->update != 0)

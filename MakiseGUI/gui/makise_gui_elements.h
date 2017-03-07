@@ -17,8 +17,8 @@ typedef struct _MPosition
     int32_t x; //relative position
     int32_t y; //relative position
     
-    int32_t width;
-    int32_t height;
+    uint32_t width;
+    uint32_t height;
 
     int32_t real_x; //position on the screen
     int32_t real_y; //position on the screen
