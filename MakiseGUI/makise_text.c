@@ -68,6 +68,10 @@ void makise_d_string(MakiseBuffer *b, char *s, uint32_t len, uint16_t x, uint16_
     }
     
     uint32_t ch, xt = x, yt = y;
+
+    if(y + font->height < b->border.y ||
+       y > b->border.ey) //borders
+	return;
     
     while (i < len && s[i]) {
 	ch = s[i];
@@ -81,6 +85,9 @@ void makise_d_string(MakiseBuffer *b, char *s, uint32_t len, uint16_t x, uint16_
 	_makise_draw_char(b, ch, xt, yt, font, c, width);
 	xt += width + font->space_char;
 	i++;
+
+	if(xt >= b->border.ex) //border
+	    return;
     }
 }
 

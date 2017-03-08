@@ -25,7 +25,7 @@ void m_create_slist(MSList* b, MContainer *c,
     e->update = 0;
     e->input = &_m_slist_input;
     e->focus = &_m_slist_focus;
-    e->free =  0;
+    e->is_parent =  0;
 	
     e->position.x = x;
     e->position.y = y;

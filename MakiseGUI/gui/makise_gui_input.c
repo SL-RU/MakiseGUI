@@ -7,7 +7,7 @@ void makise_gui_input_send(MHost *h, MInputData d)
     if(h == 0 ||
        h->input.buf_index[h->input.cur_buf] >= MAKISE_GUI_INPUT_BUFFER_LEN) //if FIFO is overflowen
 	return;
-    printf("cur %d ind %d key %d\n", h->input.cur_buf, h->input.buf_index[h->input.cur_buf], d.key);
+    //printf("cur %d ind %d key %d\n", h->input.cur_buf, h->input.buf_index[h->input.cur_buf], d.key);
     h->input.buffer[h->input.cur_buf][
 	h->input.buf_index[h->input.cur_buf]++
 	] = d;
@@ -43,7 +43,61 @@ void makise_gui_input_send_char(MHost *h, char c)
 }
 
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
+{
+    if(d->key != M_KEY_CURSOR)
+	return 1;
+    if(d->event == M_INPUT_MOVE)
+	return 0;
+    if((h->input.cursor_session & 0b01) && //if session begun
+       (d->event == M_INPUT_PRESSING) &&   //and button is pressing
+       (h->input.cursor_session & 0b10))   //and input allowed
+	return 1;//we can just send event to focused element
 
+    if((!h->input.cursor_session & 0b01) && //if session not begun
+       (d->event == M_INPUT_PRESSING))
+    {
+	MElement *e = makise_g_cont_element_on_point(h->host,
+						     d->cursor.x, d->cursor.y);
+	if(e != 0) //if element found
+	{
+	    makise_g_focus(e, M_G_FOCUS_GET); //focus element under the cursor;
+	    h->input.cursor_session = 0b11; //start session & allow input
+	    d->event = M_INPUT_FIRST_PRESS;
+	    return 1; //we can just send event to focused element
+	}
+	else //if no element under the cursor
+	{
+	    h->input.cursor_session = 0b01; //start session & disable input from cursor
+	    return 0;
+	}
+    }
+    if(d->event == M_INPUT_CLICK) //if cursor's button was released
+    {
+	if((!h->input.cursor_session & 0b01)) //if session not begun
+	{
+	    MElement *e = makise_g_cont_element_on_point(h->host,
+							 d->cursor.x, d->cursor.y);
+	    if(e != 0) //if element found
+	    {
+		makise_g_focus(e, M_G_FOCUS_GET); //focus element under the cursor;
+		h->input.cursor_session = 0; //stop session & allow input
+		return 1; //we can just send event to focused element
+	    }
+	    else
+	    {
+		h->input.cursor_session = 0; //stop session & allow input
+		return 0;
+	    }   
+	}
+	else
+	{
+	    h->input.cursor_session = 0; //stop session & allow input
+	    return 1;
+	}
+    }
+    return 0; //if input was forbidden
+}
 #endif
 
 void makise_gui_input_perform(MHost *h)
@@ -59,18 +113,26 @@ void makise_gui_input_perform(MHost *h)
     h->input.cur_buf = !k; //switch buffers
     h->input.buf_index[h->input.cur_buf] = 0; //reset index
 
+    uint8_t l = 1;
     
     for (uint32_t i = 0; i < h->input.buf_index[k]; i++)
     {
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+	l = _makise_gui_input_perform_cursor(h, &h->input.buffer[k][i]);
+	//if(l == 0) do nothing
+	
 #endif
-	r = makise_g_host_input(h, h->input.buffer[k][i]);
-	if(h->input.result_handler != 0)
+	if(l == 1)
 	{
-	    d = h->input.result_handler(h->input.buffer[k][i], r);
-	    if(d.event != M_INPUT_NONE)
+	    r = makise_g_host_input(h, h->input.buffer[k][i]);
+	    printf("k %d r %d\n", h->input.buffer[k][i].key, r);
+	    if(h->input.result_handler != 0)
 	    {
-		makise_g_host_input(h, d);
+		d = h->input.result_handler(h->input.buffer[k][i], r);
+		if(d.event != M_INPUT_NONE)
+		{
+		    makise_g_host_input(h, d);
+		}
 	    }
 	}
     }

@@ -26,11 +26,11 @@ typedef enum
 {
     M_INPUT_NONE               = 0,
     M_INPUT_CLICK              = 1, //when button was released
-    M_INPUT_FIRST_PRESS           , //first registred button press
     M_INPUT_PRESSING              , //when button is currently pressing after first press
     M_INPUT_CHARACTER               , //when character was inputed
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     M_INPUT_MOVE                  , //when cursor was moved
+    M_INPUT_FIRST_PRESS           , //ONLY FOR CURSOR input!!! when cursor touched element in the first time.
 #endif
 } MInputEventEnum;
 

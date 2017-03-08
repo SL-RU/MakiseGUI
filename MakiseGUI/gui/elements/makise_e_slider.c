@@ -23,7 +23,7 @@ void m_create_slider(MSlider* b, MContainer *c,
     e->update = 0;
     e->input = &_m_slider_input;
     e->focus = &_m_slider_focus;
-    e->free = 0;
+    e->is_parent = 0;
     
     e->position.x = x;
     e->position.y = y;

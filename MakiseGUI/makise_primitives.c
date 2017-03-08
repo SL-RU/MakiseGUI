@@ -259,7 +259,7 @@ void makise_d_line(MakiseBuffer* b, int16_t x0, int16_t y0,
 
 	j = x0;
 	while ((j % (32 / b->pixeldepth)) && j <= x1) { //coordinate position in the array must in the beginning of the byte
-	    makise_pset(b, j, y1, c);
+	    makise_pset_fast(b, j, y1, c);
 	    j++;
 	}
 
@@ -273,7 +273,7 @@ void makise_d_line(MakiseBuffer* b, int16_t x0, int16_t y0,
 	}
 	j-=1;
 	while (j <= x1) {
-	    makise_pset(b, j, y0, c);
+	    makise_pset_fast(b, j, y0, c);
 	    j++;
 	}
 	return;
@@ -284,7 +284,7 @@ void makise_d_line(MakiseBuffer* b, int16_t x0, int16_t y0,
     int err = (dx>dy ? dx : -dy)/2, e2;
  
     for(;;){
-	makise_pset(b, x0, y0, c);
+	makise_pset_fast(b, x0, y0, c);
 	if (x0==x1 && y0==y1) break;
 	e2 = err;
 	if (e2 >-dx) { err -= dy; x0 += sx; }

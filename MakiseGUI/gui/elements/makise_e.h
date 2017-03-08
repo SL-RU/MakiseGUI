@@ -177,7 +177,11 @@ typedef enum //type of header
 typedef struct _MTabs MTabs;
 typedef struct _MTabs {
     MakiseGUI *gui;
-    MElement el;
+    
+    MElement el; //element of host
+    MElement tabs_el; //element of tabs
+    MElement header_el; //element of header
+    MContainer host; //contains tabs & tab header
     
     MakiseStyle* style;
 
@@ -189,8 +193,6 @@ typedef struct _MTabs {
     MTabs_Type type; //type of tab's names to show
     uint32_t size;   //height or width of tabs header
 
-    MPosition container_pos;
-    
     uint8_t state;    
 } MTabs;
 

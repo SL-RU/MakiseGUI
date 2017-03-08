@@ -214,3 +214,23 @@ MFocusEnum makise_g_cont_focus_prev(MContainer *cont)
 	return M_G_FOCUS_NOT_NEEDED;
     }
 }
+
+MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y)
+{
+    if(cont == 0 || cont->first == 0)
+	return 0;
+
+    MElement *e = cont->last; //last - means upper in draw queue
+
+    while(e != 0);
+    {
+	if(x >= e->position.real_x && x < e->position.real_x + e->position.width &&
+	   y >= e->position.real_y && y < e->position.real_y + e->position.height)
+	{
+	    //if point is in element's area
+	    return e; //element found
+	}
+	e = e->prev;
+    }
+    return 0;
+}

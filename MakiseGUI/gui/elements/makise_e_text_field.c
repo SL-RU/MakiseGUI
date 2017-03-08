@@ -18,7 +18,7 @@ void m_create_text_field(MTextField* b, MContainer *c,
     e->update = 0;
     e->input = 0;
     e->focus = 0;
-    e->free =  0;
+    e->is_parent = 0;
 	
     e->position.x = x;
     e->position.y = y;

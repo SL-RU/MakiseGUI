@@ -68,6 +68,27 @@ inline void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c)
 	(b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
     }
 }
+inline uint32_t makise_pget_fast(MakiseBuffer *b, uint16_t x, uint16_t y)
+{
+    kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
+    kpset32 = kpset/32;
+    return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
+}
+
+inline void makise_pset_fast(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c)
+{
+    kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
+    kpset32 = kpset/32;
+    kpsett = kpset - kpset32*32;
+    
+    if(((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett))) == c)
+	return;
+    
+    (b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
+}
+
+
+
 //if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
 void makise_render(MakiseGUI *gui, uint8_t partial_render)
 {

@@ -78,9 +78,10 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     else if(event == M_G_FOCUS_LEAVE)
     {
 	p->focused = 0;
+	return M_G_FOCUS_OK;
     }
     
-    return M_G_FOCUS_OK;
+    return M_G_FOCUS_NOT_NEEDED;
 }
 
 MFocusEnum makise_g_host_focus_next(MHost *host)

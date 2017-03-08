@@ -45,7 +45,10 @@ typedef struct _MElement
     uint8_t    (*update  )(MElement* el);
     MInputResultEnum (*input   )(MElement* el, MInputData data);
     MFocusEnum (*focus   )(MElement* el, MFocusEnum act);
-    uint8_t    (*free    )(MElement* el);
+    
+
+    uint8_t  is_parent; //is element parent(contains other elements
+    MContainer *children; //only if element is parent
     
 } MElement;
 

@@ -22,7 +22,8 @@ void m_create_canvas(MCanvas* b, MContainer *c,
     e->update = 0;
     e->input = &_m_canvas_input;
     e->focus = &_m_canvas_focus;
-    e->free = 0;
+    e->is_parent = 1;
+    e->children = &b->cont;
 
     e->position.x = x;
     e->position.y = y;
@@ -70,7 +71,7 @@ MInputResultEnum _m_canvas_input  (MElement* b, MInputData data)
     if(((MCanvas*)b->data)->cont.focused == 0)
 	makise_g_cont_focus_next(&(((MCanvas*)b->data)->cont));
     if(((MCanvas*)b->data)->cont.focused != 0)
-	return m_element_input(((MCanvas*)b->data)->cont.focused, data);
+	return makise_g_cont_input(&((MCanvas*)b->data)->cont, data);
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act)
