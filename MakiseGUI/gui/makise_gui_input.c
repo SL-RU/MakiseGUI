@@ -92,8 +92,9 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
 	}
 	else
 	{
+	    uint8_t is = h->input.cursor_session >> 1;
 	    h->input.cursor_session = 0; //stop session & allow input
-	    return 1;
+	    return is;
 	}
     }
     return 0; //if input was forbidden

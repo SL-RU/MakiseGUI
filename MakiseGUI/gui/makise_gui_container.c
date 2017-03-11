@@ -222,12 +222,24 @@ MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y
 
     MElement *e = cont->last; //last - means upper in draw queue
 
-    while(e != 0);
+//    printf("point %d %d %d\n", x, y, e);
+    
+    while(e != 0)
     {
+//	printf("check %d\n", e->id);
 	if(x >= e->position.real_x && x < e->position.real_x + e->position.width &&
 	   y >= e->position.real_y && y < e->position.real_y + e->position.height)
 	{
+//	    printf("ok %d\n", e->id);
 	    //if point is in element's area
+	    if(e->is_parent == 1)
+	    {
+		//if parent
+		if(e->children != 0)
+		{
+		    return makise_g_cont_element_on_point(e->children, x, y);
+		}
+	    }
 	    return e; //element found
 	}
 	e = e->prev;

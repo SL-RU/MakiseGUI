@@ -82,7 +82,9 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 	if(e->onkey(e, data) == M_INPUT_HANDLED)
 	    return M_INPUT_HANDLED;
 
-    if(data.key == M_KEY_OK && data.event == M_INPUT_CLICK &&
+    if((data.key == M_KEY_OK
+	|| data.key == M_KEY_CURSOR)
+       && data.event == M_INPUT_CLICK &&
        e->click != 0)
     {
 	e->click(e);

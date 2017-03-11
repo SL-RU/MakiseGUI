@@ -17,6 +17,7 @@ void makise_gui_init(MHost *host)
     inp->last = (MInputCursorEvent){0};
 #endif    
 
+    
 }
 
 

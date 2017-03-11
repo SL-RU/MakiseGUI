@@ -345,6 +345,25 @@ MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data)
 	makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
 	return M_INPUT_HANDLED;
     }
+    
+    if(data.key == M_KEY_CURSOR)
+    {
+	int32_t y, x, v;
+	switch (t->type) {
+	case MTabs_Type_Left:
+	    y =  data.cursor.y - b->position.real_y;
+	    v = y * t->len / b->position.height;
+	    printf("%d\n", v);
+	    t->selected = v;
+	    b->children = &t->tabs[t->selected].cont;
+	    if(data.event == M_INPUT_CLICK)
+		makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
+	    return M_INPUT_HANDLED;
+	    break;
+	default:
+	    break;
+	}
+    }
     return M_INPUT_HANDLED;
 }
 MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act)
