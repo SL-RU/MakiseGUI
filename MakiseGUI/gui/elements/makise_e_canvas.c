@@ -5,7 +5,7 @@ uint8_t _m_canvas_predraw(MElement* b);
 MInputResultEnum _m_canvas_input  (MElement* b, MInputData data);
 MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act);
 
-
+char _m_canvas_name[] = "Canvas";
 void m_create_canvas(MCanvas* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
 		     MakiseStyle *style)
@@ -13,6 +13,8 @@ void m_create_canvas(MCanvas* b, MContainer *c,
     MElement *e = &b->el;
     e->gui = c->gui;
 
+    e->name = _m_canvas_name;
+    
     e->data = b;
     
     makise_g_cont_add(c, e);
@@ -79,17 +81,17 @@ MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act)
     switch (act) {
     case M_G_FOCUS_GET:
 	((MCanvas*)b->data)->state = 1;
-	makise_g_cont_focus_next(&((MCanvas*)b->data)->cont);
+	return makise_g_cont_focus_next(&((MCanvas*)b->data)->cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_NEXT:
 	((MCanvas*)b->data)->state = 1;
-	makise_g_cont_focus_next(&((MCanvas*)b->data)->cont);
-	return M_G_FOCUS_OK;
+	return makise_g_cont_focus_next(&((MCanvas*)b->data)->cont);
+	//return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_PREV:
 	((MCanvas*)b->data)->state = 1;
-	makise_g_cont_focus_prev(&((MCanvas*)b->data)->cont);
+	return makise_g_cont_focus_prev(&((MCanvas*)b->data)->cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_LEAVE:

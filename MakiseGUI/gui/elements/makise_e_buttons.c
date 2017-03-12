@@ -4,6 +4,7 @@ uint8_t _m_button_draw   (MElement* b);
 MInputResultEnum _m_button_input  (MElement* b, MInputData data);
 MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act);
 
+char _m_buttin_name[] = "Button";
 void m_create_button(MButton* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
 		     char* text,
@@ -14,6 +15,8 @@ void m_create_button(MButton* b, MContainer *c,
 {
     MElement *e = &b->el;
     e->gui = c->gui;
+
+    e->name = _m_buttin_name;
 
     e->data = b;
 
@@ -76,7 +79,7 @@ uint8_t _m_button_draw   (MElement* b)
 
 MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 {
-    printf("but click %d %d\n", b->id, b->position.real_y);
+    printf("but %d inp %d %d\n", b->id, data.key, data.event);
     MButton *e = ((MButton*)b->data);
     if(e->onkey != 0)
 	if(e->onkey(e, data) == M_INPUT_HANDLED)
@@ -91,7 +94,6 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 	e->state = 2;
 	return M_INPUT_HANDLED;
     }
-    
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
@@ -113,7 +115,7 @@ MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
 	}
 	((MButton*)b->data)->state = 0;
     }
-
+    printf("but %d foc %d\n", b->id, act);
     return (act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT)
 	? M_G_FOCUS_NOT_NEEDED
 	: M_G_FOCUS_OK;

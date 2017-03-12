@@ -203,7 +203,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		   MTabs_Type type,
 		   uint32_t size,
 		   MakiseStyle *style);
-
+void m_tabs_select_tab(MTabs *t, uint8_t tab);
 
 
 

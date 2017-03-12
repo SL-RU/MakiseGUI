@@ -61,10 +61,20 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
 						     d->cursor.x, d->cursor.y);
 	if(e != 0) //if element found
 	{
-	    makise_g_focus(e, M_G_FOCUS_GET); //focus element under the cursor;
-	    h->input.cursor_session = 0b11; //start session & allow input
-	    d->event = M_INPUT_FIRST_PRESS;
-	    return 1; //we can just send event to focused element
+	    //focus element under the cursor
+	    if(makise_g_focus(e, M_G_FOCUS_GET) == M_G_FOCUS_OK)
+	    {
+		//if element under cursor recieved focus
+		h->input.cursor_session = 0b11; //start session & allow input
+		d->event = M_INPUT_FIRST_PRESS;
+		return 1; //we can just send event to focused element
+	    }
+	    else
+	    {
+		//if element didn't recieve cursor
+		h->input.cursor_session = 0b01; //start session & disable input
+		return 0;		
+	    }
 	}
 	else //if no element under the cursor
 	{

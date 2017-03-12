@@ -74,6 +74,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	    if(el->focus != 0)
 		return el->focus(el, event);	
 	}
+	else
+	    return M_G_FOCUS_OK; //if element already focused
     
     }
     else if(event == M_G_FOCUS_LEAVE)
@@ -98,6 +100,37 @@ MFocusEnum makise_g_host_focus_prev(MHost *host)
     if(host == 0 && host->host == 0)
 	return M_ZERO_POINTER;
 
-    return makise_g_cont_focus_next(host->host);
+    return makise_g_cont_focus_prev(host->host);
 }
-
+void _makise_g_print_tree(MContainer *c, int l)
+{
+    MElement *e = c->first;
+    char t[100] = {0};
+    t[0] = ' ';
+    if(l > 1)
+    {
+	for (int i = 0; i < l - 1; i++) {
+	    t[i*2 + 1] = '|';
+	    t[i*2 + 2] = ' ';
+	}
+    }
+    if(l > 0)
+    {
+	t[l*2 - 1] = '|';
+	t[l*2    ] = '-';
+    }
+    if(l == 0)
+	t[0] = '=';
+    while (e != 0)
+    {
+	printf("%s %s\tid=%d\n", t, e->name, e->id);
+	if(e->is_parent && e->children != 0)
+	    _makise_g_print_tree(e->children, l+1);
+	e = e->next;
+    }
+}
+void makise_g_print_tree(MHost *host)
+{
+    MContainer *c = host->host;
+    _makise_g_print_tree(c, 0);
+}

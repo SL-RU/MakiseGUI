@@ -4,6 +4,7 @@ uint8_t _m_slider_draw   (MElement* b);
 MInputResultEnum _m_slider_input  (MElement* b, MInputData data);
 MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act);
 
+char _m_slider_name[] = "Slider";
 void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t x, int32_t y, uint32_t w, uint32_t h,
 		     int32_t *value,
@@ -15,6 +16,8 @@ void m_create_slider(MSlider* b, MContainer *c,
 {
     MElement *e = &b->el;
     e->gui = c->gui;
+
+    e->name = _m_slider_name;
 
     e->data = b;
 
@@ -199,6 +202,38 @@ MInputResultEnum _m_slider_input  (MElement* b, MInputData data)
 	    return M_INPUT_HANDLED;
 	}
     }
+    if(data.key == M_KEY_CURSOR)
+    {
+	int32_t x, y, v;
+	if(_MSlider_is_horizontal(b))
+	{
+	    x =  data.cursor.x - b->position.real_x;
+	    v = x * (e->value_max - e->value_min) / b->position.width;
+	    v += e->value_min;
+	    if(v >= e->value_min && v <= e->value_max)
+	    {
+		*e->value = v;
+		if(e->onchange != 0)
+		    e->onchange(e, *e->value);
+	    }
+	    return M_INPUT_HANDLED;
+	}
+	else if(!_MSlider_is_horizontal(b))
+	{
+	    y =  data.cursor.y - b->position.real_y;
+	    v = y * (e->value_max - e->value_min) / b->position.height;
+	    v = (e->value_max - e->value_min) - v;
+	    v += e->value_min;
+	    if(v >= e->value_min && v <= e->value_max)
+	    {
+		*e->value = v;
+		if(e->onchange != 0)
+		    e->onchange(e, *e->value);
+	    }
+	    return M_INPUT_HANDLED;
+	}
+
+    }
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act)
@@ -211,6 +246,7 @@ MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act)
 	    e->onfocus(e, M_G_FOCUS_GET);
 	}
 	((MSlider*)b->data)->state = 1;
+	return M_G_FOCUS_OK;
     }
     if(act == M_G_FOCUS_LEAVE)
     {
@@ -219,10 +255,9 @@ MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act)
 	    e->onfocus(e, M_G_FOCUS_LEAVE);
 	}
 	((MSlider*)b->data)->state = 0;
+	return M_G_FOCUS_OK;
     }
 
-    return (act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT)
-	? M_G_FOCUS_NOT_NEEDED
-	: M_G_FOCUS_OK;
+    return M_G_FOCUS_NOT_NEEDED;
 }
 

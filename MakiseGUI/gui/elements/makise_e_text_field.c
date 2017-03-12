@@ -2,6 +2,7 @@
 
 uint8_t _m_textfield_draw   (MElement* b);
 
+char _m_textfield_name[] = "Text field";
 void m_create_text_field(MTextField* b, MContainer *c,
 			 int32_t x, int32_t y, uint32_t w, uint32_t h,
 			 char* text,
@@ -9,6 +10,8 @@ void m_create_text_field(MTextField* b, MContainer *c,
 {
     MElement *e = &b->el;
     e->gui = c->gui;
+
+    e->name = _m_textfield_name;
 
     e->data = b;
     

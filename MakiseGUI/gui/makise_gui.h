@@ -48,4 +48,7 @@ MFocusEnum makise_g_host_focus_next(MHost *host);
 MFocusEnum makise_g_host_focus_prev(MHost *host);
 uint8_t makise_g_host_call   (MHost *host, uint8_t type);
 MInputResultEnum makise_g_host_input  (MHost *host, MInputData data);
+
+void makise_g_print_tree(MHost *host);
+
 #endif

@@ -29,6 +29,7 @@ typedef struct _MElement
     MakiseGUI *gui; //current gui
 
     uint32_t id; //unique id
+    char* name;
     
     MElement *prev; //previous if exists
     MElement *next; //next element if exists

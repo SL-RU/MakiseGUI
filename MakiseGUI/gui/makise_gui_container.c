@@ -106,13 +106,16 @@ MFocusEnum makise_g_cont_focus_next(MContainer *cont)
 	{
 	    //if focused element didn't switched focus by itself or focus function pointer equals to zero, then let's try to do it by ourself.
 	    MElement *e = cont->focused->next;
+	    uint8_t res;
 	    while(e != 0)
 	    {
 		if(e->focus_prior != 0)
 		{
-		    if(makise_g_focus(e, M_G_FOCUS_GET_NEXT) == M_G_FOCUS_OK)
+		    if((res = makise_g_focus(e, M_G_FOCUS_GET_NEXT)) == M_G_FOCUS_OK)
 			return M_G_FOCUS_OK;
+		    //printf("res id %d %d\n", e->id, res);
 		}
+		
 		e = e->next;
 	    }
 
