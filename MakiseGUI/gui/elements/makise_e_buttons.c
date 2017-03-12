@@ -79,7 +79,7 @@ uint8_t _m_button_draw   (MElement* b)
 
 MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 {
-    printf("but %d inp %d %d\n", b->id, data.key, data.event);
+    //printf("but %d inp %d %d\n", b->id, data.key, data.event);
     MButton *e = ((MButton*)b->data);
     if(e->onkey != 0)
 	if(e->onkey(e, data) == M_INPUT_HANDLED)
@@ -115,7 +115,7 @@ MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
 	}
 	((MButton*)b->data)->state = 0;
     }
-    printf("but %d foc %d\n", b->id, act);
+    //printf("but %d foc %d\n", b->id, act);
     return (act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT)
 	? M_G_FOCUS_NOT_NEEDED
 	: M_G_FOCUS_OK;
