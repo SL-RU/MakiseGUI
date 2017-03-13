@@ -1,6 +1,6 @@
 #include "makise_text.h"
 
-static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c, uint16_t width)
+static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t y, const MakiseFont *font, uint32_t c, uint16_t width)
 {
     uint32_t bitCounter, rawIndex, colIndex;
     const uint8_t * ptrByte;
@@ -33,7 +33,7 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, uint16_t x, uint16_
     }
 }
 
-void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const MakiseFont *font, uint32_t c)
+void makise_d_char(MakiseBuffer *b, uint16_t ch, int16_t x, int16_t y, const MakiseFont *font, uint32_t c)
 {
     uint32_t width;
 
@@ -46,10 +46,16 @@ void makise_d_char(MakiseBuffer *b, uint16_t ch, uint16_t x, uint16_t y, const M
     // Draw Char
     _makise_draw_char(b, ch, x, y, font, c, width);
 }
-void makise_d_string(MakiseBuffer *b, char *s, uint32_t len, uint16_t x, uint16_t y, MDTextPlacement place, const MakiseFont *font, uint32_t c)
+
+void makise_d_string(MakiseBuffer *b,
+		     char *s, uint32_t len,
+		     int16_t x, int16_t y, MDTextPlacement place,
+		     const MakiseFont *font, uint32_t c)
 {
     uint32_t width, i = 0;
 
+    if(s == 0)
+	return;
     
     if(place == MDTextPlacement_Center )
     {
@@ -95,6 +101,9 @@ uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font)
 {
     uint32_t width , i = 0;
     uint32_t ch, res = 0;
+
+    if(s == 0)
+	return 0;
     
     while (i < len && s[i]) {
 	ch = s[i];
@@ -111,11 +120,14 @@ uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font)
 }
 
 //draw multiline text in the defined frame
-void makise_d_string_frame(MakiseBuffer *b, char *s, uint32_t len, uint16_t x, uint16_t y, uint16_t w, uint16_t h, const MakiseFont *font, uint16_t line_spacing, uint32_t c)
+void makise_d_string_frame(MakiseBuffer *b, char *s, uint32_t len, int16_t x, int16_t y, uint16_t w, uint16_t h, const MakiseFont *font, uint16_t line_spacing, uint32_t c)
 {
     uint32_t width, i = 0;
 
     uint32_t ch, xt = x, yt = y;
+
+    if(s == 0)
+	return;
 
     
     while (i < len && s[i])

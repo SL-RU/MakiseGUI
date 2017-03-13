@@ -45,14 +45,14 @@ uint8_t _m_lable_draw   (MElement* b)
     MakiseStyleTheme *th = &((MLable*)b->data)->style->normal;
     
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
-    
-    makise_d_string(b->gui->buffer,
-		    ((MLable*)b->data)->text, MDTextAll,
-		    b->position.real_x + 2,// + b->position.width / 2,
-		    b->position.real_y,// + b->position.height / 2,
-		    MDTextPlacement_LeftUp,
-		    ((MLable*)b->data)->style->font,
-		    th->font_col);
+    if(((MLable*)b->data)->text != 0)
+	makise_d_string(b->gui->buffer,
+			((MLable*)b->data)->text, MDTextAll,
+			b->position.real_x + 2,// + b->position.width / 2,
+			b->position.real_y,// + b->position.height / 2,
+			MDTextPlacement_LeftUp,
+			((MLable*)b->data)->style->font,
+			th->font_col);
     
     return M_OK;
 }
