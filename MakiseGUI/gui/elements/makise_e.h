@@ -27,9 +27,6 @@ void m_create_button(MButton* b, MContainer *c,
 		     uint8_t (*onkey   )(MButton* b, MInputData data),
 		     void    (*onfocus )(MButton* b, MFocusEnum type),
 		     MakiseStyle *style);
-/* void m_button_set_click(MButton *b, void (*click   )(MButton* b)); */
-/* void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data)); */
-/* void m_button_set_onfocus(MButton *b, void (*onfocus)(MButton* b, MFocusEnum type));*/
 
 //Canvas - simple container. It's placing elements simply by their position wherever it needed
 typedef struct {
@@ -206,6 +203,27 @@ void m_create_tabs(MTabs* b, MContainer *c,
 void m_tabs_select_tab(MTabs *t, uint8_t tab);
 
 
+//Toogle - simple toogle. executes click() function when OK clicked.
+typedef struct _MToogle MToogle;
+typedef struct _MToogle {
+    MakiseGUI *gui;
+    MElement el;
+    MakiseStyle* style;
+
+    char* text_on;
+    char* text_off;
+
+    void (*toggled)(MToogle* b, uint8_t state); //When state changed by input
+    uint8_t state;
+    uint8_t focus_state;
+} MToogle;
+
+void m_create_toogle(MToogle* b, MContainer *c,
+		     MPosition pos,
+		     char* text_on,
+		     char* text_off,
+		     void (*toggled)(MToogle* b, uint8_t state),
+		     MakiseStyle *style);
 
 void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th);
 
