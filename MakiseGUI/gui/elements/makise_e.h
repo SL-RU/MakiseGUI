@@ -21,7 +21,7 @@ typedef struct _MButton {
 } MButton;
 
 void m_create_button(MButton* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     MPosition pos,
 		     char* text,
 		     void    (*click   )(MButton* b),
 		     uint8_t (*onkey   )(MButton* b, MInputData data),
@@ -44,7 +44,7 @@ typedef struct {
 } MCanvas;
 
 void m_create_canvas(MCanvas* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     MPosition pos,
 		     MakiseStyle *style);
 
 //Lable. Simply draws required text. It can be only in one line. And it won't be cutting and folding text.
@@ -58,7 +58,7 @@ typedef struct {
 } MLable;
 
 void m_create_lable(MLable* b, MContainer *c,
-		    int32_t x, int32_t y, uint32_t w, uint32_t h,
+		    MPosition pos,
 		    char* text,
 		    MakiseStyle *style);
 
@@ -73,7 +73,7 @@ typedef struct {
 } MTextField;
 
 void m_create_text_field(MTextField* b, MContainer *c,
-			 int32_t x, int32_t y, uint32_t w, uint32_t h,
+			 MPosition pos,
 			 char* text,
 			 MakiseStyle *style);
 //Simple list element.
@@ -120,7 +120,7 @@ typedef struct _MSList {
 } MSList;
 
 void m_create_slist(MSList* b, MContainer *c,
-		    int32_t x, int32_t y, uint32_t w, uint32_t h,
+		    MPosition pos,
 		    char* text,
 		    void (*onselection)(MSList *l, MSList_Item *selected),
 		    void (*click)(MSList *l, MSList_Item *selected),
@@ -155,7 +155,7 @@ typedef struct _MSlider {
 } MSlider;
 
 void m_create_slider(MSlider* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     MPosition pos,
 		     int32_t *value,
 		     int32_t value_max,
 		     int32_t value_min,
@@ -197,7 +197,7 @@ typedef struct _MTabs {
 } MTabs;
 
 void m_create_tabs(MTabs* b, MContainer *c,
-		   int32_t x, int32_t y, uint32_t w, uint32_t h,
+		   MPosition pos,
 		   MTabs_Tab *tabs,
 		   uint32_t len,
 		   MTabs_Type type,

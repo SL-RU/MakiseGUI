@@ -7,7 +7,7 @@ MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act);
 
 char _m_canvas_name[] = "Canvas";
 void m_create_canvas(MCanvas* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     MPosition pos,
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
@@ -27,10 +27,7 @@ void m_create_canvas(MCanvas* b, MContainer *c,
     e->is_parent = 1;
     e->children = &b->cont;
 
-    e->position.x = x;
-    e->position.y = y;
-    e->position.width = w;
-    e->position.height = h;
+    e->position = pos;
 
     e->enabled = 1;
     e->id = makise_g_newid();

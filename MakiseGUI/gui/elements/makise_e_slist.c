@@ -5,7 +5,7 @@ MFocusEnum _m_slist_focus(MElement* b,  MFocusEnum act);
 MInputResultEnum _m_slist_input  (MElement* b, MInputData data);
 
 void m_create_slist(MSList* b, MContainer *c,
-		    int32_t x, int32_t y, uint32_t w, uint32_t h,
+		    MPosition pos,
 		    char* text,
 		    void (*onselection)(MSList *l, MSList_Item *selected),
 		    void (*click)(MSList *l, MSList_Item *selected),
@@ -27,10 +27,7 @@ void m_create_slist(MSList* b, MContainer *c,
     e->focus = &_m_slist_focus;
     e->is_parent =  0;
 	
-    e->position.x = x;
-    e->position.y = y;
-    e->position.width = w;
-    e->position.height = h;
+    e->position = pos;
 
     e->enabled = 1;
     e->id = makise_g_newid();

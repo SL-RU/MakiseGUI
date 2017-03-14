@@ -57,4 +57,11 @@ typedef struct _MElement
 uint8_t m_element_call(MElement* el, uint8_t type);
 uint8_t m_element_input(MElement* el, MInputData data);
 
+/**
+ * Create MPosition from relative coordinates & size
+ *
+ * @param h 
+ * @return 
+ */
+MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h);
 #endif

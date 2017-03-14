@@ -38,3 +38,13 @@ uint8_t m_element_input(MElement* el, MInputData data)
     
     return 0;
 }
+
+MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h)
+{
+    MPosition p;
+    p.x = x;
+    p.y = y;
+    p.width = w;
+    p.height = h;
+    return p;
+}

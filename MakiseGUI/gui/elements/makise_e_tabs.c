@@ -29,7 +29,7 @@ char _tabs_host_name[] = "Tabs host";
 char _tabs_header_name[] = "Tabs header";
 char _tabs_name[] = "Tab";
 void m_create_tabs(MTabs* b, MContainer *c,
-		   int32_t x, int32_t y, uint32_t w, uint32_t h,
+		   MPosition pos,
 		   MTabs_Tab *tabs,
 		   uint32_t len,
 		   MTabs_Type type,
@@ -79,10 +79,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
     host->position = &e->position;
 
     //position
-    e->position.x = x;
-    e->position.y = y;
-    e->position.width = w;
-    e->position.height = h;
+    e->position = pos;
     
     //ids + focus + enable data
     e->enabled = et->enabled = eh->enabled = 1;
@@ -113,32 +110,32 @@ void m_create_tabs(MTabs* b, MContainer *c,
     {
 	et->position.x = 0;
 	et->position.y = size;
-	et->position.width = w;
-	et->position.height = h - size;
+	et->position.width = pos.width;
+	et->position.height = pos.height - size;
 
 	eh->position.x = 0;
 	eh->position.y = 0;
-	eh->position.width = w;
+	eh->position.width = pos.width;
 	eh->position.height = size;
 
     } else if(type == MTabs_Type_Left)
     {
 	et->position.x = size;
 	et->position.y = 0;
-	et->position.width = w - size;
-	et->position.height = h;
+	et->position.width = pos.width - size;
+	et->position.height = pos.height;
     
 	eh->position.x = 0;
 	eh->position.y = 0;
 	eh->position.width = size;
-	eh->position.height = h;
+	eh->position.height = pos.height;
 
     } else if(type == MTabs_Type_None)
     {
 	et->position.x = 0;
 	et->position.y = 0;
-	et->position.width = w;
-	et->position.height = h;
+	et->position.width = pos.width;
+	et->position.height = pos.height;
     
 	eh->position.x = 0;
 	eh->position.y = 0;

@@ -6,7 +6,7 @@ MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act);
 
 char _m_slider_name[] = "Slider";
 void m_create_slider(MSlider* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     MPosition pos,
 		     int32_t *value,
 		     int32_t value_max,
 		     int32_t value_min,
@@ -28,10 +28,7 @@ void m_create_slider(MSlider* b, MContainer *c,
     e->focus = &_m_slider_focus;
     e->is_parent = 0;
     
-    e->position.x = x;
-    e->position.y = y;
-    e->position.width = w;
-    e->position.height = h;
+    e->position = pos;
 
     e->enabled = 1;
     e->id = makise_g_newid();

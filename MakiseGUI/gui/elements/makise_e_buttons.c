@@ -6,7 +6,7 @@ MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act);
 
 char _m_buttin_name[] = "Button";
 void m_create_button(MButton* b, MContainer *c,
-		     int32_t x, int32_t y, uint32_t w, uint32_t h,
+		     MPosition pos,
 		     char* text,
 		     void    (*click   )(MButton* b),
 		     uint8_t (*onkey   )(MButton* b, MInputData data),
@@ -27,10 +27,7 @@ void m_create_button(MButton* b, MContainer *c,
     e->focus = &_m_button_focus;
     e->is_parent = 0;
     
-    e->position.x = x;
-    e->position.y = y;
-    e->position.width = w;
-    e->position.height = h;
+    e->position = pos;
 
     e->enabled = 1;
     e->id = makise_g_newid();

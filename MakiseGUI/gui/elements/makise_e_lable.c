@@ -4,7 +4,7 @@ uint8_t _m_lable_draw   (MElement* b);
 
 char _m_lable_name[] = "Lable";
 void m_create_lable(MLable* b, MContainer *c,
-			 int32_t x, int32_t y, uint32_t w, uint32_t h,
+			 MPosition pos,
 			 char* text,
 			 MakiseStyle *style)
 {
@@ -24,10 +24,7 @@ void m_create_lable(MLable* b, MContainer *c,
     e->focus = 0;
     e->is_parent =  0;
 	
-    e->position.x = x;
-    e->position.y = y;
-    e->position.width = w;
-    e->position.height = h;
+    e->position = pos;
 
     e->enabled = 1;
     e->id = makise_g_newid();

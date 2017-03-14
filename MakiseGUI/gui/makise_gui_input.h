@@ -112,6 +112,4 @@ void makise_gui_input_send_char(MHost *h, char c);
  */
 void makise_gui_input_perform(MHost *h);
 
-/* TODO: custom event's result handling user-definable method */
-
 #endif
