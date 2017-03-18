@@ -4,7 +4,7 @@ uint8_t _m_button_draw   (MElement* b);
 MInputResultEnum _m_button_input  (MElement* b, MInputData data);
 MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act);
 
-char _m_buttin_name[] = "Button";
+char _m_button_name[] = "Button";
 void m_create_button(MButton* b, MContainer *c,
 		     MPosition pos,
 		     char* text,
@@ -14,10 +14,7 @@ void m_create_button(MButton* b, MContainer *c,
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
-    e->gui = c->gui;
-
-    e->name = _m_buttin_name;
-
+    e->name = _m_button_name;
     e->data = b;
 
     e->draw = &_m_button_draw;
@@ -78,14 +75,15 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 {
     //printf("but %d inp %d %d\n", b->id, data.key, data.event);
     MButton *e = ((MButton*)b->data);
+    uint8_t res = 1;
     if(e->onkey != 0)
-	if(e->onkey(e, data) == M_INPUT_HANDLED)
-	    return M_INPUT_HANDLED;
+	res = e->onkey(e, data);
 
     if((data.key == M_KEY_OK
 	|| data.key == M_KEY_CURSOR)
        && data.event == M_INPUT_CLICK &&
-       e->click != 0)
+       e->click != 0
+       && res == 1)
     {
 	e->click(e);
 	e->state = 2;

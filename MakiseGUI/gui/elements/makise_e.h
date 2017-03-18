@@ -13,8 +13,8 @@ typedef struct _MButton {
     char* text;
     MakiseStyle* style;
 
-    void    (*click   )(MButton* b);                 //When OK button clicked
-    uint8_t (*onkey   )(MButton* b, MInputData data);//Handle any key pressed on button. Return M_INPUT_HANDLED if was handled(then click method won't be called), and M_INPUT_NOT_HANDLED if not handled(click method will be called).
+    void    (*click   )(MButton* b); //When OK button clicked
+    uint8_t (*onkey   )(MButton* b, MInputData data);//Handle any key pressed on button. Return 1 if you want click method be executed if was click event, and 0 if not.
     void    (*onfocus )(MButton* b, MFocusEnum type);//type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
 
     uint8_t state;    
@@ -113,7 +113,7 @@ typedef struct _MSList {
     MakiseStyle* style;
     MakiseStyle *item_style;
 
-    uint32_t state;
+    uint32_t state; //focus state
 } MSList;
 
 void m_create_slist(MSList* b, MContainer *c,
@@ -139,16 +139,16 @@ typedef struct _MSlider {
     MakiseGUI *gui;
     MElement el;
 
-    int32_t *value;
-    int32_t value_max;
-    int32_t value_min;
+    int32_t *value;    //pointer to value
+    int32_t value_max; //minimal possible value
+    int32_t value_min; //max possible value
     
-    MakiseStyle* style;
 
     void    (*onchange   )(MSlider* b, uint32_t val);                 //When value changed by user
     void    (*onfocus )(MSlider* b, MFocusEnum type);//type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
 
-    uint8_t state;    
+    MakiseStyle* style;
+    uint8_t state;  //focus state
 } MSlider;
 
 void m_create_slider(MSlider* b, MContainer *c,
@@ -180,17 +180,16 @@ typedef struct _MTabs {
     MElement header_el; //element of header
     MContainer host; //contains tabs & tab header
     
-    MakiseStyle* style;
+    MTabs_Tab *tabs;   //tabs array
+    uint32_t len;      //count of tabs
 
-    MTabs_Tab *tabs;
-    uint32_t len;
-
-    uint32_t selected;
+    uint32_t selected; //index of selected tab
 
     MTabs_Type type; //type of tab's names to show
     uint32_t size;   //height or width of tabs header
 
-    uint8_t state;    
+    MakiseStyle* style;
+    uint8_t state;    //focus state
 } MTabs;
 
 void m_create_tabs(MTabs* b, MContainer *c,
@@ -210,18 +209,16 @@ typedef struct _MToogle {
     MElement el;
     MakiseStyle* style;
 
-    char* text_on;
-    char* text_off;
+    char* text;    //text
+    uint8_t state; //state of toggle button. 1 if active, 0 if not.
 
     void (*toggled)(MToogle* b, uint8_t state); //When state changed by input
-    uint8_t state;
     uint8_t focus_state;
-} MToogle;
+} MToggle;
 
-void m_create_toogle(MToogle* b, MContainer *c,
+void m_create_toggle(MToggle* b, MContainer *c,
 		     MPosition pos,
-		     char* text_on,
-		     char* text_off,
+		     char* text,
 		     void (*toggled)(MToogle* b, uint8_t state),
 		     MakiseStyle *style);
 

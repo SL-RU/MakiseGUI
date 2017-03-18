@@ -1,30 +1,28 @@
 #include "makise_e.h"
 
-uint8_t _m_button_draw   (MElement* b);
-MInputResultEnum _m_button_input  (MElement* b, MInputData data);
-MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act);
+uint8_t _m_toggle_draw   (MElement* b);
+MInputResultEnum _m_toggle_input  (MElement* b, MInputData data);
+MFocusEnum _m_toggle_focus  (MElement* b, MFocusEnum act);
 
-char _m_buttin_name[] = "Button";
-void m_create_button(MButton* b, MContainer *c,
+char _m_toggle_name[] = "Toggle";
+void m_create_toggle(MToggle* b, MContainer *c,
 		     MPosition pos,
 		     char* text,
-		     void    (*click   )(MButton* b),
-		     uint8_t (*onkey   )(MButton* b, MInputData data),
-		     void    (*onfocus )(MButton* b, MFocusEnum type),
+		     void (*toggled)(MToogle* b, uint8_t state),
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
     e->gui = c->gui;
 
-    e->name = _m_buttin_name;
+    e->name = _m_toggle_name;
 
     e->data = b;
 
-    e->draw = &_m_button_draw;
+    e->draw = &_m_toggle_draw;
     e->predraw = 0;
     e->update = 0;
-    e->input = &_m_button_input;
-    e->focus = &_m_button_focus;
+    e->input = &_m_toggle_input;
+    e->focus = &_m_toggle_focus;
     e->is_parent = 0;
     
     e->position = pos;
@@ -36,81 +34,92 @@ void m_create_button(MButton* b, MContainer *c,
     
     b->text = text;
 
-    b->click = click;
-    b->onkey = onkey;
-    b->onfocus = onfocus;
+    b->toggled = toggled;
     
     b->style = style;
     
     makise_g_cont_add(c, e);
     
-    printf("Button %d created\n", e->id);
+    printf("Toggle %d created\n", e->id);
 }
 
-uint8_t _m_button_draw   (MElement* b)
+uint8_t _m_toggle_draw   (MElement* b)
 {
-    MakiseStyleTheme *th = 0;
+    MakiseStyleTheme *th = 0,
+	*th_b = ((MToggle*)b->data)->state ?
+	&((MToggle*)b->data)->style->active :
+	&((MToggle*)b->data)->style->unactive;
 
-    if(((MButton*)b->data)->state == 0)
-	th = &((MButton*)b->data)->style->normal;
-    else if(((MButton*)b->data)->state == 1)
-	th = &((MButton*)b->data)->style->focused;
-    else if(((MButton*)b->data)->state >= 2)
+    MToggle *t = ((MToggle*)b->data);
+    if(t->focus_state == 0)
+	th = &t->style->normal;
+    else if(t->focus_state == 1)
+	th = &t->style->focused;
+    else if(t->focus_state >= 2)
     {
-	th = &((MButton*)b->data)->style->active;
-	((MButton*)b->data)->state --;
+	th = &t->style->active;
+	t->focus_state --;
     }
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
-    
+
     makise_d_string(b->gui->buffer,
-		    ((MButton*)b->data)->text, MDTextAll,
-		    b->position.real_x + b->position.width / 2,
-		    b->position.real_y + b->position.height / 2,
-		    MDTextPlacement_Center,
-		    ((MButton*)b->data)->style->font,
+		    t->text, MDTextAll,
+		    b->position.real_x + 3,
+		    b->position.real_y,
+		    MDTextPlacement_LeftUp,
+		    t->style->font,
 		    th->font_col);
 
-    //printf("Button %d dr\n", b->id);
+    makise_d_rect_filled(b->gui->buffer,
+			 b->position.real_x +
+			 b->position.width -
+			 b->position.height,
+			 b->position.real_y,
+			 b->position.height, b->position.height,
+			 th->border_c,
+			 th->bg_color);
+
+    makise_d_rect_filled(b->gui->buffer,
+			 b->position.real_x +
+			 b->position.width -
+			 b->position.height + 2,
+			 b->position.real_y + 2,
+			 b->position.height-4, b->position.height-4,
+			 th_b->border_c,
+			 th_b->bg_color);
+    
+    //printf("Toggle %d dr\n", b->id);
     return M_OK;
 }
 
-MInputResultEnum _m_button_input  (MElement* b, MInputData data)
+MInputResultEnum _m_toggle_input  (MElement* b, MInputData data)
 {
     //printf("but %d inp %d %d\n", b->id, data.key, data.event);
-    MButton *e = ((MButton*)b->data);
-    if(e->onkey != 0)
-	if(e->onkey(e, data) == M_INPUT_HANDLED)
-	    return M_INPUT_HANDLED;
+    MToggle *e = ((MToggle*)b->data);
 
     if((data.key == M_KEY_OK
 	|| data.key == M_KEY_CURSOR)
-       && data.event == M_INPUT_CLICK &&
-       e->click != 0)
+       && data.event == M_INPUT_CLICK)
     {
-	e->click(e);
-	e->state = 2;
+	e->state = !e->state;
+	if(e->toggled != 0)
+	    e->toggled(e, e->state);
+	e->focus_state = 2;
+	printf("cli %d\n", e->state);
 	return M_INPUT_HANDLED;
     }
     return M_INPUT_NOT_HANDLED;
 }
-MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
+MFocusEnum _m_toggle_focus  (MElement* b, MFocusEnum act)
 {
-    MButton *e = ((MButton*)b->data);
+    MToggle *e = ((MToggle*)b->data);
     if(act & M_G_FOCUS_GET)
     {
-	if(e->state != 1 && e->onfocus != 0)
-	{
-	    e->onfocus(e, M_G_FOCUS_GET);
-	}
-	((MButton*)b->data)->state = 1;
+	((MToggle*)b->data)->focus_state = 1;
     }
     if(act == M_G_FOCUS_LEAVE)
     {
-	if(e->state != 0 && e->onfocus != 0)
-	{
-	    e->onfocus(e, M_G_FOCUS_LEAVE);
-	}
-	((MButton*)b->data)->state = 0;
+	((MToggle*)b->data)->focus_state = 0;
     }
     //printf("but %d foc %d\n", b->id, act);
     return (act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT)
@@ -118,15 +127,3 @@ MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
 	: M_G_FOCUS_OK;
 }
 
-/* void m_button_set_click   (MButton *b, void (*click   )(MButton* b)) */
-/* { */
-/*     b->click = click; */
-/* } */
-/* void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data)) */
-/* { */
-/*     b->onkey = onkey; */
-/* } */
-/* void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type)) */
-/* { */
-/*     b->onfocus = onfocus; */
-/* } */

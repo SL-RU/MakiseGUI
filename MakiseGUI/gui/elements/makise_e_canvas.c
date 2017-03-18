@@ -54,15 +54,14 @@ uint8_t _m_canvas_draw   (MElement* b)
 	th = &((MCanvas*)b->data)->style->focused;
     
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
-
+    
 
     //printf("Canvas %d dr\n", b->id);
     return makise_g_cont_call(&((MCanvas*)b->data)->cont, M_G_CALL_DRAW);
 //    return M_OK;
 }
 uint8_t _m_canvas_predraw(MElement* b)
-{
-    
+{    
     return makise_g_cont_call(&((MCanvas*)b->data)->cont, M_G_CALL_PREDRAW);
 }
 MInputResultEnum _m_canvas_input  (MElement* b, MInputData data)

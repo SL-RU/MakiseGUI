@@ -2,8 +2,11 @@
 
 void makise_g_cont_add(MContainer * cont, MElement *el)
 {
+    if(cont == 0 || el == 0)
+	return;
     el->parent = cont;
-    if(cont->first == 0)
+    el->gui = cont->gui;
+    if(cont->first == 0) //empty conainer
     {
 	cont->first = el;
 	cont->last = el;
@@ -14,31 +17,135 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
 	return;
     }
     MElement *m = cont->last;
-    if(m == 0) //if last accidently didn't setted.
+//    if(m == 0) //if last accidently didn't setted.
+//    {
+//	m = cont->first;
+//	while (m->next != 0)
+//	    m = m->next;
+//    }
+    m->next = el;
+    el->prev = m;
+    el->next = 0;
+    cont->last = el;
+}
+void makise_g_cont_rem(MElement *el)
+{
+    if(el == 0 || el->parent == 0)
+	return;
+    MContainer *c = el->parent;
+
+    if(el->prev != 0 && el->next != 0) //if element is not last or first
     {
-	m = cont->first;
-	while (m != 0)
+	el->parent = 0;
+	el->prev->next = el->next;
+	el->next->prev = el->prev;
+	el->next = el->prev = 0;
+    }
+    else if (el->prev == 0 && el->next != 0) //first element
+    {
+	el->parent = 0;
+	c->first = el->next;
+	el->next->prev = 0;
+	el->next = 0;
+    }
+    else if (el->prev != 0 && el->next == 0) //last element
+    {
+	el->parent = 0;
+	el->prev->next = 0;
+	c->last = el->prev;
+	el->prev = 0;
+    }
+    else //only member of container
+    {
+	el->parent = 0;
+	c->last = c->first = 0;
+	el->next = el->prev = 0;
+    }
+}
+int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
+{
+    if(cont == 0 || el == 0)
+	return -1;
+    
+    makise_g_cont_rem(el); //remove element from previous parent
+
+    uint32_t i = 0;
+    MElement *e = cont->first;
+
+    if(index == 0 || cont->first == 0) //required index is 0 or if there is no elements in container
+    {
+	el->gui = cont->gui;
+	el->prev = 0;
+	if(cont->first == 0)
 	{
-	    if(m->next == 0)
+	    cont->last = el;
+	}
+	el->next = cont->first;
+	cont->first = el;
+	return 0;
+    }
+    
+    while(e != 0)
+    {
+	i++;
+	if(i == index) //if it is requested position
+	{
+	    el->gui = cont->gui;
+	    el->next = e->next;
+	    el->prev = e;
+	    //e->prev = el;
+	    if(e->next == 0) //if element was last
 	    {
-	    
-		break;
+		cont->last = el;
 	    }
 	    else
-		m = m->next;
+	    {
+		e->next->prev = el;
+		//e->next = el;
+	    }
+	    e->next = el;
+	    return i;
 	}
+	if(e->next == 0) //if element is last
+	{
+	    el->gui = cont->gui;
+	    cont->last = el;
+	    e->next = el;
+	    el->next = 0;
+	    el->prev = e;
+	    return i;
+	}
+	e = e->next;
     }
-    if(m != 0)
-    {
-	m->next = el;
-	el->prev = m;
-	el->next = 0;
-	cont->last = el;
-    }
+    return -1;
 }
-void makise_g_cont_rem(MContainer * cont, MElement *el)
+int32_t makise_g_cont_contains(MContainer * cont, MElement *el)
 {
+    if(cont == 0 || el == 0)
+	return -1;
+    if(el->parent == 0 || //if element has no parent
+       el->parent != cont) //if element's parent isn't requested container
+	return -1;
+    
+    return makise_g_cont_index(el);
 }
+int32_t makise_g_cont_index(MElement *el)
+{
+    if(el == 0 || el->parent == 0 || el->parent->first == 0)
+	return - 1;
+    
+    uint32_t i = 0;
+    MElement *e = el->parent->first;
+
+    while (e != 0) {
+	if(e == el)
+	    return i;
+	e = e->next;
+	i++;
+    }
+    return -1;
+}
+
 
 uint8_t makise_g_cont_call_common_predraw(MElement *b)
 {
