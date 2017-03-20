@@ -41,9 +41,37 @@ uint8_t m_element_input(MElement* el, MInputData data)
 
 MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h)
 {
+    
+}
+MPosition mp_anc(int32_t x, int32_t y, uint32_t w, uint32_t h, MPositionAnchor anchor)
+{
     MPosition p;
-    p.x = x;
-    p.y = y;
+    switch (anchor) {
+    case MPositionAnchor_LeftUp: 
+	p.left = x;
+	p.up = y;
+	p.horisontal = MPositionStretch_Left;
+	p.vertical = MPositionStretch_Up;
+	break;
+    case MPositionAnchor_LeftDown: 
+	p.left = x;
+	p.down = y;
+	p.horisontal = MPositionStretch_Left;
+	p.vertical = MPositionStretch_Down;
+	break;
+    case MPositionAnchor_RightUp: 
+	p.right = x;
+	p.up = y;
+	p.horisontal = MPositionStretch_Right;
+	p.vertical = MPositionStretch_Up;
+	break;
+    case MPositionAnchor_RighDown: 
+	p.right = x;
+	p.down = y;
+	p.horisontal = MPositionStretch_Right;
+	p.vertical = MPositionStretch_Down;
+	break;
+    }
     p.width = w;
     p.height = h;
     return p;

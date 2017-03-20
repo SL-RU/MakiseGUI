@@ -17,12 +17,6 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
 	return;
     }
     MElement *m = cont->last;
-//    if(m == 0) //if last accidently didn't setted.
-//    {
-//	m = cont->first;
-//	while (m->next != 0)
-//	    m = m->next;
-//    }
     m->next = el;
     el->prev = m;
     el->next = 0;
@@ -34,6 +28,9 @@ void makise_g_cont_rem(MElement *el)
 	return;
     MContainer *c = el->parent;
 
+    if(c->focused == el) //if element was focused
+	c->focused = 0; //reset focus
+    
     if(el->prev != 0 && el->next != 0) //if element is not last or first
     {
 	el->parent = 0;
@@ -70,27 +67,30 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
     makise_g_cont_rem(el); //remove element from previous parent
 
     uint32_t i = 0;
-    MElement *e = cont->first;
 
     if(index == 0 || cont->first == 0) //required index is 0 or if there is no elements in container
     {
 	el->gui = cont->gui;
+	el->parent = cont;
 	el->prev = 0;
 	if(cont->first == 0)
 	{
 	    cont->last = el;
 	}
 	el->next = cont->first;
+	cont->first->prev = el;
 	cont->first = el;
 	return 0;
     }
     
+    MElement *e = cont->first;
     while(e != 0)
     {
 	i++;
 	if(i == index) //if it is requested position
 	{
 	    el->gui = cont->gui;
+	    el->parent = cont;
 	    el->next = e->next;
 	    el->prev = e;
 	    //e->prev = el;
@@ -109,6 +109,7 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	if(e->next == 0) //if element is last
 	{
 	    el->gui = cont->gui;
+	    el->parent = cont;
 	    cont->last = el;
 	    e->next = el;
 	    el->next = 0;
@@ -118,6 +119,21 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	e = e->next;
     }
     return -1;
+}
+void makise_g_cont_replace(MElement *e1, MElement *e2)
+{
+    if(e1 == 0 || e2 == 0 ||
+       e1->parent == 0 || e2->parent == 0 ||
+	e1 == e2)
+	return;
+
+    uint32_t i1 = makise_g_cont_index(e1),
+	i2 = makise_g_cont_index(e2);
+    MContainer *p1 = e1->parent,
+	*p2 = e2->parent;
+
+    makise_g_cont_insert(p1, e2, i1);
+    makise_g_cont_insert(p2, e1, i2);
 }
 int32_t makise_g_cont_contains(MContainer * cont, MElement *el)
 {

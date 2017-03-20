@@ -43,7 +43,14 @@ void makise_g_cont_rem(MElement *el);
  * @return new index or -1 if error
  */
 int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index);
-void makise_g_cont_replace(MContainer * cont, MElement *el);
+/**
+ * replace two elements in container's lists even they have different parents
+ *
+ * @param e1 
+ * @param e2 
+ * @return 
+ */
+void makise_g_cont_replace(MElement *e1, MElement *e2);
 /**
  * determines if container contains element
  *
