@@ -89,12 +89,13 @@ typedef struct _MSList_Item MSList_Item;
 typedef struct _MSList MSList;
 typedef struct _MSList_Item
 {
+    char* text;        //text of item
+    uint32_t value;    //value. It may be checkbox or radio button status
+
     MSList_Item *prev;
     MSList_Item *next;
 
-    uint32_t id;       //custom id, if NOT is_array, else - position in the array(will be setted automatically by MSList).
-    char* text;        //text of item
-    uint32_t value;    //value. It may be checkbox or radio button status
+    uint32_t id;       //custom id, if NOT is_array, else - position in the array(will be computed automatically by MSList).
 } MSList_Item;
 
 typedef struct _MSList {
