@@ -78,6 +78,7 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
     uint8_t res = 1;
     if(e->onkey != 0)
 	res = e->onkey(e, data);
+    
 
     if((data.key == M_KEY_OK
 	|| data.key == M_KEY_CURSOR)
@@ -89,6 +90,9 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 	e->state = 2;
 	return M_INPUT_HANDLED;
     }
+    
+    if(res == 2)
+	return M_INPUT_HANDLED;
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)

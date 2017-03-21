@@ -168,6 +168,14 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
     uint32_t px = 0, py = 0,
 	pw = b->position.width, ph = b->position.height;
 
+    if(b->parent != 0 && b->parent->position != 0)
+    {
+	px = b->parent->position->real_x;
+	py = b->parent->position->real_y;
+	pw = b->parent->position->width;
+	ph = b->parent->position->height;
+    }
+    
     switch (b->position.horisontal) {
     case MPositionStretch_Left:
 	b->position.real_x = b->position.left + px;
@@ -177,7 +185,10 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
     	break;
     case MPositionStretch_LeftRight:
 	b->position.real_x = px + b->position.left;
-	b->position.width = pw - b->position.left - b->position.right;
+	if(b->position.left + b->position.right <= pw)
+	    b->position.width = pw - b->position.left - b->position.right;
+	else
+	    b->position.width = 0;
     	break;
     }
     switch (b->position.vertical) {
@@ -189,7 +200,10 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
     	break;
     case MPositionStretch_UpDown:
 	b->position.real_y = py + b->position.up;
-	b->position.height = ph - b->position.up - b->position.down;
+	if(ph >= b->position.up + b->position.down)
+	    b->position.height = ph - b->position.up - b->position.down;
+	else
+	    b->position.height = 0;
     	break;
     }
     return M_OK;
