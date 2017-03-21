@@ -129,8 +129,8 @@ uint8_t _m_slist_draw   (MElement* b)
 			l->style->font, th->font_col);
 	y += l->style->font->height;
 	h -= l->style->font->height;
-	makise_d_line(b->gui->buffer, b->position.x, y,
-		      b->position.x + b->position.width, y,
+	makise_d_line(b->gui->buffer, b->position.real_x, y,
+		      b->position.real_x + b->position.width, y,
 		      th->border_c);
 	ec = h / (eh + 1);
     }

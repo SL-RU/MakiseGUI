@@ -103,4 +103,50 @@ MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h);
  * @return 
  */
 MPosition mp_anc(int32_t x, int32_t y, uint32_t w, uint32_t h, MPositionAnchor anchor);
+/**
+ * Create MPosition fully customizable. Unnecessary options you can equal to zero.
+ *
+ * @param left dist from left side. Required when hor is MPositionStretch_Left or MPositionStretch_LeftRight
+ * @param right dist form the right side. Required when hor is MPositionStretch_Right or MPositionStretch_LeftRight
+ * @param w width. Required when when hor is MPositionStretch_Left or MPositionStretch_Right
+ * @param hor Type of horizontal stretch
+ * @param up dist from top. Required when vert is MPositionStretch_Up or MPositionStretch_UpDown
+ * @param down dist from bottom. Required when vert is MPositionStretch_Down or MPositionStretch_UpDown
+ * @param h height. Required when vert is MPositionStretch_Up or MPositionStretch_Down
+ * @param vert Type of vertical stretch
+ * @return 
+ */
+MPosition mp_cust(int32_t left, int32_t right, uint32_t w,  MPositionStretchHor hor,
+		  int32_t up, int32_t down, uint32_t h, MPositionStretchVert vert);
+/**
+ * Create MPosition with horizontal stretch and vertical relative coordinates
+ *
+ * @param left dist from the left side of parent container to the left border
+ * @param right dist from the right side of parent container to right border 
+ * @param up dist from the top of the parent to the top border
+ * @param h height
+ * @return 
+ */
+MPosition mp_shor(int32_t left, int32_t right, int32_t up, uint32_t h);
+/**
+ * Create MPosition with horizontal relative coordinates and vertical stretch
+ *
+ * @param left left dist from the left side of parent container to the left border
+ * @param width width
+ * @param up dist from the top of the parent to the top border
+ * @param down dist from the bottom of the parent to the bottom border
+ * @return 
+ */
+MPosition mp_sver(int32_t left, int32_t width, int32_t up, uint32_t down);
+/**
+ * Create MPosition with horizontal and vertical stretch
+ *
+ * @param left left dist from the left side of parent container to the left border
+ * @param right  dist from the right side of parent container to right border
+ * @param up dist from the top of the parent to the top border
+ * @param down dist from the bottom of the parent to the bottom border
+ * @return 
+ */
+MPosition mp_sall(int32_t left, int32_t right, int32_t up, uint32_t down);
+
 #endif

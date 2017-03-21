@@ -108,40 +108,17 @@ void m_create_tabs(MTabs* b, MContainer *c,
 
     if(type == MTabs_Type_Up)
     {
-	et->position.x = 0;
-	et->position.y = size;
-	et->position.width = pos.width;
-	et->position.height = pos.height - size;
-
-	eh->position.x = 0;
-	eh->position.y = 0;
-	eh->position.width = pos.width;
-	eh->position.height = size;
+	et->position = mp_sall(0, 0, size, 0);
+	eh->position = mp_shor(0, 0, 0, size);
 
     } else if(type == MTabs_Type_Left)
     {
-	et->position.x = size;
-	et->position.y = 0;
-	et->position.width = pos.width - size;
-	et->position.height = pos.height;
-    
-	eh->position.x = 0;
-	eh->position.y = 0;
-	eh->position.width = size;
-	eh->position.height = pos.height;
-
+	et->position = mp_sall(size, 0, 0, 0);
+	eh->position = mp_sver(0, size, 0, 0);
     } else if(type == MTabs_Type_None)
     {
-	et->position.x = 0;
-	et->position.y = 0;
-	et->position.width = pos.width;
-	et->position.height = pos.height;
-    
-	eh->position.x = 0;
-	eh->position.y = 0;
-	eh->position.width = 0;
-	eh->position.height = 0;
-
+	et->position = mp_sall(0, 0, 0, 0);
+	eh->position = mp_rel(0, 0, 0, 0);
     }
     
     printf("Tabs %d created\n", e->id);
