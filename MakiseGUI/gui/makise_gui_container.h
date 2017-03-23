@@ -34,6 +34,7 @@ void makise_g_cont_add(MContainer * cont, MElement *el);
  * @return 
  */
 void makise_g_cont_rem(MElement *el);
+void makise_g_cont_clear(MContainer *cont);
 /**
  * insert element in exact place of container children's list
  *

@@ -59,6 +59,14 @@ void makise_g_cont_rem(MElement *el)
 	el->next = el->prev = 0;
     }
 }
+void makise_g_cont_clear(MContainer *c)
+{
+    MElement *e = c->first;
+    while (e != 0) {
+	makise_g_cont_rem(e);
+	e = c->first;
+    }
+}
 int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 {
     if(cont == 0 || el == 0)

@@ -18,7 +18,6 @@ void m_create_slist(MSList* b, MContainer *c,
 
     e->data = b;
     
-    makise_g_cont_add(c, e);
 
     e->draw = &_m_slist_draw;
     e->predraw = 0;
@@ -48,6 +47,8 @@ void m_create_slist(MSList* b, MContainer *c,
     b->style = style;
     b->item_style = item_style;
     
+    makise_g_cont_add(c, e);
+
     printf("Slist %d created\n", e->id);
 }
 
@@ -104,7 +105,8 @@ uint8_t _m_slist_draw   (MElement* b)
     MakiseStyleTheme *i_nom = &l->item_style->normal,
 	*c_th = 0;
     
-    
+
+    //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
 
     uint32_t i = 0, start = 0, end = 0;
@@ -328,6 +330,8 @@ void m_slist_set_array(MSList *l, MSList_Item *array, uint32_t len)
 	array[i].next = ((i + 1) < len) ? &array[i+1] : 0;
 
 	array[i].id = i;
+
+	//printf("%s %d\n", array[i].text, array[i].value);
 	
 	lst = &array[i];
     }
@@ -469,8 +473,8 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 		_m_slist_input_item(e, e->selected);
 	}
 	
-	
-	e->onselection(e, e->selected);
+	if(e->onselection != 0)
+	    e->onselection(e, e->selected);
 	return M_INPUT_HANDLED;
     }
     
