@@ -98,7 +98,10 @@ MInputResultEnum _m_toggle_input  (MElement* b, MInputData data)
     MToggle *e = ((MToggle*)b->data);
 
     if((data.key == M_KEY_OK
-	|| data.key == M_KEY_CURSOR)
+#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+	|| data.key == M_KEY_CURSOR
+#endif
+	   )
        && data.event == M_INPUT_CLICK)
     {
 	e->state = !e->state;

@@ -343,7 +343,7 @@ MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data)
 	makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
 	return M_INPUT_HANDLED;
     }
-    
+#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     if(data.key == M_KEY_CURSOR)
     {
 	int32_t y, x, v;
@@ -374,6 +374,7 @@ MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data)
 	    break;
 	}
     }
+#endif
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act)

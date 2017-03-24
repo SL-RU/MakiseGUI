@@ -148,5 +148,11 @@ MPosition mp_sver(int32_t left, int32_t width, int32_t up, uint32_t down);
  * @return 
  */
 MPosition mp_sall(int32_t left, int32_t right, int32_t up, uint32_t down);
+/**
+ * Zero position
+ *
+ * @return 
+ */
+MPosition mp_nil();
 
 #endif

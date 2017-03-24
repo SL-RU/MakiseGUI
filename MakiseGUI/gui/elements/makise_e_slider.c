@@ -10,6 +10,7 @@ void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t *value,
 		     int32_t value_max,
 		     int32_t value_min,
+		     MSlider_Type type,
 		     void    (*onchange   )(MSlider* b, uint32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style)
@@ -36,14 +37,23 @@ void m_create_slider(MSlider* b, MContainer *c,
     e->focus_prior = 1;
     
 
+    if(value_min > value_max)
+    {
+	b->value_max = value_min;
+	b->value_min = value_max;	
+    }
+    else
+    {
+	b->value_max = value_max;
+	b->value_min = value_min;	
+    }
     b->value = value;
-    b->value_max = value_max;
-    b->value_min = value_min;
-    if(*b->value > value_max)
-	*b->value = value_max;
-    if(*b->value < value_min)
-	*b->value = value_min;
+    if(*b->value > b->value_max)
+	*b->value = b->value_max;
+    if(*b->value < b->value_min)
+	*b->value = b->value_min;
 
+    b->type = type;
     
     b->onchange = onchange;
     b->onfocus = onfocus;
@@ -66,6 +76,9 @@ uint8_t _m_slider_draw   (MElement* b)
     else if(((MSlider*)b->data)->state == 1)
 	th = &((MSlider*)b->data)->style->focused;
 
+    if(s->type == MSlider_Type_Read)
+	th = &((MSlider*)b->data)->style->focused;
+    
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
 
     if(_MSlider_is_horizontal(b))
@@ -78,15 +91,15 @@ uint8_t _m_slider_draw   (MElement* b)
 			     b->position.real_y,
 			     3,
 			     b->position.height,
-			     th->font_col,
-			     ((MSlider*)b->data)->state ? th->font_col : th->bg_color);
+			     th->border_c,
+			     th->border_c);
 	makise_d_rect_filled(b->gui->buffer,
 			     b->position.real_x + b->position.width - 3,
 			     b->position.real_y,
 			     3,
 			     b->position.height,
-			     th->font_col,
-			     ((MSlider*)b->data)->state ? th->font_col : th->bg_color);
+			     th->border_c,
+			     th->border_c);
 	//filled part
 	makise_d_rect_filled(b->gui->buffer,
 			     b->position.real_x + 2,
@@ -94,21 +107,22 @@ uint8_t _m_slider_draw   (MElement* b)
 			     val,
 			     b->position.height*4/6,
 			     th->font_col,
-			     ((MSlider*)b->data)->state ? th->font_col : th->bg_color);
+			     th->font_col);
 	//empty part
 	makise_d_rect(b->gui->buffer,
-			     b->position.real_x + val + 3,
-			     b->position.real_y + b->position.height/6,
-			     b->position.width - val - 5,
-			     b->position.height*4/6,
-			     th->font_col);
-	//line
-	makise_d_line(b->gui->buffer,
-		      b->position.real_x + val + 2,
-		      b->position.real_y,
-		      b->position.real_x + val + 2,
-		      b->position.real_y + b->position.height - 1,
+		      b->position.real_x + val + 3,
+		      b->position.real_y + b->position.height/6,
+		      b->position.width - val - 5,
+		      b->position.height*4/6,
 		      th->font_col);
+	if(s->type == MSlider_Type_ReadWrite)
+	    //line
+	    makise_d_line(b->gui->buffer,
+			  b->position.real_x + val + 2,
+			  b->position.real_y,
+			  b->position.real_x + val + 2,
+			  b->position.real_y + b->position.height - 1,
+			  th->font_col);
 
     }
     else
@@ -123,14 +137,14 @@ uint8_t _m_slider_draw   (MElement* b)
 			     b->position.width,
 			     3,
 			     th->font_col,
-			     ((MSlider*)b->data)->state ? th->font_col : th->bg_color);
+			     th->font_col);
 	makise_d_rect_filled(b->gui->buffer,
 			     b->position.real_x,
 			     b->position.real_y + b->position.height - 3,
 			     b->position.width,
 			     3,
 			     th->font_col,
-			     ((MSlider*)b->data)->state ? th->font_col : th->bg_color);
+			     th->font_col);
 	//filled part
 	makise_d_rect(b->gui->buffer,
 			     b->position.real_x + b->position.width/6,
@@ -145,14 +159,16 @@ uint8_t _m_slider_draw   (MElement* b)
 			     b->position.width*4/6,
 			     b->position.height - val - 5,
 			     th->font_col,
-			     ((MSlider*)b->data)->state ? th->font_col : th->bg_color);
-	//line
-	makise_d_line(b->gui->buffer,
-		      b->position.real_x,
-		      b->position.real_y + val + 2,
-		      b->position.real_x + b->position.width - 1,
-		      b->position.real_y + val + 2,
-		      th->font_col);
+			     th->font_col);
+	
+	if(s->type == MSlider_Type_ReadWrite)
+	    //line
+	    makise_d_line(b->gui->buffer,
+			  b->position.real_x,
+			  b->position.real_y + val + 2,
+			  b->position.real_x + b->position.width - 1,
+			  b->position.real_y + val + 2,
+			  th->font_col);
 
     }
     
@@ -170,8 +186,9 @@ uint8_t _m_slider_draw   (MElement* b)
 
 MInputResultEnum _m_slider_input  (MElement* b, MInputData data)
 {
-    printf("but click %d %d\n", b->id, b->position.real_y);
     MSlider *e = ((MSlider*)b->data);
+    if(e->type == MSlider_Type_Read)
+	return M_INPUT_NOT_HANDLED;
 
     if(data.event == M_INPUT_CLICK || ((e->value_max - e->value_min) > 20 &&
 				       data.time > 400))
@@ -199,6 +216,7 @@ MInputResultEnum _m_slider_input  (MElement* b, MInputData data)
 	    return M_INPUT_HANDLED;
 	}
     }
+#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     if(data.key == M_KEY_CURSOR)
     {
 	int32_t x, y, v;
@@ -231,11 +249,15 @@ MInputResultEnum _m_slider_input  (MElement* b, MInputData data)
 	}
 
     }
+#endif
     return M_INPUT_NOT_HANDLED;
 }
 MFocusEnum _m_slider_focus  (MElement* b, MFocusEnum act)
 {
     MSlider *e = ((MSlider*)b->data);
+    if(e->type == MSlider_Type_Read)
+	return M_G_FOCUS_NOT_NEEDED;
+    
     if(act & M_G_FOCUS_GET)
     {
 	if(e->state != 1 && e->onfocus != 0)

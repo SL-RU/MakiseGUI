@@ -132,3 +132,14 @@ MPosition mp_sall(int32_t left, int32_t right, int32_t up, uint32_t down)
     return p;
 
 }
+MPosition mp_nil()
+{
+    MPosition p;
+    p.left = 0;
+    p.up = 0;
+    p.height = 0;
+    p.width = 0;
+    p.horisontal = MPositionStretch_Left;
+    p.vertical = MPositionStretch_Up;
+    return p;
+}

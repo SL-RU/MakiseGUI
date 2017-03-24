@@ -110,6 +110,12 @@ typedef struct _MSList {
 
     MSList_Item *selected;
 
+#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+    uint8_t started;
+    int32_t sx;
+    int32_t sy;
+#endif    
+
     void (*onselection)(MSList *l, MSList_Item *selected);//when selected item is changing
     void (*click)(MSList *l, MSList_Item *selected);      //when OK button clicked
 
@@ -136,7 +142,10 @@ void m_slist_set_list(MSList *l, MSList_Item *first); //set linked list as new d
 /* void m_slist_set_onselection(MSList *l, void (*onselection)(MSList *l, MSList_Item selected)); */
 /* void m_slist_set_click(MSList *l, void (*click)(MSList *l, MSList_Item selected)); */
 
-
+typedef enum {
+    MSlider_Type_Read,
+    MSlider_Type_ReadWrite,
+} MSlider_Type;
 #define _MSlider_is_horizontal(x) (x->position.width >= x->position.height)
 typedef struct _MSlider MSlider;
 typedef struct _MSlider {
@@ -147,9 +156,11 @@ typedef struct _MSlider {
     int32_t value_max; //minimal possible value
     int32_t value_min; //max possible value
     
-
+    MSlider_Type type; //is slider readonly or you can control it
+    
     void    (*onchange   )(MSlider* b, uint32_t val);                 //When value changed by user
     void    (*onfocus )(MSlider* b, MFocusEnum type);//type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
+
 
     MakiseStyle* style;
     uint8_t state;  //focus state
@@ -158,8 +169,9 @@ typedef struct _MSlider {
 void m_create_slider(MSlider* b, MContainer *c,
 		     MPosition pos,
 		     int32_t *value,
-		     int32_t value_max,
 		     int32_t value_min,
+		     int32_t value_max,
+		     MSlider_Type type,
 		     void    (*onchange   )(MSlider* b, uint32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style);
