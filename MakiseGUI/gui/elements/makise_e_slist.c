@@ -79,16 +79,31 @@ void _m_slist_draw_item   (MSList_Item *ci, MSList *l, MakiseStyleTheme *c_th, u
 	w -= eh;
     } else if(l->type == MSList_RadioButton)
     {
-	makise_d_circle(l->el.gui->buffer,
-		      x + eh / 2, y + eh / 2, eh / 2 - 1,
-		      c_th->font_col);
-
-	if(ci->value)
-	    makise_d_circle_filled(l->el.gui->buffer,
-				 x + eh / 2, y + eh / 2, eh / 2 - 3,
-				 c_th->font_col, l->item_style->active.font_col);
-	x += eh + 1;
-	w -= eh + 1;
+	if(eh < 21)
+	{
+	    makise_d_circle(l->el.gui->buffer,
+			    x + eh / 2, y + eh / 2, eh / 2 - 1,
+			    c_th->font_col);
+	    if(ci->value)
+		makise_d_circle_filled(l->el.gui->buffer,
+				       x + eh / 2, y + eh / 2, eh / 2 - 3,
+				       c_th->font_col, l->item_style->active.font_col);
+	    x += eh + 1;
+	    w -= eh + 1;
+	
+	}
+	else
+	{
+	    makise_d_circle(l->el.gui->buffer,
+			    x + 10, y + eh/2, 10,
+			    c_th->font_col);
+	    if(ci->value)
+		makise_d_circle_filled(l->el.gui->buffer,
+				   x + 10, y + eh/2, 7,
+				   c_th->font_col, l->item_style->active.font_col);
+	    x += 22;
+	    w -= eh + 1;
+	}
     }
     
     
