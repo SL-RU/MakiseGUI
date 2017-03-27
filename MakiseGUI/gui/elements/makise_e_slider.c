@@ -11,7 +11,7 @@ void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t value_max,
 		     int32_t value_min,
 		     MSlider_Type type,
-		     void    (*onchange   )(MSlider* b, uint32_t val),
+		     void    (*onchange   )(MSlider* b, int32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style)
 {

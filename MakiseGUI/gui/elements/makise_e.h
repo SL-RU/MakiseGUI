@@ -158,7 +158,7 @@ typedef struct _MSlider {
     
     MSlider_Type type; //is slider readonly or you can control it
     
-    void    (*onchange   )(MSlider* b, uint32_t val);                 //When value changed by user
+    void    (*onchange   )(MSlider* b, int32_t val);                 //When value changed by user
     void    (*onfocus )(MSlider* b, MFocusEnum type);//type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
 
 
@@ -172,7 +172,7 @@ void m_create_slider(MSlider* b, MContainer *c,
 		     int32_t value_min,
 		     int32_t value_max,
 		     MSlider_Type type,
-		     void    (*onchange   )(MSlider* b, uint32_t val),
+		     void    (*onchange   )(MSlider* b, int32_t val),
 		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style);
 
