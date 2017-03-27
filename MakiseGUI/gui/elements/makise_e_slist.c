@@ -79,16 +79,31 @@ void _m_slist_draw_item   (MSList_Item *ci, MSList *l, MakiseStyleTheme *c_th, u
 	w -= eh;
     } else if(l->type == MSList_RadioButton)
     {
-	makise_d_circle(l->el.gui->buffer,
-		      x + eh / 2, y + eh / 2, eh / 2 - 1,
-		      c_th->font_col);
-
-	if(ci->value)
-	    makise_d_circle_filled(l->el.gui->buffer,
-				 x + eh / 2, y + eh / 2, eh / 2 - 3,
-				 c_th->font_col, l->item_style->active.font_col);
-	x += eh + 1;
-	w -= eh + 1;
+	if(eh < 21)
+	{
+	    makise_d_circle(l->el.gui->buffer,
+			    x + eh / 2, y + eh / 2, eh / 2 - 1,
+			    c_th->font_col);
+	    if(ci->value)
+		makise_d_circle_filled(l->el.gui->buffer,
+				       x + eh / 2, y + eh / 2, eh / 2 - 3,
+				       c_th->font_col, l->item_style->active.font_col);
+	    x += eh + 1;
+	    w -= eh + 1;
+	
+	}
+	else
+	{
+	    makise_d_circle(l->el.gui->buffer,
+			    x + 10, y + eh/2, 10,
+			    c_th->font_col);
+	    if(ci->value)
+		makise_d_circle_filled(l->el.gui->buffer,
+				   x + 10, y + eh/2, 7,
+				   c_th->font_col, l->item_style->active.font_col);
+	    x += 22;
+	    w -= eh + 1;
+	}
     }
     
     
@@ -279,6 +294,9 @@ void m_slist_add(MSList *l, MSList_Item *item)
 }
 void m_slist_clear(MSList *l)
 {
+    l->selected = 0;
+    l->is_array = 0;
+    l->items = 0;
 }
 void m_slist_remove(MSList *l, MSList_Item *item)
 {
@@ -403,6 +421,8 @@ void _m_slist_input_item  (MSList *e, MSList_Item *it)
     if(e->click != 0)
 	e->click(e, it);
 }
+
+
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
 uint8_t _m_slist_input_check_item   (MSList_Item *ci, MSList *l, uint32_t x, uint32_t y, uint32_t w, uint32_t eh, int32_t cx, int32_t cy)
 {
@@ -421,133 +441,130 @@ uint8_t _m_slist_input_check_item   (MSList_Item *ci, MSList *l, uint32_t x, uin
 MInputResultEnum _m_slist_input_cursor_click  (MSList* l, MElement *b,
 					       int32_t cx, int32_t cy)
 {
-    if(1 || l->started)
-	//{
-//	if(l->sx + 5 < cx && l->sx - 5 > cx &&
-//	   l->sy + 5 < cy && l->sy - 5 < cy)
+    if(l->sx + 5 > cx && l->sx - 5 < cx &&
+       l->sy + 5 > cy && l->sy - 5 < cy) //if cursor didnt moved a lot.
+    {
+
+	MSList *l = (MSList*)b->data;
+	uint32_t i = 0, start = 0, end = 0;
+	int16_t y = b->position.real_y + 1,
+	    x = b->position.real_x + 2;
+	uint32_t
+	    w = b->position.width - 5,
+	    h = b->position.height - 4,
+	    eh = l->item_style->font->height + l->item_style->font_line_spacing + 3,
+	    ec = h / (eh + 1), //count of elements on the screen
+	    sh = 0,   //scroll line height
+	    cuid = 0, //current id
+	    len = 0;  //count of items
+
+	if(l->text != 0)
 	{
-
-	    MSList *l = (MSList*)b->data;
-	    uint32_t i = 0, start = 0, end = 0;
-	    int16_t y = b->position.real_y + 1,
-		x = b->position.real_x + 2;
-	    uint32_t
-		w = b->position.width - 5,
-		h = b->position.height - 4,
-		eh = l->item_style->font->height + l->item_style->font_line_spacing + 3,
-		ec = h / (eh + 1), //count of elements on the screen
-		sh = 0,   //scroll line height
-		cuid = 0, //current id
-		len = 0;  //count of items
-
-	    if(l->text != 0)
-	    {
-		y += l->style->font->height;
-		h -= l->style->font->height;
-		ec = h / (eh + 1);
-	    }
-	    y+=1;
+	    y += l->style->font->height;
+	    h -= l->style->font->height;
+	    ec = h / (eh + 1);
+	}
+	y+=1;
 
 	    
-	    MSList_Item *ci = 0;
+	MSList_Item *ci = 0;
 
-	    if(ec == 0)
-		return M_ERROR;
+	if(ec == 0)
+	    return M_ERROR;
     
-	    len = l->len;
+	len = l->len;
 	
-	    if(l->is_array)
-	    {
-		i = l->selected->id;
-	    }
-	    else
-	    {
-		//count index in stack of selected item.
-		ci = l->items;
-		uint32_t ti = 0;
-		i = UINT32_MAX;
-		while (ci != 0)
-		{
-		    if(ci == l->selected)
-		    {
-			cuid = i = ti;
-			break;
-		    }
-		    ci = ci->next;
-		    ti ++;
-		}
-		if(i == UINT32_MAX)
-		    //if we didn't found it
-		    return M_ERROR;
-	    }
-	    //compute start index of element to display & the last
-	    if(ec >= len)
-	    {
-		start = 0;
-		end = len;
-	    }
-	    else if ((i >= (ec / 2)) && ((len - i) > (ec - 1) / 2))
-	    {
-		start = i - (ec / 2);
-		end = start + ec;
-	    }
-	    else if ((i > (ec / 2) && (len - i) <= (ec - 1) / 2))
-	    {
-		end = len;
-		start = len - ec;
-	    }
-	    else if (i < (ec / 2) && (len - i) > (ec - 1) / 2)
-	    {
-		start = 0;
-		end = ec;
-	    }
-    
-	    if(l->is_array)
-	    {
-		//array
-		for (i = start; i < end; i++)
-		{
-		    ci = &l->items[i];
-		    ci->id = i;
-		    
-		    if(ci == l->selected)
-			cuid = i;
-		    
-		    if(_m_slist_input_check_item(ci, l, x, y, w, eh, cx, cy))
-			return M_INPUT_HANDLED;
-		    
-		    y += eh + 1;
-		}
-	    }
-	    else
-	    {
-		//Linked list
-		ci = l->selected;
-		while (i != start) {
-		    i --;
-		    ci = ci->prev;
-		}
-		for (i = start; i < end; i++)
-		{
-		    if(_m_slist_input_check_item(ci, l, x, y, w, eh, cx, cy))
-			return M_INPUT_HANDLED;
-		    y += eh + 1;
-		    ci = ci->next;
-		}
-	    }
-	    h = b->position.height - 2;
-	    sh = h / len;
-	    if(sh < 5)
-	    {
-		y = cuid * (h + sh - 5) / len;
-		sh = 5;
-	    }
-	    else
-		y = cuid * (h) / len;
-	    y += b->position.real_y + 1;
-    
-
+	if(l->is_array)
+	{
+	    i = l->selected->id;
 	}
+	else
+	{
+	    //count index in stack of selected item.
+	    ci = l->items;
+	    uint32_t ti = 0;
+	    i = UINT32_MAX;
+	    while (ci != 0)
+	    {
+		if(ci == l->selected)
+		{
+		    cuid = i = ti;
+		    break;
+		}
+		ci = ci->next;
+		ti ++;
+	    }
+	    if(i == UINT32_MAX)
+		//if we didn't found it
+		return M_ERROR;
+	}
+	//compute start index of element to display & the last
+	if(ec >= len)
+	{
+	    start = 0;
+	    end = len;
+	}
+	else if ((i >= (ec / 2)) && ((len - i) > (ec - 1) / 2))
+	{
+	    start = i - (ec / 2);
+	    end = start + ec;
+	}
+	else if ((i > (ec / 2) && (len - i) <= (ec - 1) / 2))
+	{
+	    end = len;
+	    start = len - ec;
+	}
+	else if (i < (ec / 2) && (len - i) > (ec - 1) / 2)
+	{
+	    start = 0;
+	    end = ec;
+	}
+    
+	if(l->is_array)
+	{
+	    //array
+	    for (i = start; i < end; i++)
+	    {
+		ci = &l->items[i];
+		ci->id = i;
+		    
+		if(ci == l->selected)
+		    cuid = i;
+		    
+		if(_m_slist_input_check_item(ci, l, x, y, w, eh, cx, cy))
+		    return M_INPUT_HANDLED;
+		    
+		y += eh + 1;
+	    }
+	}
+	else
+	{
+	    //Linked list
+	    ci = l->selected;
+	    while (i != start) {
+		i --;
+		ci = ci->prev;
+	    }
+	    for (i = start; i < end; i++)
+	    {
+		if(_m_slist_input_check_item(ci, l, x, y, w, eh, cx, cy))
+		    return M_INPUT_HANDLED;
+		y += eh + 1;
+		ci = ci->next;
+	    }
+	}
+	h = b->position.height - 2;
+	sh = h / len;
+	if(sh < 5)
+	{
+	    y = cuid * (h + sh - 5) / len;
+	    sh = 5;
+	}
+	else
+	    y = cuid * (h) / len;
+	y += b->position.real_y + 1;
+    
+    }
 //}
     return M_INPUT_NOT_HANDLED;
 }
@@ -556,34 +573,55 @@ MInputResultEnum _m_slist_input_cursor  (MElement* b, MInputData data)
     if(data.key != M_KEY_CURSOR)
 	return M_INPUT_NOT_HANDLED;
 
-    if(data.event == M_INPUT_CLICK)
-	if(_m_slist_input_cursor_click(b->data, b, data.cursor.x, data.cursor.y))
+    MSList *l = b->data;
+    if(data.event == M_INPUT_PRESSING) //if mouse button is pressing
+    {
+	if(l->started) //if press is already started
+	{
+	    int32_t dx = data.cursor.x - l->sx;
+	    int32_t dy = data.cursor.y - l->sy;
+	    int32_t eh = l->item_style->font->height + 
+		l->item_style->font_line_spacing + 3; //height of one item
+
+	    int32_t c = dy / eh; //how many items need to scroll
+	    if(eh * l->len > b->position.height * 1.5) //if there are many items - we'll speedup scrolling
+		c *= 2;
+
+	    if(l->is_array) //if array then just compute new index
+	    {
+		if(c < 0)
+		{
+		    if(l->sitem->id >= -c)
+			l->selected = &l->items[l->sitem->id + c];
+		    else
+			l->selected = l->items;
+		}
+		else
+		{
+		    if(l->sitem->id + c < l->len)
+			l->selected = &l->items[l->sitem->id + c];
+		    else
+			l->selected = &l->items[l->len - 1];
+		}
+	    }
+	}
+	else //first touch
+	{
+	    l->sx = data.cursor.x;
+	    l->sy = data.cursor.y;
+	    l->sitem = l->selected;
+	    l->started = 1;
+	}
+	return M_INPUT_HANDLED;
+    }
+    
+    if(data.event == M_INPUT_CLICK) 
+    {
+	l->started = 0;
+	if(_m_slist_input_cursor_click(b->data, b, data.cursor.x, data.cursor.y))	
 	    return M_INPUT_HANDLED;
-    
-    /* int32_t cx = data.cursor.x; */
-    /* int32_t cy = data.cursor.y; */
-
-    /* MSList *l = (MSList*)b->data; */
-    /* uint32_t i = 0, start = 0, end = 0; */
-    /* int16_t y = b->position.real_y + 1, */
-    /* 	x = b->position.real_x + 2; */
-    /* uint32_t */
-    /* 	w = b->position.width - 5, */
-    /* 	h = b->position.height - 4, */
-    /* 	eh = l->item_style->font->height + l->item_style->font_line_spacing + 3, */
-    /* 	ec = h / (eh + 1), //count of elements on the screen */
-    /* 	sh = 0,   //scroll line height */
-    /* 	cuid = 0, //current id */
-    /* 	len = 0;  //count of items */
-
-    /* if(l->text != 0) */
-    /* { */
-    /* 	y += l->style->font->height; */
-    /* 	h -= l->style->font->height; */
-    /* 	ec = h / (eh + 1); */
-    /* } */
-    /* y+=1; */
-    
+    }
+    return M_INPUT_NOT_HANDLED;
 }
 #endif
 MInputResultEnum _m_slist_input  (MElement* b, MInputData data)

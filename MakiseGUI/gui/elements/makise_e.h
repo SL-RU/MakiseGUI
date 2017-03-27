@@ -111,9 +111,10 @@ typedef struct _MSList {
     MSList_Item *selected;
 
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
-    uint8_t started;
-    int32_t sx;
+    uint8_t started; //was pressing already started
+    int32_t sx; //cursor's x when pressing was started
     int32_t sy;
+    MSList_Item *sitem; //focused item when pressing was started
 #endif    
 
     void (*onselection)(MSList *l, MSList_Item *selected);//when selected item is changing
