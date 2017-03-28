@@ -452,3 +452,21 @@ void m_tabs_select_tab(MTabs *t, uint8_t tab)
     _m_tabs_select_tab(t, tab);
     makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
 }
+void m_tabs_select_tab_next(MTabs *t)
+{
+    int s = t->selected;
+    s += 1;
+    _m_tabs_select_tab(t, s);
+    makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
+}
+void m_tabs_select_tab_back(MTabs *t)
+{
+    int s = t->selected;
+    s -= 1;
+    if(s >= t->len)
+	s = t->len - 1;
+    if(s < 0)
+	s = 0;
+    _m_tabs_select_tab(t, s);
+    makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
+}

@@ -217,7 +217,8 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		   uint32_t size,
 		   MakiseStyle *style);
 void m_tabs_select_tab(MTabs *t, uint8_t tab);
-
+void m_tabs_select_tab_back(MTabs *t);
+void m_tabs_select_tab_next(MTabs *t);
 
 //Toogle - simple toogle. executes click() function when OK clicked.
 typedef struct _MToogle MToogle;
