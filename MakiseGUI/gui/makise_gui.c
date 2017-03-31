@@ -42,12 +42,6 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 {
     if(el == 0)
 	return M_ZERO_POINTER;
-
-    if(event == M_G_FOCUS_LEAVE)
-    {
-	if(el->focus != 0)
-	    el->focus(el, M_G_FOCUS_LEAVE);	
-    }
     
     MContainer *p;
     if((p = el->parent) == 0)
@@ -58,32 +52,93 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     
     if(event & M_G_FOCUS_GET)
     {
-	//focus parent
-	if(p->el != 0)
-	    makise_g_focus(p->el, event);
-	
-	if(p->focused != el) //if not already focused
+	//if focus need be recieved
+	MElement *e = el;
+
+	MFocusEnum r = 0; //focus result of required element
+	uint8_t was = 0;
+
+	//send event to parents
+	while(e != 0)
 	{
-	    //clear last focused element
-	    if(p->focused != 0)
-		makise_g_focus(p->focused, M_G_FOCUS_LEAVE);
-	
-	    //set current focus
-	    p->focused = el;
-	    //exec onfocus func
-	    if(el->focus != 0)
-		return el->focus(el, event);	
+	    if(e->parent != 0)
+	    {
+		//if parent isn't null
+		if(e->parent->focused != e)
+		{
+		    makise_g_cont_focus_leave(e->parent);
+		}
+		//set new focused
+		e->parent->focused = e;
+		//send focus event
+		if(e->focus != 0)
+		{
+		    if(!was)
+		    {
+			//we need to get result to return only from el
+			r = e->focus(e, event);
+			was = 1;
+			if(r == M_G_FOCUS_NOT_NEEDED)
+			    return M_G_FOCUS_NOT_NEEDED;
+		    }
+		    else e->focus(e, event);
+		}
+		
+		//get next element
+		e = e->parent->el;
+	    }
+	    else
+	    {
+		if(e->focus != 0)
+		{
+		    if(!was)
+		    {
+			r = e->focus(e, event);
+			was = 1;
+			if(r == M_G_FOCUS_NOT_NEEDED)
+			    return M_G_FOCUS_NOT_NEEDED;
+		    }
+		    else e->focus(e, event);
+		}
+	    }
+	    
 	}
-	else
-	    return M_G_FOCUS_OK; //if element already focused
-    
+	return r;
     }
     else if(event == M_G_FOCUS_LEAVE)
     {
-	if(el->focus != 0)
-	    return el->focus(el, event);
+	MElement *e = el;
+
+	MFocusEnum r = 0;
+	uint8_t was = M_G_FOCUS_NOT_NEEDED;
 	
-	return M_G_FOCUS_OK;
+	if(el->is_parent)
+	    makise_g_cont_focus_leave(el->children);
+	
+	while(e != 0)
+	{
+	    if(e->parent != 0)
+	    {
+		if(e->parent->focused == e)
+		{
+		    //if focused e
+		    e->parent->focused = 0;
+		    if(!was)
+		    {
+			r = e->focus(e, event);
+			was = 1;
+			if(r == M_G_FOCUS_NOT_NEEDED)
+			    return M_G_FOCUS_NOT_NEEDED;
+		    }
+		    else e->focus(e, event);
+		}
+		
+		e = e->parent->el;
+	    }
+	    else
+		break;
+	}
+	return r;
     }
     
     return M_G_FOCUS_NOT_NEEDED;

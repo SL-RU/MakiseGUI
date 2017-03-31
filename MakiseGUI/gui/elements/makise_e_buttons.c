@@ -89,8 +89,8 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
        e->click != 0
        && res == 1)
     {
-	e->click(e);
 	e->state = 2;
+	e->click(e);
 	return M_INPUT_HANDLED;
     }
     
@@ -108,6 +108,7 @@ MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
 	    e->onfocus(e, M_G_FOCUS_GET);
 	}
 	((MButton*)b->data)->state = 1;
+	printf("but get %d\n", b->id);
     }
     if(act == M_G_FOCUS_LEAVE)
     {
@@ -116,6 +117,7 @@ MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
 	    e->onfocus(e, M_G_FOCUS_LEAVE);
 	}
 	((MButton*)b->data)->state = 0;
+	printf("but leave %d\n", b->id);
     }
     //printf("but %d foc %d\n", b->id, act);
     return (act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT)

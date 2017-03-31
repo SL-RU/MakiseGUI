@@ -74,6 +74,13 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type);
 MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data);
 MFocusEnum makise_g_cont_focus_next(MContainer *cont);
 MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
+/**
+ * Send leave event to all children elements recursevely
+ *
+ * @param cont 
+ * @return 
+ */
+void makise_g_cont_focus_leave(MContainer *cont);
 MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y);
 #endif
 

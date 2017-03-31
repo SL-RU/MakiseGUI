@@ -257,127 +257,97 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
     return M_INPUT_NOT_HANDLED;
 }
 
+MFocusEnum _makise_g_cont_focus_ord(MElement *e, uint8_t next)
+{
+    while (e != 0) {
+	if(e->enabled && e->focus_prior != 0)
+	{
+	    //element is enabled && it requires focus
+	    if(e->is_parent)
+	    {
+		//if element is parent
+		if(e->children != 0 &&
+		   makise_g_cont_focus_next(e->children) ==
+		   M_G_FOCUS_OK)
+		{
+		    return M_G_FOCUS_OK;
+		}
+	    }
+	    else
+	    {
+		//if element is not parent
+		if(makise_g_focus(e,
+				  next ?
+				  M_G_FOCUS_GET_NEXT :
+				  M_G_FOCUS_GET_PREV) ==
+		   M_G_FOCUS_OK)
+		{
+		    return M_G_FOCUS_OK;
+		}
+	    }
+	}
+	if(next)
+	    e = e->next;
+	else
+	    e = e->prev;
+    }
+    return M_G_FOCUS_NOT_NEEDED;
+}
+
+MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
+					 uint8_t next)
+{
+    if(cont == 0)
+	return M_ZERO_POINTER;
+    if(cont->first == 0)
+	return M_G_FOCUS_NOT_NEEDED;
+    
+    MElement *e = cont->first;
+    if(cont->focused != 0)
+    {
+	if(next)
+	    e = cont->focused->next;
+	else
+	    e = cont->focused->prev;
+    }
+    //try to focus next element
+    if(_makise_g_cont_focus_ord(e, next) == M_G_FOCUS_OK)
+	return M_G_FOCUS_OK;
+    
+    //if no more elements can switch focus
+    if(cont->el == 0)
+    {
+	//if we are an root
+	makise_g_focus(cont->focused, M_G_FOCUS_LEAVE);
+	//try again
+	return _makise_g_cont_focus_ord(e, next);
+    }
+    return M_G_FOCUS_NOT_NEEDED;
+}
 MFocusEnum makise_g_cont_focus_next(MContainer *cont)
 {
-    if(cont == 0)
-	return M_ZERO_POINTER;
-
-    if(cont->focused != 0)
-    {
-	if(cont->focused->focus != 0 && cont->focused->focus(cont->focused, M_G_FOCUS_NEXT) != M_G_FOCUS_OK)
-	{
-	    //if focused element didn't switched focus by itself or focus function pointer equals to zero, then let's try to do it by ourself.
-	    MElement *e = cont->focused->next;
-	    uint8_t res;
-	    while(e != 0)
-	    {
-		if(e->focus_prior != 0)
-		{
-		    if((res = makise_g_focus(e, M_G_FOCUS_GET_NEXT)) == M_G_FOCUS_OK)
-			return M_G_FOCUS_OK;
-		    //printf("res id %d %d\n", e->id, res);
-		}
-		
-		e = e->next;
-	    }
-
-	    //if isn't no more elements requiring focus
-	    if(cont->el == 0) //if cont is host container
-	    {
-		e = cont->first;
-		while(e != 0)
-		{
-		    if(e->focus_prior != 0)
-		    {
-			if(makise_g_focus(e, M_G_FOCUS_GET_NEXT) == M_G_FOCUS_OK)
-			    return M_G_FOCUS_OK;
-		    }
-		    e = e->next;
-		}
-	    }
-	    return M_G_FOCUS_NOT_NEEDED;
-	}
-	else
-	    return M_G_FOCUS_OK;
-    }
-    else
-    {
-	MElement *e = cont->first;
-	while(e != 0)
-	{
-	    if(e->focus_prior != 0)
-	    {
-		if(makise_g_focus(e, M_G_FOCUS_GET_NEXT) == M_G_FOCUS_OK)
-		{
-//		    makise_g_focus(e, M_G_FOCUS_NEXT);
-		    return M_G_FOCUS_OK;
-		}
-	    }
-	    e = e->next;
-	}
-	return M_G_FOCUS_NOT_NEEDED;
-    }
+    return _makise_g_cont_focus_nextprev(cont, 1);
 }
-    
 MFocusEnum makise_g_cont_focus_prev(MContainer *cont)
 {
+    return _makise_g_cont_focus_nextprev(cont, 0);
+}
+
+void makise_g_cont_focus_leave(MContainer *cont)
+{
     if(cont == 0)
-	return M_ZERO_POINTER;
+	return;
+    if(cont->focused == 0)
+	return;
 
-    if(cont->focused != 0)
+    if(cont->focused->is_parent && cont->focused->children != 0)
     {
-	if(cont->focused->focus != 0 && cont->focused->focus(cont->focused, M_G_FOCUS_PREV) != M_G_FOCUS_OK)
-	{
-	    //if focused element didn't switched focus by itself or focus function pointer equals to zero, then let's try to do it by ourself.
-	    MElement *e = cont->focused->prev;
-	    while(e != 0)
-	    {
-		if(e->focus_prior != 0)
-		{
-		    if(makise_g_focus(e, M_G_FOCUS_GET_PREV) == M_G_FOCUS_OK)
-		    {
-			return M_G_FOCUS_OK;
-		    }
-		}
-		e = e->prev;
-	    }
+	makise_g_cont_focus_leave(cont->focused->children);
+    }
 
-	    //if isn't no more elements requiring focus
-	    if(cont->el == 0) //if cont is host container
-	    {
-		e = cont->last;
-		while(e != 0)
-		{
-		    if(e->focus_prior != 0)
-		    {
-			if(makise_g_focus(e, M_G_FOCUS_GET_PREV) == M_G_FOCUS_OK)
-			    return M_G_FOCUS_OK;
-		    }
-		    e = e->prev;
-		}
-	    }
-	    return M_G_FOCUS_NOT_NEEDED;
-	}
-	else
-	    return M_G_FOCUS_OK;
-    }
-    else
-    {
-	MElement *e = cont->last;
-	while(e != 0)
-	{
-	    if(e->focus_prior != 0)
-	    {
-		if(makise_g_focus(e, M_G_FOCUS_GET_PREV) == M_G_FOCUS_OK)
-		{
-//		    makise_g_focus(e, M_G_FOCUS_PREV);
-		    return M_G_FOCUS_OK;
-		}
-	    }
-	    e = e->prev;
-	}
-	return M_G_FOCUS_NOT_NEEDED;
-    }
+    if(cont->focused->focus != 0)
+	cont->focused->focus(cont->focused, M_G_FOCUS_LEAVE);
+    cont->focused = 0;
 }
 
 MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y)

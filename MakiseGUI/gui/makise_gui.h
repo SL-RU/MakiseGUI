@@ -41,6 +41,13 @@ typedef struct _MHost
 void makise_gui_init(MHost *host);
 
 uint32_t makise_g_newid();
+/**
+ * This method will focus required element and all it's parents. Other already focused elements will be leaved by focus
+ *
+ * @param el 
+ * @param event 
+ * @return 
+ */
 MFocusEnum makise_g_focus(MElement *el, MFocusEnum event);
 
 

@@ -224,31 +224,31 @@ MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act)
     switch (act) {
     case M_G_FOCUS_GET:
 	t->state = 1;
-	if(t->tabs[t->selected].cont.focused == 0)
-	    makise_g_cont_focus_next(&t->tabs[t->selected].cont);
+//	if(t->tabs[t->selected].cont.focused == 0)
+//	    makise_g_cont_focus_next(&t->tabs[t->selected].cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_NEXT:
 	t->state = 1;
-	makise_g_cont_focus_next(&t->tabs[t->selected].cont);
+//	makise_g_cont_focus_next(&t->tabs[t->selected].cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_PREV:
 	t->state = 1;
-	makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
+//	makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_LEAVE:
 	t->state = 0;
-	makise_g_focus(t->tabs[t->selected].cont.focused, M_G_FOCUS_LEAVE);
-	t->tabs[t->selected].cont.focused = 0;
+	//makise_g_focus(t->tabs[t->selected].cont.focused, M_G_FOCUS_LEAVE);
+//C	t->tabs[t->selected].cont.focused = 0;
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_NEXT:
-	return makise_g_cont_focus_next(&t->tabs[t->selected].cont);
+//	return makise_g_cont_focus_next(&t->tabs[t->selected].cont);
 	break;
     case M_G_FOCUS_PREV:
-	return makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
+//	return makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
 	break;
     default: break;
     }
@@ -383,6 +383,11 @@ MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act)
     switch (act) {
     case M_G_FOCUS_GET:
 	return M_G_FOCUS_OK;
+    case M_G_FOCUS_GET_NEXT:
+	return makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
+    case M_G_FOCUS_GET_PREV:
+	return makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
+
     case M_G_FOCUS_LEAVE:
 	return M_G_FOCUS_OK;
     default: return M_G_FOCUS_NOT_NEEDED;
@@ -417,31 +422,31 @@ MFocusEnum _m_tabs_host_focus  (MElement* b, MFocusEnum act)
     switch (act) {
     case M_G_FOCUS_GET:
 	t->state = 1;
-	if(t->host.focused == 0)
-	    makise_g_cont_focus_next(&t->host);
+//	if(t->host.focused == 0)
+//	    makise_g_cont_focus_next(&t->host);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_NEXT:
 	t->state = 1;
-	makise_g_cont_focus_next(&t->host);
+//	makise_g_cont_focus_next(&t->host);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_PREV:
 	t->state = 1;
-	makise_g_cont_focus_prev(&t->host);
+//	makise_g_cont_focus_prev(&t->host);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_LEAVE:
 	t->state = 0;
-	makise_g_focus(t->host.focused, M_G_FOCUS_LEAVE);
+	//makise_g_focus(t->host.focused, M_G_FOCUS_LEAVE);
 	t->host.focused = 0;
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_NEXT:
-	return makise_g_cont_focus_next(&(t->host));
+//	return makise_g_cont_focus_next(&(t->host));
 	break;
     case M_G_FOCUS_PREV:
-	return makise_g_cont_focus_prev(&(t->host));
+//	return makise_g_cont_focus_prev(&(t->host));
 	break;
     default: return M_G_FOCUS_NOT_NEEDED;
     }
