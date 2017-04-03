@@ -78,15 +78,10 @@ MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act)
     case M_G_FOCUS_GET:
 	((MCanvas*)b->data)->state = 1;
 	return M_G_FOCUS_OK;
-	break;
     case M_G_FOCUS_GET_NEXT:
-	((MCanvas*)b->data)->state = 1;
-	return M_G_FOCUS_OK;
-	break;
+	return M_G_FOCUS_NOT_NEEDED;
     case M_G_FOCUS_GET_PREV:
-	((MCanvas*)b->data)->state = 1;
-	return M_G_FOCUS_OK;
-	break;
+	return M_G_FOCUS_NOT_NEEDED;
     case M_G_FOCUS_LEAVE:
 	((MCanvas*)b->data)->state = 0;
 	((MCanvas*)b->data)->cont.focused = 0;

@@ -259,34 +259,34 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
 
 MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 					 uint8_t next);
-MFocusEnum _makise_g_cont_focus_ord(MElement *e, uint8_t next)
+MFocusEnum _makise_g_cont_focus_ord(MElement *e, uint8_t next, uint8_t first)
 {
+    uint8_t f = 1; //if current element is parent - we need to try switch it
     while (e != 0) {
 	if(e->enabled && e->focus_prior != 0)
 	{
 	    //element is enabled && it requires focus
-	    if(e->is_parent)
+	    //if element is parent
+	    if(e->is_parent &&
+	       e->children != 0 &&
+	       _makise_g_cont_focus_nextprev(e->children, next)
+	       == M_G_FOCUS_OK)
 	    {
-		//if element is parent
-		if(e->children != 0 &&
-		   _makise_g_cont_focus_nextprev(e->children, next)
-		   == M_G_FOCUS_OK)
-		{
-		    return M_G_FOCUS_OK;
-		}
+		return M_G_FOCUS_OK;
 	    }
-	    else
+	    else if(!f || first)
 	    {
 		//if element is not parent
 		if(makise_g_focus(e,
 				  next ?
-				  M_G_FOCUS_GET :
-				  M_G_FOCUS_GET) ==
+				  M_G_FOCUS_GET_NEXT :
+				  M_G_FOCUS_GET_PREV) ==
 		   M_G_FOCUS_OK)
 		{
 		    return M_G_FOCUS_OK;
 		}
 	    }
+	    f = 0; //first element was tested
 	}
 	if(next)
 	    e = e->next;
@@ -305,18 +305,17 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	return M_G_FOCUS_NOT_NEEDED;
     
     MElement *e = cont->first;
+    uint8_t first = 1;
+    if(!next)
+	e = cont->last;
     if(cont->focused != 0)
     {
-	if(next)
-	    e = cont->focused->next;
-	else
-	    e = cont->focused->prev;
+	e = cont->focused;
+	first = 0;
     }
-    else if(!next)
-	e = cont->last;
     
     //try to focus next element
-    if(_makise_g_cont_focus_ord(e, next) == M_G_FOCUS_OK)
+    if(_makise_g_cont_focus_ord(e, next, first) == M_G_FOCUS_OK)
 	return M_G_FOCUS_OK;
     
     //if no more elements can switch focus
@@ -329,7 +328,7 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	else
 	    e = cont->last;
 	//try again
-	return _makise_g_cont_focus_ord(e, next);
+	return _makise_g_cont_focus_ord(e, next, 1);
     }
     return M_G_FOCUS_NOT_NEEDED;
 }

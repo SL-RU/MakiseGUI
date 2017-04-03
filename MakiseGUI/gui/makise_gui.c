@@ -47,11 +47,13 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     if((p = el->parent) == 0)
 	return M_ZERO_POINTER;
 
-    if(el->focus_prior == 0)
+    if(el->focus_prior == 0 || el->focus == 0 || el->enabled == 0)
 	return M_G_FOCUS_NOT_NEEDED;
+
     
     if(event & M_G_FOCUS_GET)
     {
+	printf("Focus %d\n", el->id);
 	//if focus need be recieved
 	MElement *e = el;
 
@@ -61,6 +63,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	//send event to parents
 	while(e != 0)
 	{
+	    if(e->enabled == 0 || e->focus == 0 || e->focus_prior == 0)
+		return M_G_FOCUS_NOT_NEEDED;
 	    if(e->parent != 0)
 	    {
 		//if parent isn't null
@@ -107,6 +111,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     }
     else if(event == M_G_FOCUS_LEAVE)
     {
+	printf("Focus leave %d\n", el->id);
 	MElement *e = el;
 
 	MFocusEnum r = 0;
