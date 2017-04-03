@@ -448,8 +448,9 @@ MFocusEnum _m_tabs_host_focus  (MElement* b, MFocusEnum act)
     case M_G_FOCUS_PREV:
 //	return makise_g_cont_focus_prev(&(t->host));
 	break;
-    default: return M_G_FOCUS_NOT_NEEDED;
     }
+    return M_G_FOCUS_NOT_NEEDED;
+    
 }
 
 void m_tabs_select_tab(MTabs *t, uint8_t tab)
@@ -461,7 +462,10 @@ void m_tabs_select_tab_next(MTabs *t)
 {
     int s = t->selected;
     s += 1;
-    _m_tabs_select_tab(t, s);
+    if(s < t->len)
+	_m_tabs_select_tab(t, s);
+    else
+    	_m_tabs_select_tab(t, 0);
     makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
 }
 void m_tabs_select_tab_back(MTabs *t)

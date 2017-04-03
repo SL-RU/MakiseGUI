@@ -257,6 +257,8 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
     return M_INPUT_NOT_HANDLED;
 }
 
+MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
+					 uint8_t next);
 MFocusEnum _makise_g_cont_focus_ord(MElement *e, uint8_t next)
 {
     while (e != 0) {
@@ -267,8 +269,8 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e, uint8_t next)
 	    {
 		//if element is parent
 		if(e->children != 0 &&
-		   makise_g_cont_focus_next(e->children) ==
-		   M_G_FOCUS_OK)
+		   _makise_g_cont_focus_nextprev(e->children, next)
+		   == M_G_FOCUS_OK)
 		{
 		    return M_G_FOCUS_OK;
 		}
@@ -278,8 +280,8 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e, uint8_t next)
 		//if element is not parent
 		if(makise_g_focus(e,
 				  next ?
-				  M_G_FOCUS_GET_NEXT :
-				  M_G_FOCUS_GET_PREV) ==
+				  M_G_FOCUS_GET :
+				  M_G_FOCUS_GET) ==
 		   M_G_FOCUS_OK)
 		{
 		    return M_G_FOCUS_OK;
@@ -310,6 +312,9 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	else
 	    e = cont->focused->prev;
     }
+    else if(!next)
+	e = cont->last;
+    
     //try to focus next element
     if(_makise_g_cont_focus_ord(e, next) == M_G_FOCUS_OK)
 	return M_G_FOCUS_OK;
@@ -318,7 +323,11 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
     if(cont->el == 0)
     {
 	//if we are an root
-	makise_g_focus(cont->focused, M_G_FOCUS_LEAVE);
+//exs	makise_g_focus(cont->focused, M_G_FOCUS_LEAVE);
+	if(next)
+	    e = cont->first;
+	else
+	    e = cont->last;
 	//try again
 	return _makise_g_cont_focus_ord(e, next);
     }
