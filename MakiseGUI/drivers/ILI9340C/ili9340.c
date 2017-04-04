@@ -167,29 +167,31 @@ uint8_t ili9340_init(MakiseGUI* gui)
     
     return HAL_OK;
 }
+
+//set window for drawing buffer
 void _ili9340_setAddrWindow(uint16_t x0, uint16_t y0, uint16_t x1,
 		   uint16_t y1)
 {
-    uint8_t _ili9340_addr_kek[2];
+    uint8_t _ili9340_addr[2];
 
     _ili9340_cs(0);
     ili9340_write_command(ILI9340_CASET); // Column addr set
     
     _ili9340_dc(1);
-    _ili9340_addr_kek[0] = x0 >> 8;
-    _ili9340_addr_kek[1] = x0;
-    _ili9340_addr_kek[2] = x1 >> 8;
-    _ili9340_addr_kek[3] = x1;
-    HAL_SPI_Transmit(&ILI9340_SPI, (uint8_t*)_ili9340_addr_kek, 4, 10);
+    _ili9340_addr[0] = x0 >> 8;
+    _ili9340_addr[1] = x0;
+    _ili9340_addr[2] = x1 >> 8;
+    _ili9340_addr[3] = x1;
+    HAL_SPI_Transmit(&ILI9340_SPI, (uint8_t*)_ili9340_addr, 4, 10);
 
     ili9340_write_command(ILI9340_PASET); // Row addr set
 
     _ili9340_dc(1);
-    _ili9340_addr_kek[0] = y0 >> 8;
-    _ili9340_addr_kek[1] = y0;
-    _ili9340_addr_kek[2] = y1 >>8;
-    _ili9340_addr_kek[3] = y1;
-    HAL_SPI_Transmit(&ILI9340_SPI, (uint8_t*)_ili9340_addr_kek, 4, 10);
+    _ili9340_addr[0] = y0 >> 8;
+    _ili9340_addr[1] = y0;
+    _ili9340_addr[2] = y1 >>8;
+    _ili9340_addr[3] = y1;
+    HAL_SPI_Transmit(&ILI9340_SPI, (uint8_t*)_ili9340_addr, 4, 10);
 
     ili9340_write_command(ILI9340_RAMWR); // write to RAM
 }

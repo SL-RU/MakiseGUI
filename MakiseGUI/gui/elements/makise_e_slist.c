@@ -72,9 +72,12 @@ void _m_slist_draw_item   (MSList_Item *ci, MSList *l, MakiseStyleTheme *c_th, u
 		      c_th->font_col);
 
 	if(ci->value)
+	{
+	    uint32_t d = eh > 21 ? 5 : 2;
 	    makise_d_rect_filled(l->el.gui->buffer,
-				 x + 2, y + 2, eh - 4, eh - 4,
+				 x + d, y + d, eh - d * 2, eh - d * 2,
 				 c_th->font_col, l->item_style->active.font_col);
+	}
 	x += eh;
 	w -= eh;
     } else if(l->type == MSList_RadioButton)
@@ -426,11 +429,11 @@ void _m_slist_input_item  (MSList *e, MSList_Item *it)
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
 uint8_t _m_slist_input_check_item   (MSList_Item *ci, MSList *l, uint32_t x, uint32_t y, uint32_t w, uint32_t eh, int32_t cx, int32_t cy)
 {
-    printf("check %s\n", ci->text);
+    //printf("check %s\n", ci->text);
     if(cx >= x && cx <= x + w &&
        cy >= y && cy <= y + eh)
     {
-	printf("ok");
+	//printf("ok");
 	l->selected = ci;
 	_m_slist_input_item(l, ci);
 	return 1;
@@ -578,7 +581,7 @@ MInputResultEnum _m_slist_input_cursor  (MElement* b, MInputData data)
     {
 	if(l->started) //if press is already started
 	{
-	    int32_t dx = data.cursor.x - l->sx;
+	    //int32_t dx = data.cursor.x - l->sx;
 	    int32_t dy = data.cursor.y - l->sy;
 	    int32_t eh = l->item_style->font->height + 
 		l->item_style->font_line_spacing + 3; //height of one item
@@ -630,6 +633,10 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 
     if(e->items == 0)
 	return M_INPUT_NOT_HANDLED;
+
+    MSList_Item *last_item = e->selected;
+    uint8_t handled = 0; //was event handled
+    
     if(e->selected == 0)
     {
 	e->selected = e->items;
@@ -667,6 +674,7 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 		else
 		    e->selected = e->items;
 	    }
+	    handled = 1;
 	} else if(data.key == M_KEY_UP)
 	{
 	    if(e->is_array)
@@ -699,17 +707,21 @@ MInputResultEnum _m_slist_input  (MElement* b, MInputData data)
 		    e->selected = n;
 		}
 	    }
-	} else if(data.key == M_KEY_OK)
+	    handled = 1;
+	}
+	//send selected event before 
+	if(e->onselection != 0 && last_item != e->selected)
+	    e->onselection(e, e->selected);
+
+	if(data.key == M_KEY_OK)
 	{
 	    if(e->selected != 0)
 		_m_slist_input_item(e, e->selected);
+	    handled = 1;
 	}
 	
-	if(e->onselection != 0)
-	    e->onselection(e, e->selected);
-	return M_INPUT_HANDLED;
     }
     
-    return M_INPUT_NOT_HANDLED;
+    return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
 
 }

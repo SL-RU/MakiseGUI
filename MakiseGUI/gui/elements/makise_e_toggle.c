@@ -115,7 +115,7 @@ MInputResultEnum _m_toggle_input  (MElement* b, MInputData data)
 }
 MFocusEnum _m_toggle_focus  (MElement* b, MFocusEnum act)
 {
-    MToggle *e = ((MToggle*)b->data);
+    //MToggle *e = ((MToggle*)b->data);
     if(act & M_G_FOCUS_GET)
     {
 	((MToggle*)b->data)->focus_state = 1;

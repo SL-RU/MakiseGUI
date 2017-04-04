@@ -379,15 +379,10 @@ MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data)
 }
 MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act)
 {
-    MTabs *t = ((MTabs*)b->data);
+//    MTabs *t = ((MTabs*)b->data);
     switch (act) {
     case M_G_FOCUS_GET:
 	return M_G_FOCUS_OK;
-    case M_G_FOCUS_GET_NEXT:
-	return makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
-    case M_G_FOCUS_GET_PREV:
-	return makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
-
     case M_G_FOCUS_LEAVE:
 	return M_G_FOCUS_OK;
     default: return M_G_FOCUS_NOT_NEEDED;
@@ -442,12 +437,7 @@ MFocusEnum _m_tabs_host_focus  (MElement* b, MFocusEnum act)
 	t->host.focused = 0;
 	return M_G_FOCUS_OK;
 	break;
-    case M_G_FOCUS_NEXT:
-//	return makise_g_cont_focus_next(&(t->host));
-	break;
-    case M_G_FOCUS_PREV:
-//	return makise_g_cont_focus_prev(&(t->host));
-	break;
+    default: break;
     }
     return M_G_FOCUS_NOT_NEEDED;
     
