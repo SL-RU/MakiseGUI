@@ -136,7 +136,7 @@ void makise_gui_input_perform(MHost *h)
 	if(l == 1)
 	{
 	    r = makise_g_host_input(h, h->input.buffer[k][i]);
-	    printf("k %d r %d\n", h->input.buffer[k][i].key, r);
+	    //printf("k %d r %d\n", h->input.buffer[k][i].key, r);
 	    if(h->input.result_handler != 0)
 	    {
 		d = h->input.result_handler(h->input.buffer[k][i], r);

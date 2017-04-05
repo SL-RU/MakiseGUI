@@ -472,12 +472,14 @@ static MInputResultEnum input_cursor  (MElement* b, MInputData data)
 	    int32_t eh = l->item_style->font->height + 
 		l->item_style->font_line_spacing + 3; //height of one item
 
-	    int32_t c = dy / eh; //how many items need to scroll
-	    if(eh * l->len > b->position.height * 1.5) //if there are many items - we'll speedup scrolling
-		c *= 2;
-
+	    float cf = (float)dy / (float)eh; //how many items need to scroll
+	    if(eh * l->len > b->position.height * 1.5f) //if there are many items - we'll speedup scrolling
+		cf *= 1.8f;
+	    int32_t c = cf;
+	    
 	    if(l->is_array) //if array then just compute new index
 	    {
+		MSList_Item *it = l->selected;
 		if(c < 0)
 		{
 		    if(l->sitem->id >= -c)
@@ -492,7 +494,41 @@ static MInputResultEnum input_cursor  (MElement* b, MInputData data)
 		    else
 			l->selected = &l->items[l->len - 1];
 		}
+		if(it != l->selected)
+		{
+		    //send selected event before 
+		    if(l->onselection != 0)
+			l->onselection(l, l->selected);
 	    }
+		}
+	    else
+	    {
+		int32_t i = c < 0 ? -c : c;
+		MSList_Item *it = l->sitem;
+		while (i > 0) {
+		    if(c < 0)
+		    {
+			if(it->prev == 0)
+			    break;
+			it = it->prev;
+		    }
+		    else
+		    {
+			if(it->next == 0)
+			    break;
+			it = it->next;
+		    }
+		    i --;
+		}
+		if(l->selected != it)
+		{
+		    l->selected = it;
+		    //send selected event before 
+		    if(l->onselection != 0)
+			l->onselection(l, l->selected);
+		}
+	    }
+		
 	}
 	else //first touch
 	{
