@@ -9,25 +9,25 @@ typedef struct {
     MakiseStyle* style;
 } MTabsHeader;
 
-uint8_t _m_tabs_header_draw   (MElement* b);
-MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data);
-MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act);
+static uint8_t header_draw   (MElement* b);
+static MInputResultEnum header_input  (MElement* b, MInputData data);
+static MFocusEnum header_focus  (MElement* b, MFocusEnum act);
 
-uint8_t _m_tabs_host_draw   (MElement* b);
-uint8_t _m_tabs_host_predraw(MElement* b);
-MInputResultEnum _m_tabs_host_input  (MElement* b, MInputData data);
-MFocusEnum _m_tabs_host_focus  (MElement* b, MFocusEnum act);
+static uint8_t host_draw   (MElement* b);
+static uint8_t host_predraw(MElement* b);
+static MInputResultEnum host_input  (MElement* b, MInputData data);
+static MFocusEnum host_focus  (MElement* b, MFocusEnum act);
 
-uint8_t _m_tabs_draw   (MElement* b);
-uint8_t _m_tabs_predraw(MElement* b);
-MInputResultEnum _m_tabs_input  (MElement* b, MInputData data);
-MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act);
+static uint8_t draw   (MElement* b);
+static uint8_t predraw(MElement* b);
+static MInputResultEnum input  (MElement* b, MInputData data);
+static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
-void _m_tabs_init_tabs(MTabs* b);
+static void init_tabs(MTabs* b);
 
-char _tabs_host_name[] = "Tabs host";
-char _tabs_header_name[] = "Tabs header";
-char _tabs_name[] = "Tab";
+static char host_name[] = "Tabs host";
+static char header_name[] = "Tabs header";
+static char name[] = "Tab";
 void m_create_tabs(MTabs* b, MContainer *c,
 		   MPosition pos,
 		   MTabs_Tab *tabs,
@@ -39,55 +39,43 @@ void m_create_tabs(MTabs* b, MContainer *c,
     MElement *e = &b->el;
     MElement *et = &b->tabs_el;
     MElement *eh = &b->header_el;
+
     MContainer *host = &b->host;
-    e->gui = et->gui = eh->gui = c->gui;
-
-    e->data = et->data = eh->data = b;
-
-    e->name = _tabs_host_name;
-    eh->name = _tabs_header_name;
-    et->name = _tabs_name;
+    makise_g_cont_init(host);
     
-    //methods
-    et->draw    = &_m_tabs_draw;
-    et->predraw = &_m_tabs_predraw;
-    et->update  = 0;
-    et->input   = &_m_tabs_input;
-    et->focus   = &_m_tabs_focus;
-
-    e->draw    = &_m_tabs_host_draw;
-    e->predraw = &_m_tabs_host_predraw;
-    e->update  = 0;
-    e->input   = &_m_tabs_host_input;
-    e->focus   = &_m_tabs_host_focus;
-
-    eh->draw    = &_m_tabs_header_draw;
-    eh->predraw = 0;
-    eh->update  = 0;         
-    eh->input   = &_m_tabs_header_input;
-    eh->focus   = &_m_tabs_header_focus;
-
-
-    //parent/childred
-    e->is_parent = et->is_parent = 1;
-    e->children = host;
-    et->children = 0;
-    eh->is_parent = 0;
+    //tab themselve
+    m_element_create(et, (c == 0) ? 0 : c->gui, name, b,
+		     1, 1, pos,
+		     &draw,
+		     &predraw,
+		     0,
+		     &input,
+		     &focus,
+		     1, 0);
+    //main element - host for everything else
+    m_element_create(e, (c == 0) ? 0 : c->gui, host_name, b,
+		     1, 1, pos,
+		     &host_draw,
+		     &host_predraw,
+		     0,
+		     &host_input,
+		     &host_focus,
+		     1, host);
+    //header
+    m_element_create(eh, (c == 0) ? 0 : c->gui, header_name, b,
+		     1, 1, pos,
+		     &header_draw,
+		     0,
+		     0,
+		     &header_input,
+		     &header_focus,
+		     0, 0);
 
     host->gui = c->gui;
     host->el = e;
     host->position = &e->position;
 
-    //position
-    e->position = pos;
     
-    //ids + focus + enable data
-    e->enabled = et->enabled = eh->enabled = 1;
-    e->id = makise_g_newid();
-    et->id = makise_g_newid();
-    eh->id = makise_g_newid();
-    e->focus_prior = et->focus_prior = eh->focus_prior = 1;
-
     //add to containers
     makise_g_cont_add(c, e);
     makise_g_cont_add(host, et);
@@ -102,7 +90,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
     b->size = size;
     b->selected = 0;
 
-    _m_tabs_init_tabs(b);
+    init_tabs(b);
 
     et->children = &b->tabs[b->selected].cont;
 
@@ -126,7 +114,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 }
 
 
-uint8_t _m_tabs_draw   (MElement* b)
+uint8_t draw   (MElement* b)
 {
     MakiseStyleTheme *th = 0;
 
@@ -151,7 +139,7 @@ uint8_t _m_tabs_draw   (MElement* b)
     return makise_g_cont_call(&t->tabs[t->selected].cont, M_G_CALL_DRAW);
 //    return M_OK;
 }
-uint8_t _m_tabs_predraw(MElement* b)
+uint8_t predraw(MElement* b)
 {
     MTabs *t = ((MTabs*)b->data);
 
@@ -186,7 +174,7 @@ void _m_tabs_select_tab(MTabs *t, uint32_t s)
 	t->tabs_el.children = &t->tabs[t->selected].cont;
     }
 }
-MInputResultEnum _m_tabs_input  (MElement* b, MInputData data)
+MInputResultEnum input  (MElement* b, MInputData data)
 {
     MTabs *t = ((MTabs*)b->data);
 
@@ -200,7 +188,7 @@ MInputResultEnum _m_tabs_input  (MElement* b, MInputData data)
 //	return M_INPUT_NOT_HANDLED;
     if(data.key == M_KEY_TAB_NEXT ||
        data.key == M_KEY_TAB_BACK)
-	return _m_tabs_header_input(b, data);
+	return header_input(b, data);
     
     if(t->tabs[t->selected].cont.focused == 0)
 	makise_g_cont_focus_next(&t->tabs[t->selected].cont);
@@ -208,7 +196,7 @@ MInputResultEnum _m_tabs_input  (MElement* b, MInputData data)
 	return makise_g_cont_input(&t->tabs[t->selected].cont, data);
     return M_INPUT_NOT_HANDLED;
 }
-MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act)
+MFocusEnum focus  (MElement* b, MFocusEnum act)
 {
     MTabs *t = ((MTabs*)b->data);
 
@@ -224,31 +212,19 @@ MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act)
     switch (act) {
     case M_G_FOCUS_GET:
 	t->state = 1;
-//	if(t->tabs[t->selected].cont.focused == 0)
-//	    makise_g_cont_focus_next(&t->tabs[t->selected].cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_NEXT:
 	t->state = 1;
-//	makise_g_cont_focus_next(&t->tabs[t->selected].cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_GET_PREV:
 	t->state = 1;
-//	makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
 	return M_G_FOCUS_OK;
 	break;
     case M_G_FOCUS_LEAVE:
 	t->state = 0;
-	//makise_g_focus(t->tabs[t->selected].cont.focused, M_G_FOCUS_LEAVE);
-//C	t->tabs[t->selected].cont.focused = 0;
 	return M_G_FOCUS_OK;
-	break;
-    case M_G_FOCUS_NEXT:
-//	return makise_g_cont_focus_next(&t->tabs[t->selected].cont);
-	break;
-    case M_G_FOCUS_PREV:
-//	return makise_g_cont_focus_prev(&t->tabs[t->selected].cont);
 	break;
     default: break;
     }
@@ -256,22 +232,20 @@ MFocusEnum _m_tabs_focus  (MElement* b, MFocusEnum act)
     return M_G_FOCUS_NOT_NEEDED;
 }
 
-void _m_tabs_init_tabs(MTabs* b)
+void init_tabs(MTabs* b)
 {
     if(b->tabs == 0)
 	return;
     for (uint32_t i = 0; i < b->len; i++) {
+	makise_g_cont_init(&b->tabs[i].cont);
 	b->tabs[i].cont.gui = b->el.gui;
 	b->tabs[i].cont.el = &b->tabs_el;
-	b->tabs[i].cont.first = 0;
-	b->tabs[i].cont.last = 0;
-	b->tabs[i].cont.focused = 0;
 	b->tabs[i].cont.position = &b->tabs_el.position;
     }
 }
 
 
-uint8_t _m_tabs_header_draw   (MElement* b)
+uint8_t header_draw   (MElement* b)
 {
     MTabs *t = ((MTabs*)b->data);
     
@@ -323,7 +297,7 @@ uint8_t _m_tabs_header_draw   (MElement* b)
     }
     return M_OK;
 }
-MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data)
+MInputResultEnum header_input  (MElement* b, MInputData data)
 {
     MTabs *t = ((MTabs*)b->data);
     if(data.key == M_KEY_TAB_NEXT)
@@ -377,7 +351,7 @@ MInputResultEnum _m_tabs_header_input  (MElement* b, MInputData data)
 #endif
     return M_INPUT_NOT_HANDLED;
 }
-MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act)
+MFocusEnum header_focus  (MElement* b, MFocusEnum act)
 {
 //    MTabs *t = ((MTabs*)b->data);
     switch (act) {
@@ -390,28 +364,28 @@ MFocusEnum _m_tabs_header_focus  (MElement* b, MFocusEnum act)
 }
 
 
-uint8_t _m_tabs_host_draw   (MElement* b)
+uint8_t host_draw   (MElement* b)
 {
     MTabs *t = ((MTabs*)b->data);
     if(t->host.focused == 0)
 	t->host.focused = &(t->tabs_el);
     return makise_g_cont_call(&t->host, M_G_CALL_DRAW);
 }
-uint8_t _m_tabs_host_predraw(MElement* b)
+uint8_t host_predraw(MElement* b)
 {
     MTabs *t = ((MTabs*)b->data);
     if(t->host.focused == 0)
 	t->host.focused = &(t->tabs_el);
     return makise_g_cont_call(&t->host, M_G_CALL_PREDRAW);
 }
-MInputResultEnum _m_tabs_host_input  (MElement* b, MInputData data)
+MInputResultEnum host_input  (MElement* b, MInputData data)
 {
     MTabs *t = ((MTabs*)b->data);
     if(t->host.focused == 0)
 	t->host.focused = &(t->tabs_el);
     return makise_g_cont_input(&t->host, data);
 }
-MFocusEnum _m_tabs_host_focus  (MElement* b, MFocusEnum act)
+MFocusEnum host_focus  (MElement* b, MFocusEnum act)
 {
     MTabs *t = ((MTabs*)b->data);
     switch (act) {

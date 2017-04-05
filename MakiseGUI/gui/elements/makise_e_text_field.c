@@ -1,34 +1,23 @@
 #include "makise_e.h"
 
-uint8_t _m_textfield_draw   (MElement* b);
+static uint8_t draw   (MElement* b);
 
-char _m_textfield_name[] = "Text field";
+static char name[] = "Text field";
 void m_create_text_field(MTextField* b, MContainer *c,
 			 MPosition pos,
 			 char* text,
 			 MakiseStyle *style)
 {
     MElement *e = &b->el;
-    e->gui = c->gui;
+    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+		     1, 1, pos,
+		     &draw,
+		     0,
+		     0,
+		     0,
+		     0,
+		     0, 0);
 
-    e->name = _m_textfield_name;
-
-    e->data = b;
-    
-
-    e->draw = &_m_textfield_draw;
-    e->predraw = 0;
-    e->update = 0;
-    e->input = 0;
-    e->focus = 0;
-    e->is_parent = 0;
-	
-    e->position = pos;
-
-    e->enabled = 1;
-    e->id = makise_g_newid();
-    e->focus_prior = 0;
-    
     b->text = text;
     
     b->style = style;
@@ -38,7 +27,7 @@ void m_create_text_field(MTextField* b, MContainer *c,
     printf("Text field %d created\n", e->id);
 }
 
-uint8_t _m_textfield_draw   (MElement* b)
+uint8_t draw   (MElement* b)
 {
     MakiseStyleTheme *th = &((MTextField*)b->data)->style->normal;
     

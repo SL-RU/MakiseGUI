@@ -1,5 +1,38 @@
 #include "makise_gui_elements.h"
 
+void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
+		      uint8_t enabled, uint8_t focus_prior,
+		      MPosition position,
+		      uint8_t    (*draw    )(MElement* el),
+		      uint8_t    (*predraw )(MElement* el),
+		      uint8_t    (*update  )(MElement* el),
+		      MInputResultEnum (*input   )(MElement* el, MInputData data),
+		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
+		      uint8_t  is_parent,
+		      MContainer *children)
+{
+    e->id = makise_g_newid();
+    
+    e->gui = gui;
+    e->name = name;
+
+    e->data = data;
+    e->enabled = enabled;
+    e->focus_prior = focus_prior;
+    e->position = position;
+    e->draw = draw;
+    e->predraw = predraw;
+    e->update = update;
+    e->input = input;
+    e->focus = focus;
+    e->is_parent = is_parent;
+    e->children = children;
+
+    e->next = 0;
+    e->prev = 0;
+    e->parent = 0;
+}
+
 uint8_t m_element_call(MElement* el, uint8_t type)
 {
     if(el == 0)

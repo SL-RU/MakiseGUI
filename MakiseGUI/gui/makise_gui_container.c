@@ -1,5 +1,15 @@
 #include "makise_gui_container.h"
 
+void makise_g_cont_init(MContainer *c)
+{
+    c->first = 0;
+    c->last = 0;
+    c->position = 0;
+    c->gui = 0;
+    c->focused = 0;
+    c->el = 0;
+}
+
 void makise_g_cont_add(MContainer * cont, MElement *el)
 {
     if(cont == 0 || el == 0)

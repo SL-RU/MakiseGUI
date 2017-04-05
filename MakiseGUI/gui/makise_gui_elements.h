@@ -81,6 +81,17 @@ typedef struct _MElement
     
 } MElement;
 
+void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
+		      uint8_t enabled, uint8_t focus_prior,
+		      MPosition position,
+		      uint8_t    (*draw    )(MElement* el),
+		      uint8_t    (*predraw )(MElement* el),
+		      uint8_t    (*update  )(MElement* el),
+		      MInputResultEnum (*input   )(MElement* el, MInputData data),
+		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
+		      uint8_t  is_parent,
+		      MContainer *children);
+
 
 uint8_t m_element_call(MElement* el, uint8_t type);
 uint8_t m_element_input(MElement* el, MInputData data);

@@ -1,50 +1,44 @@
 #include "makise_e.h"
 
-uint8_t _m_canvas_draw   (MElement* b);
-uint8_t _m_canvas_predraw(MElement* b);
-MInputResultEnum _m_canvas_input  (MElement* b, MInputData data);
-MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act);
+static uint8_t draw   (MElement* b);
+static uint8_t predraw(MElement* b);
+static MInputResultEnum input  (MElement* b, MInputData data);
+static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
-char _m_canvas_name[] = "Canvas";
+static char name[] = "Canvas";
 void m_create_canvas(MCanvas* b, MContainer *c,
 		     MPosition pos,
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
-    e->gui = c->gui;
 
-    e->name = _m_canvas_name;
+    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+		     1, 1,
+		     pos,
+		     &draw,
+		     &predraw,
+		     0,
+		     &input,
+		     &focus,
+		     1, &b->cont);
     
-    e->data = b;
-    
-    makise_g_cont_add(c, e);
-
-    e->draw = &_m_canvas_draw;
-    e->predraw = &_m_canvas_predraw;
-    e->update = 0;
-    e->input = &_m_canvas_input;
-    e->focus = &_m_canvas_focus;
-    e->is_parent = 1;
-    e->children = &b->cont;
-
-    e->position = pos;
-
-    e->enabled = 1;
-    e->id = makise_g_newid();
-    e->focus_prior = 1;
     
     b->style = style;
 
+    makise_g_cont_init(&b->cont);
+    
     b->cont.gui = c->gui;
     b->cont.el  = e;
     b->cont.position = &e->position;
 
-    printf("Button %d created\n", e->id);
+    makise_g_cont_add(c, e);
+    
+    printf("Canvas %d created\n", e->id);
 
 }
 
 
-uint8_t _m_canvas_draw   (MElement* b)
+static uint8_t draw   (MElement* b)
 {
     MakiseStyleTheme *th = 0;
 
@@ -60,11 +54,11 @@ uint8_t _m_canvas_draw   (MElement* b)
     return makise_g_cont_call(&((MCanvas*)b->data)->cont, M_G_CALL_DRAW);
 //    return M_OK;
 }
-uint8_t _m_canvas_predraw(MElement* b)
+static uint8_t predraw(MElement* b)
 {    
     return makise_g_cont_call(&((MCanvas*)b->data)->cont, M_G_CALL_PREDRAW);
 }
-MInputResultEnum _m_canvas_input  (MElement* b, MInputData data)
+static MInputResultEnum input  (MElement* b, MInputData data)
 {
     if(((MCanvas*)b->data)->cont.focused == 0)
 	makise_g_cont_focus_next(&(((MCanvas*)b->data)->cont));
@@ -72,7 +66,7 @@ MInputResultEnum _m_canvas_input  (MElement* b, MInputData data)
 	return makise_g_cont_input(&((MCanvas*)b->data)->cont, data);
     return M_INPUT_NOT_HANDLED;
 }
-MFocusEnum _m_canvas_focus  (MElement* b, MFocusEnum act)
+static MFocusEnum focus  (MElement* b, MFocusEnum act)
 {
     switch (act) {
     case M_G_FOCUS_GET:

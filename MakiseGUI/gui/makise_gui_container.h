@@ -19,6 +19,7 @@ typedef struct _MContainer
 //    void (*on_add)(MElement* el);
 } MContainer;
 
+void makise_g_cont_init(MContainer *c);
 /**
  * add element to new container
  *

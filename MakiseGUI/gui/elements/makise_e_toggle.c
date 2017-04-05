@@ -1,10 +1,10 @@
 #include "makise_e.h"
 
-uint8_t _m_toggle_draw   (MElement* b);
-MInputResultEnum _m_toggle_input  (MElement* b, MInputData data);
-MFocusEnum _m_toggle_focus  (MElement* b, MFocusEnum act);
+static uint8_t draw   (MElement* b);
+static MInputResultEnum input  (MElement* b, MInputData data);
+static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
-char _m_toggle_name[] = "Toggle";
+static char name[] = "Toggle";
 void m_create_toggle(MToggle* b, MContainer *c,
 		     MPosition pos,
 		     char* text,
@@ -12,25 +12,15 @@ void m_create_toggle(MToggle* b, MContainer *c,
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
-    e->gui = c->gui;
 
-    e->name = _m_toggle_name;
-
-    e->data = b;
-
-    e->draw = &_m_toggle_draw;
-    e->predraw = 0;
-    e->update = 0;
-    e->input = &_m_toggle_input;
-    e->focus = &_m_toggle_focus;
-    e->is_parent = 0;
-    
-    e->position = pos;
-
-    e->enabled = 1;
-    e->id = makise_g_newid();
-    
-    e->focus_prior = 1;
+    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+		     1, 1, pos,
+		     &draw,
+		     0,
+		     0,
+		     &input,
+		     &focus,
+		     0, 0);
     
     b->text = text;
 
@@ -43,7 +33,7 @@ void m_create_toggle(MToggle* b, MContainer *c,
     printf("Toggle %d created\n", e->id);
 }
 
-uint8_t _m_toggle_draw   (MElement* b)
+uint8_t draw   (MElement* b)
 {
     MakiseStyleTheme *th = 0,
 	*th_b = ((MToggle*)b->data)->state ?
@@ -92,7 +82,7 @@ uint8_t _m_toggle_draw   (MElement* b)
     return M_OK;
 }
 
-MInputResultEnum _m_toggle_input  (MElement* b, MInputData data)
+MInputResultEnum input  (MElement* b, MInputData data)
 {
     //printf("but %d inp %d %d\n", b->id, data.key, data.event);
     MToggle *e = ((MToggle*)b->data);
@@ -113,7 +103,7 @@ MInputResultEnum _m_toggle_input  (MElement* b, MInputData data)
     }
     return M_INPUT_NOT_HANDLED;
 }
-MFocusEnum _m_toggle_focus  (MElement* b, MFocusEnum act)
+MFocusEnum focus  (MElement* b, MFocusEnum act)
 {
     //MToggle *e = ((MToggle*)b->data);
     if(act & M_G_FOCUS_GET)

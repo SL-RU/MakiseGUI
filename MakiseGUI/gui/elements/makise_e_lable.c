@@ -1,43 +1,33 @@
 #include "makise_e.h"
 
-uint8_t _m_lable_draw   (MElement* b);
+static uint8_t draw   (MElement* b);
 
-char _m_lable_name[] = "Lable";
+static char name[] = "Lable";
 void m_create_lable(MLable* b, MContainer *c,
 			 MPosition pos,
 			 char* text,
 			 MakiseStyle *style)
 {
     MElement *e = &b->el;
-    e->gui = c->gui;
 
-    e->name = _m_lable_name;
-
-    e->data = b;
-    
-    makise_g_cont_add(c, e);
-
-    e->draw = &_m_lable_draw;
-    e->predraw = 0;
-    e->update = 0;
-    e->input = 0;
-    e->focus = 0;
-    e->is_parent =  0;
-	
-    e->position = pos;
-
-    e->enabled = 1;
-    e->id = makise_g_newid();
-    e->focus_prior = 0;
+    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+		     1, 1, pos,
+		     &draw,
+		     0,
+		     0,
+		     0,
+		     0,
+		     0, 0);
     
     b->text = text;
-    
     b->style = style;
+
+    makise_g_cont_add(c, e);
     
     printf("Lable %d created\n", e->id);
 }
 
-uint8_t _m_lable_draw   (MElement* b)
+static uint8_t draw   (MElement* b)
 {
     MakiseStyleTheme *th = &((MLable*)b->data)->style->normal;
     

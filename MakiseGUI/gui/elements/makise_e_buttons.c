@@ -1,10 +1,10 @@
 #include "makise_e.h"
 
-uint8_t _m_button_draw   (MElement* b);
-MInputResultEnum _m_button_input  (MElement* b, MInputData data);
-MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act);
+static uint8_t draw   (MElement* b);
+static MInputResultEnum input  (MElement* b, MInputData data);
+static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
-char _m_button_name[] = "Button";
+char name[] = "Button";
 void m_create_button(MButton* b, MContainer *c,
 		     MPosition pos,
 		     char* text,
@@ -14,22 +14,16 @@ void m_create_button(MButton* b, MContainer *c,
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
-    e->name = _m_button_name;
-    e->data = b;
 
-    e->draw = &_m_button_draw;
-    e->predraw = 0;
-    e->update = 0;
-    e->input = &_m_button_input;
-    e->focus = &_m_button_focus;
-    e->is_parent = 0;
+    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+		     1, 1, pos,
+		     &draw,
+		     0,
+		     0,
+		     &input,
+		     &focus,
+		     0, 0);
     
-    e->position = pos;
-
-    e->enabled = 1;
-    e->id = makise_g_newid();
-    
-    e->focus_prior = 1;
     
     b->text = text;
 
@@ -44,7 +38,7 @@ void m_create_button(MButton* b, MContainer *c,
     printf("Button %d created\n", e->id);
 }
 
-uint8_t _m_button_draw   (MElement* b)
+static uint8_t draw   (MElement* b)
 {
     MakiseStyleTheme *th = 0;
 
@@ -71,7 +65,7 @@ uint8_t _m_button_draw   (MElement* b)
     return M_OK;
 }
 
-MInputResultEnum _m_button_input  (MElement* b, MInputData data)
+static MInputResultEnum input  (MElement* b, MInputData data)
 {
     //printf("but %d inp %d %d\n", b->id, data.key, data.event);
     MButton *e = ((MButton*)b->data);
@@ -98,7 +92,7 @@ MInputResultEnum _m_button_input  (MElement* b, MInputData data)
 	return M_INPUT_HANDLED;
     return M_INPUT_NOT_HANDLED;
 }
-MFocusEnum _m_button_focus  (MElement* b, MFocusEnum act)
+static MFocusEnum focus  (MElement* b, MFocusEnum act)
 {
     MButton *e = ((MButton*)b->data);
     if(act & M_G_FOCUS_GET)
