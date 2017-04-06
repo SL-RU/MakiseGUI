@@ -1,9 +1,10 @@
 #ifndef MAKISE_CONFIG_H
 #define  MAKISE_CONFIG_H 1
+#include "makise_config_custom.h"
 
 //comment unused displays
-#define MAKISE_SDL2_USE 1
-//#define MAKISE_ILI9340_USE 1
+//#define MAKISE_SDL2_USE 1
+#define MAKISE_ILI9340_USE 1
 
 
 #define MAKISEGUI_DRIVER_DEPTH 16
