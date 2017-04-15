@@ -100,7 +100,7 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render)
 	i = 0, //pixel in drivers's buffer
 	cu,
 	bu = 0,
-	m; //end position y
+	m  = 0; //end position y
 
     if(partial_render == 0) //render full buffer
     {
