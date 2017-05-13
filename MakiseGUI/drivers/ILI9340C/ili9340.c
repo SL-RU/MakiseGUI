@@ -216,11 +216,10 @@ void ili9340_tx(MakiseDriver* d)
 
 uint8_t ili9340_start(MakiseGUI* gui)
 {
-    if(ILI9340_LED_USE_PWM)
-    {
-	HAL_TIM_Base_Start(ILI9340_LED_PWM);
-	HAL_TIM_PWM_Start(ILI9340_LED_PWM, ILI9340_LED_PWM_CHANNEL);
-    }
+#if ILI9340_LED_USE_PWM
+    HAL_TIM_Base_Start(ILI9340_LED_PWM);
+    HAL_TIM_PWM_Start(ILI9340_LED_PWM, ILI9340_LED_PWM_CHANNEL);
+#endif
 //    ili9340_set_backlight(1);
     ili9340_set_backlight(gui, 31);
     ili9340_tx(gui->driver);
@@ -237,10 +236,11 @@ uint8_t ili9340_awake(MakiseGUI* gui)
 }
 uint8_t ili9340_set_backlight(MakiseGUI* gui, uint8_t val)
 {
-    if(ILI9340_LED_USE_PWM)
-	__HAL_TIM_SET_COMPARE(ILI9340_LED_PWM, ILI9340_LED_PWM_CHANNEL, val);
-    else
-	HAL_GPIO_WritePin(ILI9340_LED, val ? GPIO_PIN_SET : GPIO_PIN_RESET);
+#if ILI9340_LED_USE_PWM
+    __HAL_TIM_SET_COMPARE(ILI9340_LED_PWM, ILI9340_LED_PWM_CHANNEL, val);
+#else
+    HAL_GPIO_WritePin(ILI9340_LED, val ? GPIO_PIN_SET : GPIO_PIN_RESET);
+#endif
     return M_OK;
 }
 uint8_t ili9340_spi_txhalfcplt(MakiseDriver* d)

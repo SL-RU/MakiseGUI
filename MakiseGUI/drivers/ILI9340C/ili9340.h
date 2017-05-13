@@ -2,27 +2,29 @@
 #ifndef ILI9340_H
 #define ILI9340_H
 #include "spi.h"
-#include "tim.h"
 #include "gpio.h"
 #include <stdio.h>
 
+
 #include "stm32f4xx_hal.h"
-#include "stm32f4xx_hal_tim.h"
 #include "ili9340_registers.h"
 
 #include "makise.h"
 
 
-
 #define ILI9340_SPI   hspi1
-#define ILI9340_CS    GPIOB, GPIO_PIN_0
-#define ILI9340_DC    GPIOC, GPIO_PIN_4
-#define ILI9340_LED   GPIOB, GPIO_PIN_1
-#define ILI9340_RST   GPIOC, GPIO_PIN_5
+#define ILI9340_CS    GPIOA, GPIO_PIN_2
+#define ILI9340_DC    GPIOA, GPIO_PIN_4
+#define ILI9340_LED   GPIOC, GPIO_PIN_4
+#define ILI9340_RST   GPIOA, GPIO_PIN_3
 #define ILI9340_LED_PWM &htim3
 #define ILI9340_LED_PWM_CHANNEL TIM_CHANNEL_4
-#define ILI9340_LED_USE_PWM 1
+#define ILI9340_LED_USE_PWM 0
 
+#if ILI9340_LED_USE_PWM
+#include "stm32f4xx_hal_tim.h"
+#include "tim.h"
+#endif
 
 void ili9340_driver(MakiseDriver*);
 
