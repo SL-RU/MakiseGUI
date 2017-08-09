@@ -42,12 +42,12 @@ typedef struct
 typedef struct _MakiseBuffer
 {
     MakiseGUI *gui;
-    uint16_t height;     //real height
-    uint16_t width;      //real width 
-    uint32_t pixeldepth; //smaller or equals to real depth
-    uint32_t depthmask;   //example: mask like 0b111 is for depth 3bit
-    uint32_t * buffer;   //virtual buffer
-    uint32_t size;       //size of the buffer
+    uint16_t height;        //real height
+    uint16_t width;         //real width
+    uint32_t pixeldepth;    //smaller or equals to real depth
+    uint32_t depthmask;     //example: mask like 0b111 is for depth 3bit
+    uint32_t *buffer;       //virtual buffer
+    uint32_t size;          //size of the buffer
 
     MakiseBufferBorder border; //allowed region for new drawing
 } MakiseBuffer;
@@ -60,7 +60,7 @@ typedef struct _MakiseDriver
     uint16_t buffer_height; //small buffer
     uint16_t buffer_width;  //small buffer
     uint16_t pixeldepth;    //real pixeldepth
-    uint32_t * buffer;      //floating buffer
+    uint32_t *buffer;       //floating buffer
     uint32_t size;          //size of the buffer
     uint16_t posx;          //last pos of floating buffer
     uint16_t posy;          //last pos of floating buffer
