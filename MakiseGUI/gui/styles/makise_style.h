@@ -1,5 +1,10 @@
 #ifndef MAKISE_STYLE_H
 #define MAKISE_STYLE_H 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "makise_gui.h"
 
 typedef struct _MakiseStyleTheme
@@ -23,5 +28,8 @@ typedef struct _MakiseStyle {
     
 } MakiseStyle;
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif

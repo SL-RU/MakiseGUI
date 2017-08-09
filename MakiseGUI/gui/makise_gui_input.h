@@ -1,6 +1,10 @@
 #ifndef _MAKISE_H_G_Input
 #define _MAKISE_H_G_Input 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "makise_config.h"
 
@@ -111,5 +115,9 @@ void makise_gui_input_send_char(MHost *h, char c);
  * @return 
  */
 void makise_gui_input_perform(MHost *h);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

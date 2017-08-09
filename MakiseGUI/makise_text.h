@@ -1,6 +1,10 @@
 #ifndef MAKISE_TEXT_H
 #define MAKISE_TEXT_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <string.h>
 #include "makise.h"
 
@@ -43,5 +47,9 @@ void makise_d_string_frame(MakiseBuffer *b,
 			   char *s, uint32_t len,
 			   int16_t x, int16_t y, uint16_t w, uint16_t h,
 			   const MakiseFont *font, uint16_t line_spacing, uint32_t c); //draw multiline text in the defined frame
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
