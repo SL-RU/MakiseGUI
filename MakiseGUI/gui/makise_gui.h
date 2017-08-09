@@ -1,6 +1,10 @@
 #ifndef _MAKISE_H_G
 #define _MAKISE_H_G 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define M_G_CALL_DRAW         1
 #define M_G_CALL_PREDRAW      2
 #define M_G_CALL_UPDATE       3
@@ -57,5 +61,9 @@ uint8_t makise_g_host_call   (MHost *host, uint8_t type);
 MInputResultEnum makise_g_host_input  (MHost *host, MInputData data);
 
 void makise_g_print_tree(MHost *host);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

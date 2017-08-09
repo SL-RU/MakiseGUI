@@ -1,5 +1,10 @@
 #ifndef MAKISE_COLORS_H 
 #define MAKISE_COLORS_H 1
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdint.h>
 #include "makise_config.h"
 
@@ -48,5 +53,9 @@ uint32_t *makise_color_palette;
 
 //Get color value from value from buffer display.
 uint32_t makise_color_get(uint32_t c);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -1,6 +1,10 @@
 #ifndef _MAKISE_H_G_EL
 #define _MAKISE_H_G_EL 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _MElement MElement;
 typedef struct _MPosition MPosition;
 
@@ -165,5 +169,9 @@ MPosition mp_sall(int32_t left, int32_t right, int32_t up, uint32_t down);
  * @return 
  */
 MPosition mp_nil();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

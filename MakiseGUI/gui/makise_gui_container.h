@@ -1,6 +1,10 @@
 #ifndef _MAKISE_H_G_CONTAINER
 #define _MAKISE_H_G_CONTAINER 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _MContainer MContainer;
 
 
@@ -83,6 +87,11 @@ MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
  */
 void makise_g_cont_focus_leave(MContainer *cont);
 MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif
 
 

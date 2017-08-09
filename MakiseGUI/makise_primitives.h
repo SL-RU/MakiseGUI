@@ -1,6 +1,10 @@
 #ifndef MAKISE_PRIMITIVES_H
 #define MAKISE_PRIMITIVES_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "makise.h"
 #include <string.h>
 #include <math.h>
@@ -36,5 +40,9 @@ void makise_dex_polyline(MakiseBuffer*b, int32_t x, int32_t y, double rot, Makis
 void makise_d_triangle_filled(MakiseBuffer*b, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c, uint32_t c_fill);
 
 //**************************************************************************
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* LCDHAL_H_ */

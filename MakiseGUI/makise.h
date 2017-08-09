@@ -1,6 +1,10 @@
 #ifndef MAKISE_H
 #define MAKISE_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct _MakiseGUI MakiseGUI;
 typedef struct _MakiseBuffer MakiseBuffer;
 typedef struct _MakiseDriver MakiseDriver;
@@ -115,5 +119,9 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render);
  */
 MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorder b);
 void makise_rem_border(MakiseBuffer *buffer, MakiseBufferBorderData b);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
