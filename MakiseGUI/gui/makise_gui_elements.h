@@ -16,85 +16,80 @@ typedef struct _MPosition MPosition;
 #include "makise_gui.h"
 #include "makise_gui_container.h"
 
-typedef enum
-{
+typedef enum  {
     MPositionAnchor_LeftUp,
     MPositionAnchor_RightUp,
     MPositionAnchor_LeftDown,
     MPositionAnchor_RighDown
 } MPositionAnchor;
 
-typedef enum
-{
-    MPositionStretch_LeftRight, //stretch in horizontal direction
-    MPositionStretch_Left, //no stretch. anchor is left
-    MPositionStretch_Right,//no stretch. anchor is rigth
+typedef enum {
+    MPositionStretch_LeftRight,         // Stretch in horizontal direction.
+    MPositionStretch_Left,              // No stretch. anchor is left.
+    MPositionStretch_Right,             // No stretch. anchor is rigth.
 } MPositionStretchHor;
 
-typedef enum
-{
-    MPositionStretch_UpDown, //stretch in vertical direction
-    MPositionStretch_Up, //no stretch. anchor is up
-    MPositionStretch_Down,//no stretch. anchor is down
+typedef enum {
+    MPositionStretch_UpDown,            // Stretch in vertical direction.
+    MPositionStretch_Up,                // No stretch. anchor is up.
+    MPositionStretch_Down,              // No stretch. anchor is down.
 } MPositionStretchVert;
 
-typedef struct _MPosition
-{
-    MPositionStretchHor horisontal;
-    MPositionStretchVert vertical;
+typedef struct _MPosition {
+    MPositionStretchHor     horisontal;
+    MPositionStretchVert    vertical;
     
-    int32_t left;  
-    int32_t right; 
-    int32_t up;    
-    int32_t down;  
+    int32_t                 left;
+    int32_t                 right;
+    int32_t                 up;
+    int32_t                 down;
     
-    uint32_t width;
-    uint32_t height;
+    uint32_t                width;
+    uint32_t                height;
 
-    //it will be calculated automatically
-    int32_t real_x; //position on the screen
-    int32_t real_y; //position on the screen
+    // It will be calculated automatically
+    int32_t                 real_x;         // Position on the screen.
+    int32_t                 real_y;         // Position on the screen
 } MPosition;
 
-typedef struct _MElement
-{
-    MakiseGUI *gui; //current gui
+typedef struct _MElement {
+    MakiseGUI*              gui;            // Current gui.
 
-    uint32_t id; //unique id
-    char* name;
+    uint32_t                id;             // Unique id.
+    char*                   name;
     
-    MElement *prev; //previous if exists
-    MElement *next; //next element if exists
-    MContainer *parent; //parent element, if exists
+    MElement*               prev;           // Previous if exists.
+    MElement*               next;           // Next element if exists.
+    MContainer*             parent;         // Parent element, if exists.
 
-    uint8_t enabled;    //if enabled - methods will be executed
-    MPosition position; //relative position of the element
+    uint8_t                 enabled;        // If enabled - methods will be executed.
+    MPosition               position;       // Relative position of the element.
 
-    uint8_t focus_prior; //relative position in focus queu. 0 means focus doesn't required
+    uint8_t                 focus_prior;    // Relative position in focus queu. 0 means focus doesn't required.
     
-    void* data;
-    uint8_t    (*draw    )(MElement* el);
-    uint8_t    (*predraw )(MElement* el); //count real position for every element
-    uint8_t    (*update  )(MElement* el);
-    MInputResultEnum (*input   )(MElement* el, MInputData data);
-    MFocusEnum (*focus   )(MElement* el, MFocusEnum act);
+    void*                   data;
+
+    uint8_t                 ( *draw )       ( MElement* el );
+    uint8_t                 ( *predraw )    ( MElement* el );                       // Count real position for every element.
+    uint8_t                 ( *update )     ( MElement* el );
+    MInputResultEnum        ( *input )      ( MElement* el, MInputData data );
+    MFocusEnum              ( *focus )      ( MElement* el, MFocusEnum act );
     
 
-    uint8_t  is_parent; //is element parent(contains other elements
-    MContainer *children; //only if element is parent
-    
+    uint8_t                 is_parent;      // Is element parent(contains other elements.
+    MContainer*             children;       // Only if element is parent.
 } MElement;
 
 void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
-		      uint8_t enabled, uint8_t focus_prior,
-		      MPosition position,
-		      uint8_t    (*draw    )(MElement* el),
-		      uint8_t    (*predraw )(MElement* el),
-		      uint8_t    (*update  )(MElement* el),
-		      MInputResultEnum (*input   )(MElement* el, MInputData data),
-		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
-		      uint8_t  is_parent,
-		      MContainer *children);
+              uint8_t enabled, uint8_t focus_prior,
+              MPosition position,
+              uint8_t    (*draw    )(MElement* el),
+              uint8_t    (*predraw )(MElement* el),
+              uint8_t    (*update  )(MElement* el),
+              MInputResultEnum (*input   )(MElement* el, MInputData data),
+              MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
+              uint8_t  is_parent,
+              MContainer *children);
 
 
 uint8_t m_element_call(MElement* el, uint8_t type);
@@ -107,6 +102,7 @@ uint8_t m_element_input(MElement* el, MInputData data);
  * @return 
  */
 MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h);
+
 /**
  * Create MPosition from relative coordinates and custom anchor
  *
@@ -118,6 +114,7 @@ MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h);
  * @return 
  */
 MPosition mp_anc(int32_t x, int32_t y, uint32_t w, uint32_t h, MPositionAnchor anchor);
+
 /**
  * Create MPosition fully customizable. Unnecessary options you can equal to zero.
  *
@@ -132,7 +129,8 @@ MPosition mp_anc(int32_t x, int32_t y, uint32_t w, uint32_t h, MPositionAnchor a
  * @return 
  */
 MPosition mp_cust(int32_t left, int32_t right, uint32_t w,  MPositionStretchHor hor,
-		  int32_t up, int32_t down, uint32_t h, MPositionStretchVert vert);
+          int32_t up, int32_t down, uint32_t h, MPositionStretchVert vert);
+
 /**
  * Create MPosition with horizontal stretch and vertical relative coordinates
  *
@@ -143,6 +141,7 @@ MPosition mp_cust(int32_t left, int32_t right, uint32_t w,  MPositionStretchHor 
  * @return 
  */
 MPosition mp_shor(int32_t left, int32_t right, int32_t up, uint32_t h);
+
 /**
  * Create MPosition with horizontal relative coordinates and vertical stretch
  *
@@ -153,6 +152,7 @@ MPosition mp_shor(int32_t left, int32_t right, int32_t up, uint32_t h);
  * @return 
  */
 MPosition mp_sver(int32_t left, int32_t width, int32_t up, uint32_t down);
+
 /**
  * Create MPosition with horizontal and vertical stretch
  *
@@ -163,6 +163,7 @@ MPosition mp_sver(int32_t left, int32_t width, int32_t up, uint32_t down);
  * @return 
  */
 MPosition mp_sall(int32_t left, int32_t right, int32_t up, uint32_t down);
+
 /**
  * Zero position
  *
