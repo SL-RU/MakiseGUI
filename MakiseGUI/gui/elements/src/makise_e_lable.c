@@ -1,4 +1,10 @@
-#include "makise_e.h"
+#include "makise_e_lable.h"
+
+#if ( MAKISE_E_LABLE > 0 )
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static uint8_t draw   (MElement* b);
 
@@ -43,3 +49,9 @@ static uint8_t draw   (MElement* b)
     
     return M_OK;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

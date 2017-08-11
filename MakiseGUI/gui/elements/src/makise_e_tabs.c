@@ -1,4 +1,10 @@
-#include "makise_e.h"
+#include "makise_e_tabs.h"
+
+#if ( MAKISE_E_TABS > 0 )
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     MakiseGUI *gui;
@@ -443,3 +449,10 @@ void m_tabs_select_tab_back(MTabs *t)
     _m_tabs_select_tab(t, s);
     makise_g_focus(&t->tabs_el, M_G_FOCUS_GET);
 }
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

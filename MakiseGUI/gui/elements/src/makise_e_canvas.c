@@ -1,4 +1,10 @@
-#include "makise_e.h"
+#include "makise_e_canvas.h"
+
+#if ( MAKISE_E_CANVAS > 0 )
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static uint8_t draw   (MElement* b);
 static uint8_t predraw(MElement* b);
@@ -89,3 +95,10 @@ static MFocusEnum focus  (MElement* b, MFocusEnum act)
     
     return M_G_FOCUS_NOT_NEEDED;
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
+

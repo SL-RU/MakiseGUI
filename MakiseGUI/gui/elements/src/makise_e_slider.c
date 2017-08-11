@@ -1,4 +1,10 @@
-#include "makise_e.h"
+#include "makise_e_slider.h"
+
+#if ( MAKISE_E_SLIDER > 0 )
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static uint8_t draw   (MElement* b);
 static MInputResultEnum input  (MElement* b, MInputData data);
@@ -269,3 +275,8 @@ static MFocusEnum focus  (MElement* b, MFocusEnum act)
     return M_G_FOCUS_NOT_NEEDED;
 }
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif

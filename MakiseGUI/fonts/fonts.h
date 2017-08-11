@@ -7,7 +7,6 @@ extern "C" {
 
 #include "makise_text.h"
 
-
 //extern const uint8_t Arial_12_SymbolTable[];
 //extern const uint16_t Arial_12_OffsetTable[];
 //extern const uint8_t Arial_12_WidthTable[];

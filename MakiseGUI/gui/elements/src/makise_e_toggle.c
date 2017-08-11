@@ -1,4 +1,10 @@
-#include "makise_e.h"
+#include "makise_e_toggle.h"
+
+#if ( MAKISE_E_TOGGLE > 0 )
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static uint8_t draw   (MElement* b);
 static MInputResultEnum input  (MElement* b, MInputData data);
@@ -120,3 +126,8 @@ MFocusEnum focus  (MElement* b, MFocusEnum act)
 	: M_G_FOCUS_OK;
 }
 
+#ifdef __cplusplus
+}
+#endif
+
+#endif
