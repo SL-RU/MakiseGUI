@@ -1,0 +1,4 @@
+#ifndef MAKISE_E_TOGGLE_H
+#define MAKISE_E_TOGGLE_H
+
+#endif // MAKISE_E_TOGGLE_H
