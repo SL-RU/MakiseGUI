@@ -11,23 +11,37 @@ extern "C" {
 
 #include "makise_e.h"
 
+typedef struct {
+
+} MakiseLableStyleTheme;
+
+typedef struct {
+    const MakiseFont*   font;
+    uint32_t            font_col;
+
+    uint32_t            bg_color;
+    uint32_t            border_c;
+
+    uint16_t            double_border;
+} MakiseLableStyle;
+
 // Lable.
 // Simply draws required text.
 // It can be only in one line. And it won't be cutting and folding text.
 typedef struct {
-    MakiseGUI *gui;
-    MElement el;
+    MakiseGUI*          gui;
+    MElement            el;
 
-    char *text;
+    char*               text;
 
-    MakiseStyle* style;
+    MakiseLableStyle*   style;
 } MLable;
 
-void m_create_lable( MLable*        b,
-                     MContainer*    c,
-                     MPosition      pos,
-                     char*          text,
-                     MakiseStyle*   style );
+void m_create_lable( MLable*             b,
+                     MContainer*         c,
+                     MPosition           pos,
+                     char*               text,
+                     MakiseLableStyle*   style );
 
 #ifdef __cplusplus
 }

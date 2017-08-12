@@ -30,6 +30,7 @@ void m_create_progress_bar ( MProgressBar*                  b,
 
 static uint8_t draw ( MElement* b ) {
     MProgressBar *e =        ((MProgressBar*)b->data);
+
     makise_d_rect_filled( b->gui->buffer,
                           b->position.real_x,   b->position.real_y,
                           e->el.position.width,
