@@ -11,13 +11,15 @@ static MInputResultEnum 	input  ( MElement* b, MInputData data );
 static MFocusEnum 			focus  ( MElement* b, MFocusEnum act );
 
 char name[] = "Button";
-void m_create_button( MButton* b, MContainer *c,
-                      MPosition     pos,
-                      char*         text,
-                      void          ( *click )    ( MButton* b ),
-                      uint8_t       ( *onkey )    ( MButton* b, MInputData data ),
-                      void          ( *onfocus )  ( MButton* b, MFocusEnum type ),
-                      MakiseStyle*  style ) {
+
+void m_create_button( MButton*              b,
+                      MContainer*           c,
+                      MPosition             pos,
+                      char*                 text,
+                      void                  ( *click )    ( MButton* b ),
+                      uint8_t               ( *onkey )    ( MButton* b, MInputData data ),
+                      void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
+                      MakiseButtonStyle*    style ) {
     b->text         = text;
 
     b->click        = click;
@@ -36,7 +38,7 @@ void m_create_button( MButton* b, MContainer *c,
 }
 
 static uint8_t draw ( MElement* b ) {
-    MakiseStyleTheme *th = 0;
+    MakiseButtonTheme* th = 0;
     MButton *e = ((MButton*)b->data);
 
     switch ( e->state ) {
@@ -45,8 +47,21 @@ static uint8_t draw ( MElement* b ) {
         default:    th = &e->style->active;     e->state--; break;
     }
 
-    _m_e_helper_draw_box( b->gui->buffer, &b->position, th );
-    
+    MPosition *p = &b->position;
+    makise_d_rect_filled( b->gui->buffer,
+                          p->real_x, p->real_y,
+                          p->width,
+                          p->height,
+                          th->border_c,
+                          th->bg_color);
+
+    if ( th->double_border )
+        makise_d_rect( b->gui->buffer,
+                       p->real_x + 2, p->real_y+2,
+                       p->width-4,
+                       p->height-4,
+                       th->border_c );
+
     makise_d_string( b->gui->buffer,                                e->text, MDTextAll,
                      b->position.real_x + b->position.width / 2,    b->position.real_y + b->position.height / 2,
                      MDTextPlacement_Center, e->style->font, th->font_col);

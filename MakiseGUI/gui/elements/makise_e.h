@@ -19,7 +19,7 @@ extern "C" {
 #include "makise_e_text_field.h"
 #include "makise_e_toggle.h"
 
-void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th);
+void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th );
 
 #ifdef __cplusplus
 }
