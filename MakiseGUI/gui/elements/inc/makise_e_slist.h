@@ -1,5 +1,5 @@
 #ifndef MAKISE_E_SLIST_H
-#define MAKISE_E_SLIST_H
+#define MAKISE_E_SLIST_H        1
 
 #include "makise_config.h"
 
@@ -14,60 +14,60 @@ extern "C" {
 // Simple list element.
 // Can display items. Supports scrolling.
 // Modes: list, radio buttons, checkboxes.
-typedef enum _MSList_Type
-{
+typedef enum {
     MSList_List,
     MSList_RadioButton,
     MSList_Checkbox
 } MSList_Type;
+
 typedef struct _MSList_Item MSList_Item;
 typedef struct _MSList MSList;
-typedef struct _MSList_Item
-{
-    char* text;        //text of item
-    uint32_t value;    //value. It may be checkbox or radio button status
 
-    MSList_Item *prev;
-    MSList_Item *next;
+typedef struct _MSList_Item {
+    char*           text;           // text of item
+    uint32_t        value;          // value. It may be checkbox or radio button status
 
-    uint32_t id;       //custom id, if NOT is_array, else - position in the array(will be computed automatically by MSList).
+    MSList_Item*    prev;
+    MSList_Item*    next;
+
+    uint32_t        id;             // c ustom id, if NOT is_array, else - position in the array(will be computed automatically by MSList).
 } MSList_Item;
 
 typedef struct _MSList {
-    MakiseGUI *gui;
-    MElement el;
+    MakiseGUI*      gui;
+    MElement        el;
 
-    char *text;
+    char*           text;
 
-    MSList_Item *items;//item's array pointer or pointer to the first element of the list
-    uint8_t is_array;  //if 1 then items will be
-    uint32_t len;      //matters only if is_array
+    MSList_Item*    items;          // item's array pointer or pointer to the first element of the list
+    uint8_t         is_array;       // if 1 then items will be
+    uint32_t        len;            // matters only if is_array
 
-    MSList_Item *selected;
+    MSList_Item*    selected;
 
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
-    uint8_t started; //was pressing already started
-    int32_t sx; //cursor's x when pressing was started
-    int32_t sy;
-    MSList_Item *sitem; //focused item when pressing was started
+    uint8_t         started;        // was pressing already started
+    int32_t         sx;             // cursor's x when pressing was started
+    int32_t         sy;
+    MSList_Item*    sitem;          // focused item when pressing was started
 #endif
 
-    void (*onselection)(MSList *l, MSList_Item *selected);//when selected item is changing
-    void (*click)(MSList *l, MSList_Item *selected);      //when OK button clicked
+    void            ( *onselection )  ( MSList *l, MSList_Item *selected );     // when selected item is changing
+    void            ( *click )        ( MSList *l, MSList_Item *selected );     // when OK button clicked
 
-    MSList_Type type;
-    MakiseStyle* style;
-    MakiseStyle *item_style;
+    MSList_Type     type;
+    MakiseStyle*    style;
+    MakiseStyle*    item_style;
 
-    uint32_t state; //focus state
+    uint32_t        state;          // focus state
 } MSList;
 
 void m_create_slist( MSList*        b,
                      MContainer*    c,
                      MPosition      pos,
                      char*          text,
-                     void           ( *onselection )    ( MSList *l, MSList_Item *selected),
-                     void           ( *click )          ( MSList *l, MSList_Item *selected),
+                     void           ( *onselection )    ( MSList *l, MSList_Item *selected ),
+                     void           ( *click )          ( MSList *l, MSList_Item *selected ),
                      MSList_Type    type,
                      MakiseStyle*   style,
                      MakiseStyle*   item_style);

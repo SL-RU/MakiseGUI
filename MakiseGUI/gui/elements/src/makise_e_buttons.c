@@ -89,7 +89,7 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
 
         e->state = 1;
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
-        MAKISE_DEBUG_OUTPUT("but get %d\n", b->id);
+        MAKISE_DEBUG_OUTPUT( "but get %d\n", b->id );
 #endif
     }
 
