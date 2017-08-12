@@ -39,12 +39,13 @@ void m_create_canvas(MCanvas* b, MContainer *c,
 
     makise_g_cont_add(c, e);
     
-    printf("Canvas %d created\n", e->id);
-
+#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
+    MAKISE_DEBUG_OUTPUT("Canvas %d created\n", e->id);
+#endif
 }
 
 
-static uint8_t draw   (MElement* b)
+static uint8_t draw (MElement* b)
 {
     MakiseStyleTheme *th = 0;
 

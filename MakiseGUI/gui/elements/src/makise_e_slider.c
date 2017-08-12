@@ -56,8 +56,10 @@ void m_create_slider(MSlider* b, MContainer *c,
     b->style = style;
     
     makise_g_cont_add(c, e);
-    
-    printf("Slider %d created\n", e->id);
+
+#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
+    MAKISE_DEBUG_OUTPUT("Slider %d created\n", e->id);
+#endif
 }
 
 static uint8_t draw   (MElement* b)

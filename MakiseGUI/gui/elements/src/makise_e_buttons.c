@@ -45,7 +45,7 @@ static uint8_t draw ( MElement* b ) {
         default:    th = &e->style->active;     e->state--; break;
     }
 
-    _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
+    _m_e_helper_draw_box( b->gui->buffer, &b->position, th );
     
     makise_d_string( b->gui->buffer,                                e->text, MDTextAll,
                      b->position.real_x + b->position.width / 2,    b->position.real_y + b->position.height / 2,
