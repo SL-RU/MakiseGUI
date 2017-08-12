@@ -12,6 +12,7 @@ extern "C" {
 #include "makise_e_buttons.h"
 #include "makise_e_canvas.h"
 #include "makise_e_lable.h"
+#include "makise_e_progress_bar.h"
 #include "makise_e_slider.h"
 #include "makise_e_slist.h"
 #include "makise_e_tabs.h"
