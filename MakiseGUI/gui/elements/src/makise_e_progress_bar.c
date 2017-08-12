@@ -14,7 +14,7 @@ void m_create_progress_bar ( MProgressBar*                  b,
                              MPosition                      pos,
                              uint8_t                        duty,
                              uint8_t                        margin,
-                             MakiseProgressBarStyleTheme*   style ) {
+                             MakiseProgressBarStyle*   style ) {
     b->duty         = duty;
     b->style        = style;
     b->margin       = margin;

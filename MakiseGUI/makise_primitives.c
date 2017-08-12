@@ -70,43 +70,42 @@ void makise_d_rect(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
 void makise_d_rect_filled(MakiseBuffer* b, int16_t x, int16_t y, uint16_t w,
 			  uint16_t h, uint32_t c, uint32_t fill_c)
 {
-    if(fill_c == MC_Transparent)
-    {	
-	makise_d_rect(b, x, y, w, h, c);
-	return;
+    if ( fill_c == MC_Transparent ) {
+        makise_d_rect(b, x, y, w, h, c);
+        return;
     }
-    if(x >= b->width || y >= b->height)
-	return;
-    if(x < 0)
-    {
-	if(-x > w)
-	    return;
-	w = w + x;
-	x = 0;
+
+    if ( x >= b->width || y >= b->height ) return;
+
+    if ( x < 0 ) {
+        if ( -x > w ) return;
+        w = w + x;
+        x = 0;
     }
-    if(y < 0)
-    {
-	if(-y > h)
-	    return;
-	h = h + y;
-	y = 0;
+
+    if ( y < 0 ) {
+        if ( -y > h ) return;
+        h = h + y;
+        y = 0;
     }
-    if(x + w >= b->width)
-	w = b->width - x - 1;
-    if(y + h >= b->height)
-	h = b->height - y - 1;
+
+    if ( x + w > b->width )
+        w = b->width - x - 1;
+
+    if ( y + h > b->height )
+        h = b->height - y - 1;
     
-    if(w == 0 || h == 0)
-	return;
+    if ( w == 0 || h == 0 )
+        return;
 
     h -= 1;
     w -= 1;
-    if(c != MC_Transparent)
-    {
-	makise_d_line(b, x, y, x + w, y, c);
-	makise_d_line(b, x, y + h, x + w, y + h, c);
-	makise_d_line(b, x, y, x, y + h, c);
-	makise_d_line(b, x + w, y, x + w, y + h, c);
+
+    if ( c != MC_Transparent ) {
+    makise_d_line( b, x, y, x + w, y, c );
+    makise_d_line( b, x, y + h, x + w, y + h, c );
+    makise_d_line( b, x, y, x, y + h, c );
+    makise_d_line( b, x + w, y, x + w, y + h, c );
     }
     /*
       if depth = 4bits
