@@ -1,4 +1,10 @@
-#include "makise_e.h"
+#include "makise_e_slist.h"
+
+#if ( MAKISE_E_SLIST > 0 )
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 static uint8_t draw   (MElement* b);
 static MFocusEnum focus(MElement* b,  MFocusEnum act);
@@ -753,4 +759,10 @@ void m_slist_set_list(MSList *l, MSList_Item *first)
 	}
     }
 }
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
 

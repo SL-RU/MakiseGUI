@@ -13,12 +13,12 @@ typedef struct _MContainer MContainer;
 
 typedef struct _MContainer
 {
-    MakiseGUI *gui;
-    MElement* el; //element which is host for the container. Can be zero if it is MHost
-    MPosition *position; //container position
-    MElement* first; //pointer to the first element or 0 if container is empty
-    MElement* last; //pointer to the last element
-    MElement* focused; //pointer to the focused element. Element must be in the container
+    MakiseGUI*      gui;
+    MElement*       el; //element which is host for the container. Can be zero if it is MHost
+    MPosition*      position; //container position
+    MElement*       first; //pointer to the first element or 0 if container is empty
+    MElement*       last; //pointer to the last element
+    MElement*       focused; //pointer to the focused element. Element must be in the container
     
 //    void (*on_add)(MElement* el);
 } MContainer;

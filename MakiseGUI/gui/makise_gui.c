@@ -1,10 +1,10 @@
 #include "makise_gui.h"
 
 
-void makise_gui_init(MHost *host)
+void makise_gui_init ( MHost* host )
 {
-    if(host == 0)
-	return;
+    if ( host == NULL )
+        return;
     MInputHostData *inp = &host->input;
 
     inp->cur_buf = 0;
@@ -12,12 +12,11 @@ void makise_gui_init(MHost *host)
     inp->buf_index[1] = 0;
     inp->result_handler = 0;
 
-    #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     inp->cursor_session = 0;
     inp->last = (MInputCursorEvent){0};
 #endif    
 
-    
 }
 
 

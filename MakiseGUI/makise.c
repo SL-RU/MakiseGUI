@@ -33,10 +33,10 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     
     return lenb;
 }
-uint8_t makise_start(MakiseGUI * gui)
-{
-    if(gui == 0 || gui->driver == 0)
-	return M_ZERO_POINTER;
+
+uint8_t makise_start(MakiseGUI * gui) {
+    if( gui == 0 || gui->driver == 0 )
+        return M_ZERO_POINTER;
 
     return gui->driver->start(gui);
 }
@@ -81,8 +81,8 @@ inline void makise_pset_fast(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c
     kpset32 = kpset/32;
     kpsett = kpset - kpset32*32;
     
-    if(((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett))) == c)
-	return;
+    if ( ( ( b )->depthmask & ( ( b )->buffer[ kpset32 ] >> ( kpsett ) ) ) == c )
+        return;
     
     (b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
 }
