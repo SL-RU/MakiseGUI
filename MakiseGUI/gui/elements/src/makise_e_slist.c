@@ -43,7 +43,7 @@ void m_create_slist( MSList*                b,
 
     b->type                 = type;
 
-#if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
+#if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
     b->started              = 0;
 #endif    
 
