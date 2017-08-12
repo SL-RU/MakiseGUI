@@ -31,7 +31,9 @@ void m_create_lable( MLable*             b,
 
     makise_g_cont_add(c, e);
     
-    printf("Lable %d created\n", e->id);
+#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
+    MAKISE_DEBUG_OUTPUT("Lable %d created\n", e->id);
+#endif
 }
 
 static uint8_t draw ( MElement* b ) {
