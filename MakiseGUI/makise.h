@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+    
 typedef struct _MakiseGUI MakiseGUI;
 typedef struct _MakiseBuffer MakiseBuffer;
 typedef struct _MakiseDriver MakiseDriver;
@@ -21,6 +22,15 @@ typedef struct _MakiseDriver MakiseDriver;
 #include "makise_text.h"
 #include "makise_primitives.h"
 
+    
+//if DEBUG OUTPUT disabled or MAKISE_DEBUG_OUTPUT isn't defined
+//if you want debug output define that in makise_config.h:
+//#define MAKISE_DEBUG_OUTPUT printf
+#ifndef MAKISE_DEBUG_OUTPUT 
+#define MAKISE_DEBUG_OUTPUT(...)
+#endif
+
+    
 typedef struct
 {
     int32_t x;

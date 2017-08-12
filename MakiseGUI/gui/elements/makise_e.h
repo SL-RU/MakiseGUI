@@ -4,7 +4,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
+#include "makise_config.h"
+    
 #include "makise_gui_elements.h"
 #include "makise_gui_container.h"
 

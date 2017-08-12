@@ -14,7 +14,7 @@ void m_create_lable( MLable*             b,
                      MContainer*         c,
                      MPosition           pos,
                      char*               text,
-                     MakiseLableStyle*   style ) {
+                     MakiseStyle_Lable*   style ) {
     MElement *e = &b->el;
 
     m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
@@ -31,9 +31,7 @@ void m_create_lable( MLable*             b,
 
     makise_g_cont_add(c, e);
     
-#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
     MAKISE_DEBUG_OUTPUT("Lable %d created\n", e->id);
-#endif
 }
 
 static uint8_t draw ( MElement* b ) {

@@ -14,7 +14,7 @@ void m_create_progress_bar ( MProgressBar*                  b,
                              MPosition                      pos,
                              uint8_t                        duty,
                              uint8_t                        margin,
-                             MakiseProgressBarStyle*   style ) {
+                             MakiseStyle_ProgressBar*       style ) {
     b->duty         = duty;
     b->style        = style;
     b->margin       = margin;
@@ -23,9 +23,7 @@ void m_create_progress_bar ( MProgressBar*                  b,
     m_element_create        ( e, ( c == 0 ) ? NULL : c->gui, name, b, 1, 1, pos, &draw, NULL, NULL, NULL, NULL, 0, NULL );
     makise_g_cont_add       ( c, e );
 
-#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
     MAKISE_DEBUG_OUTPUT("Progress_bar %d created.\n", e->id);
-#endif
 }
 
 static uint8_t draw ( MElement* b ) {

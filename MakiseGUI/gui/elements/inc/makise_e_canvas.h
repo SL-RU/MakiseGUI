@@ -17,12 +17,12 @@ typedef struct {
     uint32_t border_c;
 
     uint16_t double_border;
-} MakiseCanvasStyleTheme;
+} MakiseStyleTheme_Canvas;
 
 typedef struct {
-    MakiseCanvasStyleTheme normal;
-    MakiseCanvasStyleTheme focused;
-} MakiseCanvasStyle;
+    MakiseStyleTheme_Canvas normal;
+    MakiseStyleTheme_Canvas focused;
+} MakiseStyle_Canvas;
 
 
 //Canvas - simple container. It's placing elements simply by their position wherever it needed
@@ -32,7 +32,7 @@ typedef struct {
 
     MContainer              cont;
 
-    MakiseCanvasStyle*      style;
+    MakiseStyle_Canvas*      style;
 
     uint8_t                 state;
 } MCanvas;
@@ -40,7 +40,7 @@ typedef struct {
 void m_create_canvas( MCanvas*            b,
                       MContainer*         c,
                       MPosition           pos,
-                      MakiseCanvasStyle*  style );
+                      MakiseStyle_Canvas*  style );
 
 #ifdef __cplusplus
 }

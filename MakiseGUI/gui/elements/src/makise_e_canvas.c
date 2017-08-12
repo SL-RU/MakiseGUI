@@ -15,7 +15,7 @@ static char name[] = "Canvas";
 void m_create_canvas( MCanvas*            b,
                       MContainer*         c,
                       MPosition           pos,
-                      MakiseCanvasStyle*  style ) {
+                      MakiseStyle_Canvas*  style ) {
     MElement *e = &b->el;
 
     m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
@@ -39,15 +39,13 @@ void m_create_canvas( MCanvas*            b,
 
     makise_g_cont_add(c, e);
     
-#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
     MAKISE_DEBUG_OUTPUT("Canvas %d created\n", e->id);
-#endif
 }
 
 
 static uint8_t draw (MElement* b)
 {
-    MakiseCanvasStyleTheme*     th = 0;
+    MakiseStyleTheme_Canvas*     th = 0;
     MCanvas*                    c  = b->data;
 
     switch( c->state ) {

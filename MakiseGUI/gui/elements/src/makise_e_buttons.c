@@ -19,7 +19,7 @@ void m_create_button( MButton*              b,
                       void                  ( *click )    ( MButton* b ),
                       uint8_t               ( *onkey )    ( MButton* b, MInputData data ),
                       void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
-                      MakiseButtonStyle*    style ) {
+                      MakiseStyle_Button*    style ) {
     b->text         = text;
 
     b->click        = click;
@@ -32,13 +32,11 @@ void m_create_button( MButton*              b,
     m_element_create        ( e, ( c == 0 ) ? 0 : c->gui, name, b, 1, 1, pos, &draw, 0, 0, &input, &focus, 0, 0 );
     makise_g_cont_add       ( c, e );
     
-#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
     MAKISE_DEBUG_OUTPUT("Button %d created\n", e->id);
-#endif
 }
 
 static uint8_t draw ( MElement* b ) {
-    MakiseButtonTheme* th = 0;
+    MakiseTheme_Button* th = 0;
     MButton *e      = b->data;
 
     switch ( e->state ) {
@@ -88,18 +86,14 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
             e->onfocus(e, M_G_FOCUS_GET);
 
         e->state = 1;
-#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
         MAKISE_DEBUG_OUTPUT( "but get %d\n", b->id );
-#endif
     }
 
     if( act == M_G_FOCUS_LEAVE ) {
         if( e->state != 0 && e->onfocus != 0 )
             e->onfocus(e, M_G_FOCUS_LEAVE);
         e->state = 0;
-#if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
         MAKISE_DEBUG_OUTPUT("but leave %d\n", b->id);
-#endif
     }
     //printf("but %d foc %d\n", b->id, act);
     return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT ) ? M_G_FOCUS_NOT_NEEDED : M_G_FOCUS_OK;

@@ -3,7 +3,7 @@
 
 #include "makise_config.h"
 
-#if ( MAKISE_E_LABLE > 0 )
+#if ( MAKISE_E_PROGRESS_BAR > 0 )
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,7 +15,7 @@ typedef struct {
     uint32_t    bg_color;
     uint32_t    border_color;
     uint32_t    duty_color;
-} MakiseProgressBarStyle;
+} MakiseStyle_ProgressBar;
 
 // Progress bar.
 typedef struct {
@@ -25,7 +25,7 @@ typedef struct {
     uint8_t                         duty;
     uint8_t                         margin;
 
-    MakiseProgressBarStyle*    style;
+    MakiseStyle_ProgressBar*    style;
 } MProgressBar;
 
 void m_create_progress_bar ( MProgressBar*                  b,
@@ -33,7 +33,7 @@ void m_create_progress_bar ( MProgressBar*                  b,
                              MPosition                      pos,
                              uint8_t                        duty,           // Duty factor [ 0..100 ].
                              uint8_t                        margin,
-                             MakiseProgressBarStyle*   style );
+                             MakiseStyle_ProgressBar*   style );
 
 void m_progress_bar_set_duty ( MProgressBar* b, uint8_t duty );
 

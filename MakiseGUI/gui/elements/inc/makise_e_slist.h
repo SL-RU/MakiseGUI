@@ -17,16 +17,16 @@ typedef struct {
     uint32_t border_c;
 
     uint16_t double_border;
-} MakiseSListStyleTheme;
+} MakiseStyleTheme_SList;
 
 typedef struct {
     const MakiseFont * font;
     uint32_t font_line_spacing;
 
-    MakiseSListStyleTheme normal;
-    MakiseSListStyleTheme focused;
-    MakiseSListStyleTheme active;
-} MakiseSListStyle;
+    MakiseStyleTheme_SList normal;
+    MakiseStyleTheme_SList focused;
+    MakiseStyleTheme_SList active;
+} MakiseStyle_SList;
 
 // Simple list element.
 // Can display items. Supports scrolling.
@@ -73,8 +73,8 @@ typedef struct _MSList {
     void                    ( *click )        ( MSList *l, MSList_Item *selected );     // when OK button clicked
 
     MSList_Type             type;
-    MakiseSListStyle*       style;
-    MakiseSListStyle*       item_style;
+    MakiseStyle_SList*       style;
+    MakiseStyle_SList*       item_style;
 
     uint32_t                state;          // focus state
 } MSList;
@@ -86,8 +86,8 @@ void m_create_slist( MSList*                b,
                      void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
                      void                   ( *click )          ( MSList *l, MSList_Item *selected ),
                      MSList_Type            type,
-                     MakiseSListStyle*      style,
-                     MakiseSListStyle*      item_style);
+                     MakiseStyle_SList*      style,
+                     MakiseStyle_SList*      item_style);
 
 void m_slist_add        ( MSList *l, MSList_Item *item );                   // Add one item to the list at the end. Only if NOT is_array.
 void m_slist_clear      ( MSList *l);                                       // Clear all pointers

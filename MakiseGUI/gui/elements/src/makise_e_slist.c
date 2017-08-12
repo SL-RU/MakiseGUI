@@ -19,8 +19,8 @@ void m_create_slist( MSList*                b,
                      void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
                      void                   ( *click )          ( MSList *l, MSList_Item *selected ),
                      MSList_Type            type,
-                     MakiseSListStyle*      style,
-                     MakiseSListStyle*      item_style) {
+                     MakiseStyle_SList*      style,
+                     MakiseStyle_SList*      item_style) {
     MElement *e = &b->el;
     m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
              1, 1, pos,
@@ -59,7 +59,7 @@ void m_create_slist( MSList*                b,
 }
 
 //draw line frome the list
-static void draw_item ( MSList_Item *ci, MSList *l, MakiseSListStyleTheme *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
+static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
 
     makise_d_rect_filled( l->el.gui->buffer,
                           x, y, w, eh,
@@ -119,9 +119,9 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseSListStyleTheme *c_th,
 
 static uint8_t draw ( MElement* b ) {
     MSList *l = (MSList*)b->data;
-    MakiseSListStyleTheme *th    = l->state ? &l->style->focused : &l->style->normal;
-    MakiseSListStyleTheme *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
-    MakiseSListStyleTheme *i_nom = &l->item_style->normal,
+    MakiseStyleTheme_SList *th    = l->state ? &l->style->focused : &l->style->normal;
+    MakiseStyleTheme_SList *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
+    MakiseStyleTheme_SList *i_nom = &l->item_style->normal,
 
     *c_th = 0;
     

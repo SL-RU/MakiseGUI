@@ -17,15 +17,15 @@ typedef struct {
     uint32_t border_c;
 
     uint16_t double_border;
-} MakiseButtonTheme;
+} MakiseTheme_Button;
 
 
 typedef struct {
     const MakiseFont* font;
-    MakiseButtonTheme normal;
-    MakiseButtonTheme focused;
-    MakiseButtonTheme active;
-} MakiseButtonStyle;
+    MakiseTheme_Button normal;
+    MakiseTheme_Button focused;
+    MakiseTheme_Button active;
+} MakiseStyle_Button;
 
 // Button - simple button. executes click() function when OK clicked.
 typedef struct _MButton MButton;
@@ -35,7 +35,7 @@ typedef struct _MButton {
     MElement            el;
 
     char*               text;
-    MakiseButtonStyle*  style;
+    MakiseStyle_Button*  style;
 
     void                ( *click )      ( MButton* b );                         // When OK button clicked.
     uint8_t             ( *onkey )      ( MButton* b, MInputData data );        // Handle any key pressed on button.
@@ -54,7 +54,7 @@ void m_create_button( MButton*              b,
                       void                  ( *click )    ( MButton* b ),
                       uint8_t               ( *onkey )    ( MButton* b, MInputData data ),
                       void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
-                      MakiseButtonStyle*    style );
+                      MakiseStyle_Button*    style );
 
 #ifdef __cplusplus
 }

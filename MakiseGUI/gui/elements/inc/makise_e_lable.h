@@ -11,9 +11,9 @@ extern "C" {
 
 #include "makise_e.h"
 
-typedef struct {
+/* typedef struct { */
 
-} MakiseLableStyleTheme;
+/* } MakiseLableStyleTheme; */
 
 typedef struct {
     const MakiseFont*   font;
@@ -23,7 +23,7 @@ typedef struct {
     uint32_t            border_c;
 
     uint16_t            double_border;
-} MakiseLableStyle;
+} MakiseStyle_Lable;
 
 // Lable.
 // Simply draws required text.
@@ -34,14 +34,14 @@ typedef struct {
 
     char*               text;
 
-    MakiseLableStyle*   style;
+    MakiseStyle_Lable*   style;
 } MLable;
 
 void m_create_lable( MLable*             b,
                      MContainer*         c,
                      MPosition           pos,
                      char*               text,
-                     MakiseLableStyle*   style );
+                     MakiseStyle_Lable*   style );
 
 #ifdef __cplusplus
 }
