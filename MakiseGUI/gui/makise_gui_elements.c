@@ -13,24 +13,24 @@ void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
 {
     e->id = makise_g_newid();
     
-    e->gui = gui;
-    e->name = name;
+    e->gui                  = gui;
+    e->name                 = name;
 
-    e->data = data;
-    e->enabled = enabled;
-    e->focus_prior = focus_prior;
-    e->position = position;
-    e->draw = draw;
-    e->predraw = predraw;
-    e->update = update;
-    e->input = input;
-    e->focus = focus;
-    e->is_parent = is_parent;
-    e->children = children;
+    e->data                 = data;
+    e->enabled              = enabled;
+    e->focus_prior          = focus_prior;
+    e->position             = position;
+    e->draw                 = draw;
+    e->predraw              = predraw;
+    e->update               = update;
+    e->input                = input;
+    e->focus                = focus;
+    e->is_parent            = is_parent;
+    e->children             = children;
 
-    e->next = 0;
-    e->prev = 0;
-    e->parent = 0;
+    e->next                 = 0;
+    e->prev                 = 0;
+    e->parent               = 0;
 }
 
 uint8_t m_element_call(MElement* el, uint8_t type)
