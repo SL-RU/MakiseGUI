@@ -11,22 +11,36 @@ extern "C" {
 
 #include "makise_e.h"
 
+
+typedef struct {
+    uint32_t bg_color;
+    uint32_t border_c;
+
+    uint16_t double_border;
+} MakiseCanvasStyleTheme;
+
+typedef struct {
+    MakiseCanvasStyleTheme normal;
+    MakiseCanvasStyleTheme focused;
+} MakiseCanvasStyle;
+
+
 //Canvas - simple container. It's placing elements simply by their position wherever it needed
 typedef struct {
-    MakiseGUI*      gui;
-    MElement        el;
+    MakiseGUI*              gui;
+    MElement                el;
 
-    MContainer      cont;
+    MContainer              cont;
 
-    MakiseStyle*    style;
+    MakiseCanvasStyle*      style;
 
-    uint8_t         state;
+    uint8_t                 state;
 } MCanvas;
 
-void m_create_canvas( MCanvas*      b,
-                      MContainer*   c,
-                      MPosition     pos,
-                      MakiseStyle*  style );
+void m_create_canvas( MCanvas*            b,
+                      MContainer*         c,
+                      MPosition           pos,
+                      MakiseCanvasStyle*  style );
 
 #ifdef __cplusplus
 }

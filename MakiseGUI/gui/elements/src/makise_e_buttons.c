@@ -11,13 +11,15 @@ static MInputResultEnum 	input  ( MElement* b, MInputData data );
 static MFocusEnum 			focus  ( MElement* b, MFocusEnum act );
 
 char name[] = "Button";
-void m_create_button( MButton* b, MContainer *c,
-                      MPosition     pos,
-                      char*         text,
-                      void          ( *click )    ( MButton* b ),
-                      uint8_t       ( *onkey )    ( MButton* b, MInputData data ),
-                      void          ( *onfocus )  ( MButton* b, MFocusEnum type ),
-                      MakiseStyle*  style ) {
+
+void m_create_button( MButton*              b,
+                      MContainer*           c,
+                      MPosition             pos,
+                      char*                 text,
+                      void                  ( *click )    ( MButton* b ),
+                      uint8_t               ( *onkey )    ( MButton* b, MInputData data ),
+                      void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
+                      MakiseButtonStyle*    style ) {
     b->text         = text;
 
     b->click        = click;
@@ -36,8 +38,8 @@ void m_create_button( MButton* b, MContainer *c,
 }
 
 static uint8_t draw ( MElement* b ) {
-    MakiseStyleTheme *th = 0;
-    MButton *e = ((MButton*)b->data);
+    MakiseButtonTheme* th = 0;
+    MButton *e      = b->data;
 
     switch ( e->state ) {
         case 0:     th = &e->style->normal;                 break;
@@ -45,8 +47,9 @@ static uint8_t draw ( MElement* b ) {
         default:    th = &e->style->active;     e->state--; break;
     }
 
-    _m_e_helper_draw_box( b->gui->buffer, &b->position, th );
-    
+    _m_e_helper_draw_box_param( b->gui->buffer, &b->position,
+                                th->border_c, th->bg_color,th->double_border );
+
     makise_d_string( b->gui->buffer,                                e->text, MDTextAll,
                      b->position.real_x + b->position.width / 2,    b->position.real_y + b->position.height / 2,
                      MDTextPlacement_Center, e->style->font, th->font_col);
@@ -57,7 +60,7 @@ static uint8_t draw ( MElement* b ) {
 
 static MInputResultEnum input  ( MElement* b, MInputData data ) {
     //printf("but %d inp %d %d\n", b->id, data.key, data.event);
-    MButton *e = ((MButton*)b->data);
+    MButton *e          = b->data;
     uint8_t res = 1;
     if(e->onkey != 0)
     res = e->onkey(e, data);
@@ -79,14 +82,14 @@ static MInputResultEnum input  ( MElement* b, MInputData data ) {
 }
 
 static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
-    MButton *e = ( MButton* )b->data;
+    MButton *e =        b->data;
     if ( act & M_G_FOCUS_GET ) {
         if(e->state != 1 && e->onfocus != 0)
             e->onfocus(e, M_G_FOCUS_GET);
 
         e->state = 1;
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
-        MAKISE_DEBUG_OUTPUT("but get %d\n", b->id);
+        MAKISE_DEBUG_OUTPUT( "but get %d\n", b->id );
 #endif
     }
 
