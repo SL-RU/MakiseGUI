@@ -19,8 +19,11 @@ void m_create_slist( MSList*                b,
                      void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
                      void                   ( *click )          ( MSList *l, MSList_Item *selected ),
                      MSList_Type            type,
-                     MakiseStyle_SList*      style,
-                     MakiseStyle_SList*      item_style) {
+                     MakiseStyle_SList*     style,
+                     MakiseStyle_SList*     item_style,
+                     uint8_t                left_margin,
+                     uint8_t                item_margin,
+                     uint8_t                scroll_width ) {
     MElement *e = &b->el;
     m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
              1, 1, pos,
@@ -51,6 +54,11 @@ void m_create_slist( MSList*                b,
     b->style                = style;
     b->item_style           = item_style;
     
+    b->left_margin          = left_margin;
+    b->item_margin          = item_margin;
+
+    b->scroll_width         = scroll_width;
+
     makise_g_cont_add(c, e);
 
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
@@ -71,7 +79,7 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th
                   x, y, eh, eh,
                   c_th->font_col);
 
-        if(ci->value) {
+        if ( ci->value ) {
             uint32_t d = eh > 21 ? 5 : 2;
             makise_d_rect_filled(l->el.gui->buffer,
                      x + d, y + d, eh - d * 2, eh - d * 2,
@@ -110,8 +118,8 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th
 
     makise_d_string_frame( l->el.gui->buffer,
                            ci->text, MDTextAll,
-                           x + 1, y,
-                           w - 2, eh,
+                           x + 2, y,
+                           w - 4, eh,
                            l->item_style->font,
                            l->item_style->font_line_spacing,
                            c_th->font_col );
@@ -130,11 +138,11 @@ static uint8_t draw ( MElement* b ) {
 
     uint32_t i = 0, start = 0, end = 0;
     int16_t y = b->position.real_y + 1,
-    x = b->position.real_x + 2;
+    x = b->position.real_x + l->left_margin;
     uint32_t
-    w = b->position.width - 5,
-    h = b->position.height - 4,
-    eh = l->item_style->font->height + l->item_style->font_line_spacing + 3,
+    w = b->position.width - l->scroll_width,
+    h = b->position.height,
+    eh = l->item_style->font->height + l->item_style->font_line_spacing,
     ec = h / (eh + 1), //count of elements on the screen
     sh = 0,   //scroll line height
     cuid = 0, //current id
@@ -143,7 +151,7 @@ static uint8_t draw ( MElement* b ) {
     if( l->text != 0 ) {
         makise_d_string( b->gui->buffer,
                          l->text, MDTextAll,
-                         x, y,
+                         x + 2, y - 1,
                          MDTextPlacement_LeftUp,
                          l->style->font, th->font_col );
 
@@ -152,11 +160,13 @@ static uint8_t draw ( MElement* b ) {
 
         makise_d_line( b->gui->buffer,
                        b->position.real_x, y,
-                       b->position.real_x + b->position.width, y,
+                       b->position.real_x + b->position.width - l->scroll_width,
+                       y,
                        th->border_c);
+
         ec = h / (eh + 1);
     }
-    y += 1;
+    y += l->item_margin;
     
     MSList_Item *ci = 0;
 
@@ -196,7 +206,7 @@ static uint8_t draw ( MElement* b ) {
         start = 0;
         end = ec;
     }
-    
+
     if ( l->is_array ) {
     //array
         for ( i = start; i < end; i++ ) {
@@ -206,7 +216,7 @@ static uint8_t draw ( MElement* b ) {
             if ( ci == l->selected ) cuid = i;
 
             draw_item( ci, l, c_th, x, y, w, eh );
-            y += eh + 1;
+            y += eh;
         }
     } else {
         //Linked list
@@ -221,10 +231,11 @@ static uint8_t draw ( MElement* b ) {
 
             draw_item( ci, l, c_th, x, y, w, eh );
 
-            y += eh + 1;
+            y += eh;
             ci = ci->next;
         }
     }
+    /*
     h = b->position.height - 2;
     sh = h / len;
     if ( sh < 5 ) {
@@ -246,7 +257,7 @@ static uint8_t draw ( MElement* b ) {
     makise_d_line( b->gui->buffer,
                    x + w + 1,   y,
                    x + w + 1,   y + sh,
-                   th->font_col );
+                   th->font_col );*/
     return M_OK;
 }
 
