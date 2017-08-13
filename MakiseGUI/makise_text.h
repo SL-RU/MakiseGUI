@@ -19,11 +19,14 @@ typedef enum {
 
 
 typedef struct _MakiseFont {
-    const uint8_t*      table;
-    uint16_t            width;
-    uint16_t            height;
-    const uint8_t*      char_width;
-    const uint16_t*     char_index;
+    const uint8_t*      table; //draw data
+    uint16_t            width; //common width
+    uint16_t            height; //common height
+    const uint8_t*      char_width; //width of each char
+    const uint16_t*     char_index; //start index of char in the table
+#if MAKISE_UNICODE
+    const uint16_t*     unicode_index; //indexes of unicode characters with id>127. Format is array's id -> unicode code. Where array's id is index of char in the char_index & char_width
+#endif
     uint16_t            offset;
     uint16_t            num_char;
     uint16_t            space_char;
@@ -61,8 +64,20 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
                                      uint16_t line_spacing,
                                      uint32_t c );
 
+#if MAKISE_UNICODE    
+/**
+ * Get index of utf-8 character in the font
+ *
+ * @param s character's bytes
+ * @param font font
+ * @return 0 if char isn't found. Else - index of char in the char_width & char_index tables
+ */
+uint32_t    makise_d_utf_char_id  ( char *s,
+				    const MakiseFont* font);
+#endif //unicode
+
 #ifdef __cplusplus
 }
-#endif
+#endif //cpp
 
-#endif
+#endif //MAKISE_TEXT_H

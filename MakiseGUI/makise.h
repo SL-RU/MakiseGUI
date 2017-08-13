@@ -29,7 +29,9 @@ typedef struct _MakiseDriver MakiseDriver;
 #ifndef MAKISE_DEBUG_OUTPUT 
 #define MAKISE_DEBUG_OUTPUT(...)
 #endif
-
+#ifndef MAKISE_UNICODE
+#define MAKISE_UNICODE 0
+#endif
     
 typedef struct
 {
