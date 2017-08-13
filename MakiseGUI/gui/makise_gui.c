@@ -52,7 +52,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     
     if(event & M_G_FOCUS_GET)
     {
-	printf("Focus %d\n", el->id);
+    MAKISE_DEBUG_OUTPUT("Focus %d\n", el->id);
 	//if focus need be recieved
 	MElement *e = el;
 
@@ -110,7 +110,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     }
     else if(event == M_G_FOCUS_LEAVE)
     {
-	printf("Focus leave %d\n", el->id);
+    MAKISE_DEBUG_OUTPUT("Focus leave %d\n", el->id);
 	MElement *e = el;
 
 	MFocusEnum r = 0;
@@ -184,7 +184,7 @@ void _makise_g_print_tree(MContainer *c, int l)
 	t[0] = '=';
     while (e != 0)
     {
-	printf("%s %s\tid=%d\n", t, e->name, e->id);
+    MAKISE_DEBUG_OUTPUT("%s %s\tid=%d\n", t, e->name, e->id);
 	if(e->is_parent && e->children != 0)
 	    _makise_g_print_tree(e->children, l+1);
 	e = e->next;

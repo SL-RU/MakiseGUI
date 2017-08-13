@@ -14,7 +14,6 @@ typedef struct _MakiseDriver MakiseDriver;
 #define M_ERROR         2
 #define M_ZERO_POINTER  3
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "makise_config.h"

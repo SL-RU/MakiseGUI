@@ -36,7 +36,7 @@ void m_create_toggle(MToggle* b, MContainer *c,
     
     makise_g_cont_add(c, e);
     
-    printf("Toggle %d created\n", e->id);
+    MAKISE_DEBUG_OUTPUT("Toggle %d created\n", e->id);
 }
 
 uint8_t draw   (MElement* b)
@@ -104,7 +104,7 @@ MInputResultEnum input  (MElement* b, MInputData data)
 	if(e->toggled != 0)
 	    e->toggled(e, e->state);
 	e->focus_state = 2;
-	printf("cli %d\n", e->state);
+    MAKISE_DEBUG_OUTPUT("cli %d\n", e->state);
 	return M_INPUT_HANDLED;
     }
     return M_INPUT_NOT_HANDLED;

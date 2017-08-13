@@ -30,7 +30,7 @@ void m_create_text_field(MTextField* b, MContainer *c,
     
     makise_g_cont_add(c, e);
     
-    printf("Text field %d created\n", e->id);
+    MAKISE_DEBUG_OUTPUT("Text field %d created\n", e->id);
 }
 
 uint8_t draw   (MElement* b)
