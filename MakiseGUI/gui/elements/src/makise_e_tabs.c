@@ -115,7 +115,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 	eh->position = mp_rel(0, 0, 0, 0);
     }
     
-    printf("Tabs %d created\n", e->id);
+    MAKISE_DEBUG_OUTPUT("Tabs %d created\n", e->id);
 
 }
 

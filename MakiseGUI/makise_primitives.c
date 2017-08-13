@@ -92,10 +92,10 @@ void makise_d_rect_filled ( MakiseBuffer* b,
     }
 
     if ( x + w > b->width )
-        w = b->width - x - 1;
+        w = b->width - x;
 
     if ( y + h > b->height )
-        h = b->height - y - 1;
+        h = b->height - y;
     
     if ( w == 0 || h == 0 )
         return;
@@ -255,7 +255,6 @@ void makise_d_line ( MakiseBuffer* b, int16_t x0, int16_t y0, int16_t x1, int16_
             kb += 1;
             j += 32/b->pixeldepth;
         }
-        j-=1;
         while (j <= x1) {
             makise_pset_fast(b, j, y0, c);
             j++;

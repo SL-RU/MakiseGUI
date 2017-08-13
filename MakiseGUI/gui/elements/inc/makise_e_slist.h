@@ -20,12 +20,12 @@ typedef struct {
 } MakiseStyleTheme_SList;
 
 typedef struct {
-    const MakiseFont * font;
-    uint32_t font_line_spacing;
+    const MakiseFont*       font;
+    uint32_t                font_line_spacing;
 
-    MakiseStyleTheme_SList normal;
-    MakiseStyleTheme_SList focused;
-    MakiseStyleTheme_SList active;
+    MakiseStyleTheme_SList  normal;
+    MakiseStyleTheme_SList  focused;
+    MakiseStyleTheme_SList  active;
 } MakiseStyle_SList;
 
 // Simple list element.
@@ -73,8 +73,15 @@ typedef struct _MSList {
     void                    ( *click )        ( MSList *l, MSList_Item *selected );     // when OK button clicked
 
     MSList_Type             type;
-    MakiseStyle_SList*       style;
-    MakiseStyle_SList*       item_style;
+    MakiseStyle_SList*      style;
+    MakiseStyle_SList*      item_style;
+
+    uint8_t                 left_margin;
+    uint8_t                 item_margin;
+
+    uint8_t                 scroll_width;   // May be 0.
+    uint32_t                scroll_bg_color;
+    uint32_t                scroll_color;
 
     uint32_t                state;          // focus state
 } MSList;
@@ -86,8 +93,13 @@ void m_create_slist( MSList*                b,
                      void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
                      void                   ( *click )          ( MSList *l, MSList_Item *selected ),
                      MSList_Type            type,
-                     MakiseStyle_SList*      style,
-                     MakiseStyle_SList*      item_style);
+                     MakiseStyle_SList*     style,
+                     MakiseStyle_SList*     item_style,
+                     uint8_t                left_margin,
+                     uint8_t                item_margin,
+                     uint8_t                scroll_width,
+                     uint32_t               scroll_bg_color,
+                     uint32_t                scroll_color );
 
 void m_slist_add        ( MSList *l, MSList_Item *item );                   // Add one item to the list at the end. Only if NOT is_array.
 void m_slist_clear      ( MSList *l);                                       // Clear all pointers
