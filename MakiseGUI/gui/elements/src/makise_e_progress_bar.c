@@ -36,13 +36,12 @@ static uint8_t draw ( MElement* b ) {
                           e->style->border_color,
                           e->style->bg_color );
 
-    /*
     makise_d_rect_filled( b->gui->buffer,
                           b->position.real_x + e->margin + 1,   b->position.real_y + e->margin + 1,
                           ( e->el.position.width - e->margin * 2 - 2 ) * e->duty / 100,
                           e->el.position.height - e->margin * 2 - 2,
                           e->style->duty_color,
-                          e->style->duty_color );*/
+                          e->style->duty_color );
 
     return 0;
 }
