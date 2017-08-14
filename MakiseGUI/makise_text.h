@@ -7,6 +7,7 @@ extern "C" {
 
 #include <string.h>
 #include "makise.h"
+#include "makise_config.h"    
 
 #define MDTextAll UINT32_MAX 
 
@@ -27,8 +28,12 @@ typedef struct _MakiseFont {
 #if MAKISE_UNICODE
     const uint16_t*     unicode_index; //indexes of unicode characters with id>127. Format is array's id -> unicode code. Where array's id is index of char in the char_index & char_width
 #endif
-    uint16_t            offset;
-    uint16_t            num_char;
+    //first block without gasps
+    uint16_t            offset; //char's code
+    uint16_t            num_char; //count chars in block
+#if MAKISE_UNICODE
+    uint16_t            num_uni; //total count
+#endif
     uint16_t            space_char;
 } MakiseFont;
 
@@ -66,14 +71,23 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
 
 #if MAKISE_UNICODE    
 /**
- * Get index of utf-8 character in the font
+ * Get index of utf-8 character
  *
  * @param s character's bytes
- * @param font font
- * @return 0 if char isn't found. Else - index of char in the char_width & char_index tables
+ * @param len maximum available count of bytes
+ * @param bts bytes per char
+ * @return 0 if is error. Else - unicode index of char
  */
-uint32_t    makise_d_utf_char_id  ( char *s,
-				    const MakiseFont* font);
+    uint32_t    makise_d_utf_char_id  ( char *s, uint32_t len, uint8_t *bts );
+    
+/**
+ * Get index of utf-8 character in the font table
+ *
+ * @param c utf-8 index
+ * @param font font
+ * @return -1 if is error. Else - index of char in the table
+ */
+    uint32_t    makise_d_utf_char_font  ( uint32_t c, const MakiseFont *font);
 #endif //unicode
 
 #ifdef __cplusplus
