@@ -21,7 +21,7 @@ parser.add_argument('-s', '--size', type=int, default=12,
                     help='Size of the font in pixels. Need only for TTF')
 parser.add_argument('-e', '--encoding', default="",
                     help='Encoding: "koi8". Only for bitmap font')
-parser.add_argument('-c', '--characters', default=["31-126"],
+parser.add_argument('-c', '--characters', default="31-126",
                     help='Required character\'s unicode codes. ' +
                     'Regions like: 31-127,1040-1103,232,129')
 parser.add_argument('-i', '--image', help='Out bitmap path. Default: img.png',
@@ -79,10 +79,13 @@ const_w = -1
 table_i = []
 
 if font_path.endswith(".pcf") or font_path.endswith(".bdf"):
-    print("Conver fonts to .pil.")
+    print("Convert fonts to .pil.")
     print("""Use pilfont utility:
 https://pillow.readthedocs.org/en/3.0.0/reference/ImageFont.html""")
     print("example: pilfont %s" % font_path)
+    parser.print_help()
+    sys.exit()
+
 
 # return char index
 def c_enc(c):
