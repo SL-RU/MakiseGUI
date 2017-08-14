@@ -31,6 +31,10 @@ typedef struct _MakiseDriver MakiseDriver;
 #ifndef MAKISE_UNICODE
 #define MAKISE_UNICODE 0
 #endif
+//if MAKISEGUI_DISPLAY_INVERTED == 1 then MC_BLACK = 1
+#ifndef MAKISEGUI_DISPLAY_INVERTED
+#define MAKISEGUI_DISPLAY_INVERTED 0
+#endif
     
 typedef struct
 {

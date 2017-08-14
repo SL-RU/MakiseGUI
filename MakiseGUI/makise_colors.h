@@ -13,8 +13,13 @@ extern "C" {
 #if defined MAKISEGUI_BUFFER_DEPTH && MAKISEGUI_BUFFER_DEPTH <= 4
 typedef enum
 {
+#if MAKISEGUI_BUFFER_DEPTH == 1 && MAKISEGUI_DISPLAY_INVERTED
+    MC_Black        = 1,
+    MC_White        = 0,
+#else
     MC_Black        = 0,
     MC_White        = 1,
+#endif
 #if MAKISEGUI_BUFFER_DEPTH >= 2
     MC_Red             ,
     MC_Green           ,
