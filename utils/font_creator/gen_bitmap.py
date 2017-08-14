@@ -78,6 +78,11 @@ table_w = []
 const_w = -1
 table_i = []
 
+if font_path.endswith(".pcf") or font_path.endswith(".bdf"):
+    print("Conver fonts to .pil.")
+    print("""Use pilfont utility:
+https://pillow.readthedocs.org/en/3.0.0/reference/ImageFont.html""")
+    print("example: pilfont %s" % font_path)
 
 # return char index
 def c_enc(c):
@@ -153,3 +158,4 @@ data = {
 
 with open(out_json, 'w') as outfile:
     json.dump(data, outfile)
+print("Font's data generated: %s" % out_json)

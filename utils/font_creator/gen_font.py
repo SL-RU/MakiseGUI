@@ -19,7 +19,7 @@ parser.add_argument('-s', '--space', default=2,
 
 
 args = parser.parse_args()
-print(args)
+#print(args)
 
 output_hex = not args.binary
 
