@@ -33,7 +33,7 @@ void m_create_progress_bar ( MProgressBar*                  b,
                              MPosition                      pos,
                              uint8_t                        duty,           // Duty factor [ 0..100 ].
                              uint8_t                        margin,
-                             MakiseStyle_ProgressBar*   style );
+                             MakiseStyle_ProgressBar*       style );
 
 void m_progress_bar_set_duty ( MProgressBar* b, uint8_t duty );
 

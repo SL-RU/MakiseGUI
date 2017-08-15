@@ -107,7 +107,7 @@ void m_create_slist( MSList*                b,
                      void                   ( *click )          ( MSList *l, MSList_Item *selected ),
                      MSList_Type            type,
                      MakiseStyle_SList*     style,
-                     MakiseStyle_SListItem*     item_style);
+                     MakiseStyle_SListItem* item_style);
 
 void m_slist_add        ( MSList *l, MSList_Item *item );                   // Add one item to the list at the end. Only if NOT is_array.
 void m_slist_clear      ( MSList *l);                                       // Clear all pointers
