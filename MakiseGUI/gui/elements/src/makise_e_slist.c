@@ -141,22 +141,22 @@ static uint8_t draw ( MElement* b ) {
 	    len = 0;  //count of items
 
 	if( l->text != 0 ) {
-	    makise_d_string( b->gui->buffer,
-			     l->text, MDTextAll,
-                 x + 2,                     // One pixel is line + one pixel is space.
-                 y + 2,                     // One pixel is line + one pixel is space.
-			     MDTextPlacement_LeftUp,
-			     l->style->font, th->font_col );
+        makise_d_string_frame( l->el.gui->buffer,
+                       l->text, MDTextAll,
+                       x + 2, y + 2,
+                       w - 4, eh,
+                       l->item_style->font,
+                       l->item_style->font_line_spacing,
+                       th->font_col );
 
         y += l->style->font->height + 4;
         h -= l->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
 
-	    makise_d_line( b->gui->buffer,
-			   b->position.real_x, y,
-			   b->position.real_x + b->position.width
-			   - l->style->scroll_width - 1,
-			   y,
-			   th->border_c);
+        makise_d_line( b->gui->buffer,
+               b->position.real_x, y,
+               b->position.real_x + b->position.width,
+               y,
+               th->border_c);
 	}
 
     uint32_t ec = h / (eh - 1); //count of elements on the screen
