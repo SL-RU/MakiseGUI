@@ -8,12 +8,10 @@ import koi8
 import argparse
 import sys
 import json
+import os
 
 font_h = 0
-req_chars = [
-# [32, 128],     # english chars
-# [1040, 1103]  # russian
-]
+req_chars = []
 available_encodings = ["koi8"]
 
 parser = argparse.ArgumentParser(description='Create bitmap from font.')
@@ -32,7 +30,7 @@ parser.add_argument('font', help='Font path')
 parser.add_argument('name', help='Font\'s name')
 
 args = parser.parse_args()
-#print(args)
+
 font_path = args.font
 font_size = args.size
 font_enc = args.encoding
@@ -71,7 +69,6 @@ for i in args.characters.split(','):
             parser.print_help()
             sys.exit()
 
-#print(req_chars)
 
 table = []
 table_w = []
@@ -86,6 +83,10 @@ https://pillow.readthedocs.org/en/3.0.0/reference/ImageFont.html""")
     parser.print_help()
     sys.exit()
 
+if not os.path.isfile(font_path):
+    print("Font %s not found." % font_path)
+    parser.print_help()
+    sys.exit()
 
 # return char index
 def c_enc(c):

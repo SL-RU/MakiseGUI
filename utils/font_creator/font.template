@@ -1,7 +1,7 @@
 /*
- * Font name: $name
- * Font size: $size
-
+ * Font name:   $name
+ * Font size:   $size
+ * Font height: $height
  */
 
 #ifndef ${name}_H
@@ -34,17 +34,17 @@ $unicode
 #endif
 
 const MakiseFont F_${name} = {
-    &${name}_table,
+    ${name}_table,
     $const_width,
     $height,
 #if $const_width == 0
-    &${name}_width,
+    ${name}_width,
 #else
     0,
 #endif
-    &${name}_offset,
+    ${name}_offset,
 #if MAKISE_UNICODE
-    &${name}_unicode,
+    ${name}_unicode,
 #endif
     $first_offset,
     $first_count,
