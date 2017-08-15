@@ -6,6 +6,11 @@
 
 #ifndef Default5x7_H
 #define Default5x7_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "makise_text.h"
 #include "fonts.h"
 
@@ -34,7 +39,7 @@ const uint16_t Default5x7_unicode [] =
 #endif
 
 const MakiseFont F_Default5x7 = {
-    &Default5x7_table,
+    Default5x7_table,
     5,
     7,
 #if 5 == 0
@@ -42,9 +47,9 @@ const MakiseFont F_Default5x7 = {
 #else
     0,
 #endif
-    &Default5x7_offset,
+    Default5x7_offset,
 #if MAKISE_UNICODE
-    &Default5x7_unicode,
+    Default5x7_unicode,
 #endif
     32,
     95,
@@ -53,5 +58,9 @@ const MakiseFont F_Default5x7 = {
 #endif
     2
 };
+
+#ifdef __cplusplus
+}
+#endif //cpp
 
 #endif

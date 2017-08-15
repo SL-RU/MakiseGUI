@@ -34,7 +34,7 @@ const uint16_t Default10x20_unicode [] =
 #endif
 
 const MakiseFont F_Default10x20 = {
-    &Default10x20_table,
+    Default10x20_table,
     10,
     20,
 #if 10 == 0
@@ -42,9 +42,9 @@ const MakiseFont F_Default10x20 = {
 #else
     0,
 #endif
-    &Default10x20_offset,
+    Default10x20_offset,
 #if MAKISE_UNICODE
-    &Default10x20_unicode,
+    Default10x20_unicode,
 #endif
     32,
     95,

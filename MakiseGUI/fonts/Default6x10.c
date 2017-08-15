@@ -34,17 +34,17 @@ const uint16_t Default6x10_unicode [] =
 #endif
 
 const MakiseFont F_Default6x10 = {
-    &Default6x10_table,
+    Default6x10_table,
     6,
     10,
 #if 6 == 0
-    &Default6x10_width,
+    Default6x10_width,
 #else
     0,
 #endif
-    &Default6x10_offset,
+    Default6x10_offset,
 #if MAKISE_UNICODE
-    &Default6x10_unicode,
+    Default6x10_unicode,
 #endif
     32,
     95,
