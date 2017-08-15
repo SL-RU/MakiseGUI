@@ -11,10 +11,6 @@ extern "C" {
 
 #include "makise_e.h"
 
-/* typedef struct { */
-
-/* } MakiseLableStyleTheme; */
-
 typedef struct {
     const MakiseFont*   font;
     uint32_t            font_col;

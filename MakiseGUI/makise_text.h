@@ -69,6 +69,14 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
                                      uint16_t line_spacing,
                                      uint32_t c );
 
+// Get height text for user width window.
+uint32_t makise_d_string_height_get ( char*             s,
+                                      uint32_t          len,
+                                      uint16_t          width_window,
+                                      const MakiseFont* font,
+                                      uint32_t          font_line_spacing );
+
+
 #if MAKISE_UNICODE    
 /**
  * Get index of utf-8 character

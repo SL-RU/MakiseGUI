@@ -32,15 +32,15 @@ typedef struct {
 
     MContainer              cont;
 
-    MakiseStyle_Canvas*      style;
+    MakiseStyle_Canvas*     style;
 
     uint8_t                 state;
 } MCanvas;
 
-void m_create_canvas( MCanvas*            b,
-                      MContainer*         c,
-                      MPosition           pos,
-                      MakiseStyle_Canvas*  style );
+void m_create_canvas( MCanvas*              b,
+                      MContainer*           c,
+                      MPosition             pos,
+                      MakiseStyle_Canvas*   style );
 
 #ifdef __cplusplus
 }

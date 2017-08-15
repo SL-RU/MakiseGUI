@@ -7,28 +7,28 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t 
     const uint8_t * ptrByte;
 
     if(b->border.ex + b->border.w < x ||
-	b->border.ey + b->border.h < y ||
+    b->border.ey + b->border.h < y ||
        x <= b->border.x - width ||
        y <= b->border.y - font->height)
-	return;
+    return;
     
     ptrByte = &font->table[font->char_index[ind]];
     bitCounter = 0;
     for(rawIndex = 0; rawIndex < font->height; rawIndex++)
     {
-	for(colIndex = 0; colIndex < width; colIndex++)
-	{
-	    if (bitCounter > 7)
-	    {
-		bitCounter = 0;
-		ptrByte++;
-	    }
-	    if(*ptrByte & (1<<bitCounter))
-	    {
-		makise_pset(b, x+colIndex, y+rawIndex, c);
-	    }
-	    bitCounter++;
-	}
+    for(colIndex = 0; colIndex < width; colIndex++)
+    {
+        if (bitCounter > 7)
+        {
+        bitCounter = 0;
+        ptrByte++;
+        }
+        if(*ptrByte & (1<<bitCounter))
+        {
+        makise_pset(b, x+colIndex, y+rawIndex, c);
+        }
+        bitCounter++;
+    }
     }
 }
 
@@ -41,65 +41,65 @@ void makise_d_char(MakiseBuffer *b, uint16_t ch, int16_t x, int16_t y, const Mak
     // Symbol width
     if (ch > font->num_char) ch = 0;
     width = font->width ? font->width : font->char_width[ch];
-	
+
     // Draw Char
     _makise_draw_char(b, ch, x, y, font, c, width);
 }
 
 void makise_d_string(MakiseBuffer *b,
-		     char *s, uint32_t len,
-		     int16_t x, int16_t y, MDTextPlacement place,
-		     const MakiseFont *font, uint32_t c)
+             char *s, uint32_t len,
+             int16_t x, int16_t y, MDTextPlacement place,
+             const MakiseFont *font, uint32_t c)
 {
     uint32_t width, i = 0;
 
     if(s == 0)
-	return;
+    return;
     
     if(place == MDTextPlacement_Center )
     {
-	width = makise_d_string_width(s, len, font);
-	x -= width / 2;
-	y -= font->height / 2;
+    width = makise_d_string_width(s, len, font);
+    x -= width / 2;
+    y -= font->height / 2;
     } else if(place == MDTextPlacement_CenterUp )
     {
-	width = makise_d_string_width(s, len, font);
-	x -= width / 2;
+    width = makise_d_string_width(s, len, font);
+    x -= width / 2;
     } else if(place == MDTextPlacement_CenterDown )
     {
-	width = makise_d_string_width(s, len, font);
-	x -= width / 2;
-	y -= font->height;
+    width = makise_d_string_width(s, len, font);
+    x -= width / 2;
+    y -= font->height;
     }
     
     uint32_t ch, xt = x, yt = y;
 
     if(y + font->height < b->border.y ||
        y > b->border.ey) //borders
-	return;
+    return;
     
     while (i < len && s[i]) {
 #if MAKISE_UNICODE
-	uint8_t bts = 0;
-	ch = makise_d_utf_char_id(&s[i], len - i, &bts);
-	ch = makise_d_utf_char_font(ch, font);
-	if (ch > font->num_uni) ch = 0;
-	i += bts;
+    uint8_t bts = 0;
+    ch = makise_d_utf_char_id(&s[i], len - i, &bts);
+    ch = makise_d_utf_char_font(ch, font);
+    if (ch > font->num_uni) ch = 0;
+    i += bts;
 #else
-	ch = s[i];
-	ch = (uint8_t)ch - font->offset;
-	if (ch > font->num_char) ch = 0;
-	i++;
+    ch = s[i];
+    ch = (uint8_t)ch - font->offset;
+    if (ch > font->num_char) ch = 0;
+    i++;
 #endif
-	// Symbol width
-	width = font->width ? font->width : font->char_width[ch];
-	
-	// Draw Char
-	_makise_draw_char(b, ch, xt, yt, font, c, width);
-	xt += width + font->space_char;
+    // Symbol width
+    width = font->width ? font->width : font->char_width[ch];
 
-	if(xt >= b->border.ex) //border
-	    return;
+    // Draw Char
+    _makise_draw_char(b, ch, xt, yt, font, c, width);
+    xt += width + font->space_char;
+
+    if(xt >= b->border.ex) //border
+        return;
     }
 }
 
@@ -109,29 +109,64 @@ uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font)
     uint32_t ch, res = 0;
 
     if(s == 0)
-	return 0;
+    return 0;
     
     while (i < len && s[i]) {
 #if MAKISE_UNICODE
-	uint8_t bts = 0;
-	ch = makise_d_utf_char_id(&s[i], len - i, &bts);
-	ch = makise_d_utf_char_font(ch, font);
-	if (ch > font->num_uni) ch = 0;
-	i += bts;
+    uint8_t bts = 0;
+    ch = makise_d_utf_char_id(&s[i], len - i, &bts);
+    ch = makise_d_utf_char_font(ch, font);
+    if (ch > font->num_uni) ch = 0;
+    i += bts;
 #else
-	ch = s[i];
-	ch = (uint8_t)ch - font->offset;
-	if (ch > font->num_char) ch = 0;
-	i++;
+    ch = s[i];
+    ch = (uint8_t)ch - font->offset;
+    if (ch > font->num_char) ch = 0;
+    i++;
 #endif
 
-	// Symbol width
-	//if (ch > font->num_char) ch = 0;
-	width = font->width ? font->width : font->char_width[ch];	
-	res += width + font->space_char;
-	
+    // Symbol width
+    //if (ch > font->num_char) ch = 0;
+    width = font->width ? font->width : font->char_width[ch];
+    res += width + font->space_char;
+
     }
     return res;
+}
+
+uint32_t makise_d_string_height_get ( char*             s,
+                                      uint32_t          len,
+                                      uint16_t          width_window,
+                                      const MakiseFont* font,
+                                      uint32_t          font_line_spacing ) {
+    uint32_t i = 0;
+    uint32_t height = font->height;
+    uint32_t width = 0;
+    while ( i < len && s[i] ) {
+
+#if MAKISE_UNICODE
+        uint8_t bts = 0;
+        uint32_t ch;
+        ch = makise_d_utf_char_id( &s[i], len - i, &bts );
+        ch = makise_d_utf_char_font(ch, font);
+        if ( ch > font->num_uni ) ch = 0;
+        i += bts;
+#else
+        ch = s[i];
+        ch = (uint8_t)ch - font->offset;
+        if (ch > font->num_char) ch = 0;
+        i++;
+#endif
+        uint32_t width_char = font->width ? font->width : font->char_width[ch];
+
+        if ( width + width_char + font->space_char > width_window ) {
+            width = width_char;
+            height += font->height + font_line_spacing;
+        } else {
+            width += width_char + font->space_char;
+        }
+    }
+    return height;
 }
 
 //draw multiline text in the defined frame
@@ -142,49 +177,49 @@ void makise_d_string_frame(MakiseBuffer *b, char *s, uint32_t len, int16_t x, in
     uint32_t ch, xt = x, yt = y;
 
     if(s == 0)
-	return;
+    return;
 
     
     while (i < len && s[i])
     {
-	if(s[i] == '\n' || s[i] == '\r')
-	{
-	    xt = x;
-	    yt += font->height + line_spacing;
-	    i++;
-	    if(yt + font->height > y + h)
-		return;
-	}
-	else
-	{
+    if(s[i] == '\n' || s[i] == '\r')
+    {
+        xt = x;
+        yt += font->height + line_spacing;
+        i++;
+        if(yt + font->height > y + h)
+        return;
+    }
+    else
+    {
 #if MAKISE_UNICODE
-	    uint8_t bts = 0;
-	    ch = makise_d_utf_char_id(&s[i], len - i, &bts);
-	    ch = makise_d_utf_char_font(ch, font);
-	    if (ch > font->num_uni) ch = 0;
-	    i += bts;
+        uint8_t bts = 0;
+        ch = makise_d_utf_char_id(&s[i], len - i, &bts);
+        ch = makise_d_utf_char_font(ch, font);
+        if (ch > font->num_uni) ch = 0;
+        i += bts;
 #else
-	    ch = s[i];
-	    ch = (uint8_t)ch - font->offset;
-	    if (ch > font->num_char) ch = 0;
-	    i++;
+        ch = s[i];
+        ch = (uint8_t)ch - font->offset;
+        if (ch > font->num_char) ch = 0;
+        i++;
 #endif
 
-	    // Symbol width
-	    width = font->width ? font->width : font->char_width[ch];
+        // Symbol width
+        width = font->width ? font->width : font->char_width[ch];
 
-	    if(xt + width > x + w)
-	    {
-		xt = x;
-		
-		yt += font->height + line_spacing;
-		if(yt + font->height > y + h)
-		    return;
-	    }
-	    // Draw Char
-	    _makise_draw_char(b, ch, xt, yt, font, c, width);
-	    xt += width + font->space_char;
-	}
+        if(xt + width > x + w)
+        {
+        xt = x;
+
+        yt += font->height + line_spacing;
+        if(yt + font->height > y + h)
+            return;
+        }
+        // Draw Char
+        _makise_draw_char(b, ch, xt, yt, font, c, width);
+        xt += width + font->space_char;
+    }
     }
 
 }
@@ -212,13 +247,13 @@ uint32_t    makise_d_utf_char_id  ( char *s, uint32_t len, uint8_t *bts )
 {
     if(len == 0)
     {
-	*bts = 0;
-	return 0;
+    *bts = 0;
+    return 0;
     }
     if(((uint8_t*)s)[0] < 128)
     {
-	*bts = 1;
-	return s[0];
+    *bts = 1;
+    return s[0];
     }
 
     uint8_t ch = s[0];
@@ -269,25 +304,25 @@ uint32_t    makise_d_utf_char_id  ( char *s, uint32_t len, uint8_t *bts )
 
     if(len < bytes)
     {
-	*bts = 1;
-	return s[0];
+    *bts = 1;
+    return s[0];
     }
     
     for ( i=1; i < bytes; i++ )
     {
-	if ( !s[i] || (s[i] & 0xC0) != 0x80 )
-	{
-	    hasError = 1;
-	    bytes = i;
-	    break;
-	}
-	n = (n << 6) | (s[i] & 0x3F);
+    if ( !s[i] || (s[i] & 0xC0) != 0x80 )
+    {
+        hasError = 1;
+        bytes = i;
+        break;
+    }
+    n = (n << 6) | (s[i] & 0x3F);
     }
 
     *bts = bytes;
     
     if(hasError)
-	return 0;
+    return 0;
 
     return n;
     
@@ -297,14 +332,14 @@ uint32_t    makise_d_utf_char_font  ( uint32_t c, const MakiseFont *font)
 {
     //if character is in the first block
     if(c < font->offset + font->num_char)
-	return c - font->offset;
+    return c - font->offset;
 
     for (uint16_t i = 0; i < font->num_uni - font->num_char; i++) {
-	if((uint16_t)c == font->unicode_index[i])
-	{
-	    //printf("f %d %d\n", c, i);
-	    return i + font->num_char;
-	}   
+    if((uint16_t)c == font->unicode_index[i])
+    {
+        //printf("f %d %d\n", c, i);
+        return i + font->num_char;
+    }
     }
     return UINT32_MAX;
 }
