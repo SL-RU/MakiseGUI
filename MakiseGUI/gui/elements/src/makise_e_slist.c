@@ -111,20 +111,20 @@ extern "C" {
 
 	makise_d_string_frame( l->el.gui->buffer,
 			       ci->text, MDTextAll,
-			       x + 2, y,
+                   x + 2, y + 2,
 			       w - 4, eh,
 			       l->item_style->font,
 			       l->item_style->font_line_spacing,
 			       c_th->font_col );
     }
 
-    static uint8_t draw ( MElement* b ) {
+static uint8_t draw ( MElement* b ) {
 	MSList *l = (MSList*)b->data;
 	MakiseStyleTheme_SList *th    = l->state ? &l->style->focused : &l->style->normal;
 	MakiseStyleTheme_SList *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
 	MakiseStyleTheme_SList *i_nom = &l->item_style->normal,
 
-	    *c_th = 0;
+    *c_th = 0;
     
 	//printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
 	_m_e_helper_draw_box_param( b->gui->buffer, &b->position, th->border_c, th->bg_color, th->double_border );
@@ -135,30 +135,32 @@ extern "C" {
 	uint32_t
 	    w = b->position.width - l->style->scroll_width,
 	    h = b->position.height,
-	    eh = l->item_style->font->height + l->item_style->font_line_spacing + 2,
+        eh = l->item_style->font->height + l->item_style->font_line_spacing + 2 + 2,
 	    sh = 0,   //scroll line height
 	    cuid = 0, //current id
 	    len = 0;  //count of items
 
 	if( l->text != 0 ) {
-	    makise_d_string( b->gui->buffer,
-			     l->text, MDTextAll,
-			     x + 2, y - 1,
-			     MDTextPlacement_LeftUp,
-			     l->style->font, th->font_col );
+        makise_d_string_frame( l->el.gui->buffer,
+                       l->text, MDTextAll,
+                       x + 2, y + 2,
+                       w - 4, eh,
+                       l->item_style->font,
+                       l->item_style->font_line_spacing,
+                       th->font_col );
 
-	    y += l->style->font->height;
-	    h -= l->style->font->height;
+        y += l->style->font->height + 4;
+        h -= l->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
 
-	    makise_d_line( b->gui->buffer,
-			   b->position.real_x, y,
-			   b->position.real_x + b->position.width
-			   - l->style->scroll_width - 1,
-			   y,
-			   th->border_c);
+        makise_d_line( b->gui->buffer,
+               b->position.real_x, y,
+               b->position.real_x + b->position.width,
+               y,
+               th->border_c);
 	}
 
-	uint32_t ec = h / eh; //count of elements on the screen
+    uint32_t ec = h / (eh - 1); //count of elements on the screen
+                            // One line total
 	y += l->style->item_margin;
     
 	MSList_Item *ci = 0;
@@ -203,29 +205,29 @@ extern "C" {
 	if ( l->is_array ) {
 	    //array
 	    for ( i = start; i < end; i++ ) {
-		ci = &l->items[i];
-		ci->id = i;
-		c_th = (ci == l->selected) ? i_foc : i_nom;
-		if ( ci == l->selected ) cuid = i;
+            ci = &l->items[i];
+            ci->id = i;
+            c_th = (ci == l->selected) ? i_foc : i_nom;
+            if ( ci == l->selected ) cuid = i;
 
-		draw_item( ci, l, c_th, x, y, w, eh );
-		y += eh - 1;
+            draw_item( ci, l, c_th, x, y, w, eh );
+            y += eh - 1;
 	    }
 	} else {
 	    //Linked list
 	    ci = l->selected;
 	    while ( i != start ) {
-		i --;
-		ci = ci->prev;
+            i --;
+            ci = ci->prev;
 	    }
 
 	    for ( i = start; i < end; i++ ) {
-		c_th = (ci == l->selected) ? i_foc : i_nom;
+            c_th = (ci == l->selected) ? i_foc : i_nom;
 
-		draw_item( ci, l, c_th, x, y, w, eh );
+            draw_item( ci, l, c_th, x, y, w, eh );
 
-		y += eh - 1;
-		ci = ci->next;
+            y += eh - 1;
+            ci = ci->next;
 	    }
 	}
 

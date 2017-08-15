@@ -34,7 +34,7 @@ const uint16_t Default8x13_unicode [] =
 #endif
 
 const MakiseFont F_Default8x13 = {
-    &Default8x13_table,
+    Default8x13_table,
     8,
     13,
 #if 8 == 0
@@ -42,9 +42,9 @@ const MakiseFont F_Default8x13 = {
 #else
     0,
 #endif
-    &Default8x13_offset,
+    Default8x13_offset,
 #if MAKISE_UNICODE
-    &Default8x13_unicode,
+    Default8x13_unicode,
 #endif
     32,
     95,
