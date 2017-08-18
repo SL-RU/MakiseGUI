@@ -1,0 +1,5 @@
+MakiseBitmap B_${name} = { $comment
+    $width,
+    $height,
+    { $data }
+};
