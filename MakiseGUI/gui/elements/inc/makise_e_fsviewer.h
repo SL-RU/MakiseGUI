@@ -33,12 +33,23 @@ extern "C" {
 
 #define FM_BUFFERED 16 //how many lines are buffered
 
+typedef struct {
+    uint32_t bg_color;
+    uint32_t font_col;
+    uint32_t border_c;
+    uint32_t icon_col;
+
+    uint16_t double_border;
+} MakiseStyleTheme_FSViewer_Item;
+
 
 typedef struct
 {
     const MakiseFont*       font;
     uint32_t                font_line_spacing;
 
+    const MakiseBitmap*     bitmap_folder;
+    
     //spacing set
     uint8_t                 left_margin;
     uint8_t                 item_margin; //vertical
@@ -48,10 +59,20 @@ typedef struct
     uint32_t                scroll_bg_color; //may be 0
     uint32_t                scroll_color;
 
-    
-    
+    MakiseStyleTheme  normal;
+    MakiseStyleTheme  focused;
+    MakiseStyleTheme  active;    
 } MakiseStyle_FSViewer;
 
+typedef struct
+{
+    const MakiseFont*       font;
+    uint32_t                font_line_spacing;
+
+    MakiseStyleTheme_FSViewer_Item  normal;
+    MakiseStyleTheme_FSViewer_Item  focused;
+    MakiseStyleTheme_FSViewer_Item  active;
+} MakiseStyle_FSViewer_Item;
 
 
 //Simple list element.
@@ -124,8 +145,8 @@ typedef struct _MFSViewer {
     void (*done)(MFSViewer *l, MFSViewer_Item *list);      //when all required elements are selected
 
     MFSViewer_Type type;
-    MakiseStyle* style;
-    MakiseStyle *item_style;
+    MakiseStyle_FSViewer* style;
+    MakiseStyle_FSViewer_Item *item_style;
 
     uint32_t state; //focus state
 } MFSViewer;
@@ -136,8 +157,8 @@ void m_create_fsviewer(MFSViewer* b, MContainer *c,
 		       uint8_t (*onselection)(MFSViewer *l, MFSViewer_Item *selected),
 		       void (*click)(MFSViewer *l, MFSViewer_Item *selected),
 		       MFSViewer_Type type,
-		       MakiseStyle *style,
-		       MakiseStyle *item_style);
+		       MakiseStyle_FSViewer *style,
+		       MakiseStyle_FSViewer_Item *item_style);
 void m_fsviewer_deselect(MFSViewer *l); //deselect all
 void m_fsviewer_refresh(MFSViewer *l); //set linked list as new data source.
 void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position

@@ -5,7 +5,6 @@ import os
 import sys
 
 temp = ""
-output_hex = True
 template_path = "bitmap.template"
 
 parser = argparse.ArgumentParser(
@@ -13,6 +12,10 @@ parser = argparse.ArgumentParser(
 parser.add_argument('-b', '--binary', action='store_true',
                     help='Make output table binary. Default is hex')
 parser.add_argument('-c', '--comment', type=str, help='Add comment')
+parser.add_argument('-o', '--output', action='store_true',
+                    help='Print acii image')
+parser.add_argument('-l', '--max-line-len', type=int, default=50,
+                    help='Sets max line lendth. Default is 50')
 parser.add_argument('image',
                     help='Required image/')
 parser.add_argument('name',
@@ -26,6 +29,7 @@ parser.add_argument('name',
 
 args = parser.parse_args()
 
+max_ll = args.max_line_len
 output_hex = not args.binary
 comment = ""
 if args.comment is not None:
@@ -51,36 +55,45 @@ im = im.convert("L")
 
 
 def img_to_code(im):
+    global max_ll
     s = ""
     i = 0
     sg = ""
     ou = ""
     bits = list()
-    for i in range(im.width*im.height):
-        if(i % im.width == 0):
+    for i in range(0, im.width * im.height):
+        if i % im.width == 0:
             ou += ("\n")
         if i % 8 == 0 and i != 0:
             bits.append(sg)
             sg = ""
         rgb = im.getpixel((i % im.width, i/im.width))
-        if rgb > 100:
-            ou += ("*")
-        else:
-            ou += (" ")
+        ou += "#" if rgb > 100 else " "
         sg += "1" if rgb > 100 else "0"
 
-    if i % 8 != 0 and i % 8 != 7:
+    if i % 8 != 0:
         while i % 8 != 0:
             i += 1
             sg += "0"
         bits.append(sg)
 
+    bits.append("000000000")
+
+    if args.output:
+        print(ou)
+
     i = 0
     for b in bits:
-        # if i % max_ll == 0:
-        #     s+="\n"
-        i += 1
-        s += ("0x%02x" % int(b[::-1], 2)) + ", "
+        if i > max_ll:
+            s += "\n      "
+            i = 0
+        ss = ""
+        if(output_hex):
+            ss = ("0x%02x" % int(b[::-1], 2)) + ", "
+        else:
+            ss = ("0b" + b[::-1]) + ", "
+        s += ss
+        i += len(ss)
     return s
 
 

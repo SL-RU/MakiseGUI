@@ -12,8 +12,8 @@ void m_create_fsviewer(MFSViewer* b, MContainer *c,
 		       uint8_t (*onselection)(MFSViewer *l, MFSViewer_Item *selected),
 		       void (*click)(MFSViewer *l, MFSViewer_Item *selected),
 		       MFSViewer_Type type,
-		       MakiseStyle *style,
-		       MakiseStyle *item_style)
+		       MakiseStyle_FSViewer *style,
+		       MakiseStyle_FSViewer_Item *item_style)
 {
     MElement *e = &b->el;
     m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
@@ -49,21 +49,15 @@ void m_create_fsviewer(MFSViewer* b, MContainer *c,
     printf("MFSViewer %d created\n", e->id);
 }
 
-
-const MakiseBitmap B_folder = { 
-    19,
-    19,
-    { 0x00, 0x00, 0xe0, 0x07, 0x80, 0x40, 0x00, 0x04, 0xfc, 0x21, 0x00, 0x10, 0xf9, 0xff, 0x28, 0x00, 0x48, 0x01, 0x40, 0x0a, 0x00, 0x52, 0x00, 0x90, 0x02, 0x80, 0x14, 0x00, 0xa4, 0x00, 0x20, 0x05, 0x00, 0x29, 0x00, 0x88, 0x01, 0x40, 0xf0, 0xff, 0x01, 0x00, 0x00, 0x00, 0x00,  }
-};
-
-
 //draw single item of the list
-static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseStyleTheme *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
+static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
+			 MakiseStyleTheme_FSViewer_Item *c_th,
+			 uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
 {
     //background
     makise_d_rect_filled(l->el.gui->buffer,
 			 x, y,  w, eh,
-			 c_th->bg_color, c_th->bg_color);
+			 c_th->border_c, c_th->bg_color);
     //selection
     if(l->type == MFSViewer_SingleSelect)
     {
@@ -72,19 +66,32 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseStyleTheme *c_t
 	{
 	    makise_d_circle_filled(l->el.gui->buffer,
 				   x + eh / 2, y + eh / 2, eh / 2 - 3,
-				   c_th->font_col, l->item_style->active.font_col);
+				   c_th->icon_col, c_th->icon_col);
 	    x += eh + 1;
 	    w -= eh + 1;
-	}       
+	}
     }
     //directory
     if(ci->am_dir)
     {
-	makise_d_bitmap(l->el.gui->buffer, x, y,
-			&B_folder, l->item_style->active.font_col);
-
-	x += eh + 1;
-	w -= eh + 1;
+	if(l->style->bitmap_folder == 0)
+	{
+	    makise_d_rect_filled(l->el.gui->buffer,
+				 x + 2, y + 2, eh - 4, eh - 4,
+				 c_th->icon_col, c_th->icon_col);
+	    x += eh + 1;
+	    w -= eh + 1;
+	}
+	else //icon
+	{
+	    int yc = l->style->bitmap_folder->height / 2; //place icon in center
+	    yc = (eh / 2) - yc; 
+	    makise_d_bitmap(l->el.gui->buffer, x + 1, y + yc,
+			    l->style->bitmap_folder, c_th->icon_col);
+	    x += l->style->bitmap_folder->width + 2;
+	    w -= l->style->bitmap_folder->width + 2;
+	}
+	
     }
 
     //text
@@ -102,8 +109,9 @@ static uint8_t draw   (MElement* b)
 {
     MFSViewer *l = (MFSViewer*)b->data;
     MakiseStyleTheme *th = l->state ? &l->style->focused : &l->style->normal;
-    MakiseStyleTheme *i_foc =l->state ? &l->item_style->focused : &l->item_style->active;
-    MakiseStyleTheme *i_nom = &l->item_style->normal,
+    MakiseStyleTheme_FSViewer_Item *i_foc =
+	l->state ? &l->item_style->focused : &l->item_style->active;
+    MakiseStyleTheme_FSViewer_Item *i_nom = &l->item_style->normal,
 	*c_th = 0;
     
 
@@ -194,7 +202,9 @@ static uint8_t draw   (MElement* b)
     }
     
 
-    //scroll bar calculations
+    if(len == 0)
+	return M_OK;
+    
     h = b->position.height - 2;
     sh = h / len;
     if(sh < 5)
@@ -206,19 +216,24 @@ static uint8_t draw   (MElement* b)
 	y = cuid * (h) / len;
     y += b->position.real_y + 1;
 
-    //scroll bar
-    makise_d_line(b->gui->buffer,
-    		  x + w - 1, b->position.real_y,
-    		  x + w - 1, b->position.real_y + b->position.height - 1,
-    		  th->border_c);
-    makise_d_line(b->gui->buffer,
-    		  x + w    , y,
-    		  x + w    , y + sh,
-    		  th->font_col);
-    makise_d_line(b->gui->buffer,
-    		  x + w + 1, y,
-    		  x + w + 1, y + sh,
-    		  th->font_col);
+    
+    // Drawing scroll.
+    if ( l->style->scroll_width != 0 ) {
+	makise_d_rect_filled( b->gui->buffer,
+			      b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
+			      l->style->scroll_width + 1,
+			      l->el.position.height,
+			      th->border_c,
+			      l->style->scroll_bg_color );
+
+	makise_d_rect_filled( b->gui->buffer,
+			      b->position.real_x + b->position.width - l->style->scroll_width - 1,
+			      y,               
+			      l->style->scroll_width + 1,
+			      sh + 1,
+			      th->border_c,
+			      l->style->scroll_color );
+    }
 
         
     return M_OK;
@@ -241,11 +256,6 @@ static MFocusEnum focus   (MElement* b,  MFocusEnum act)
 	: M_G_FOCUS_OK;
 
 }
-
-//after selection or dirrectory movement
-/* static void update_selected_state() */
-/* { */
-/* } */
 
 static MInputResultEnum input  (MElement* b, MInputData data)
 {
@@ -384,7 +394,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     uint8_t isroot = f_getcwd(bu, 5);
     isroot = (bu[0] == '/') && (bu[1] == 0);
     //printf("root %s| %d\n", bu, isroot);
-    uint32_t count = l->files_count = fsviewer_count_files("") + !isroot;
+    //uint32_t count = l->files_count = fsviewer_count_files("") + !isroot;
 
     //printf("files coint: %d\n", count);
     
@@ -478,7 +488,8 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     getcwd(bu, 5);
     uint8_t isroot = (bu[0] == '/') && (bu[1] == 0);
     //printf("root %s| %d\n", bu, isroot);
-    //uint32_t count = l->files_count = fsviewer_count_files(".") + !isroot;
+
+    l->files_count = fsviewer_count_files(".") + !isroot;
 
     //printf("files coint: %d\n", count);
     

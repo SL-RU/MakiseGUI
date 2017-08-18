@@ -1,4 +1,4 @@
-MakiseBitmap B_${name} = { $comment
+const MakiseBitmap B_${name} = { $comment
     $width,
     $height,
     { $data }
