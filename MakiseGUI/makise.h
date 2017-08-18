@@ -19,6 +19,7 @@ typedef struct _MakiseDriver MakiseDriver;
 #include "makise_config.h"
 #include "makise_colors.h"
 #include "makise_text.h"
+#include "makise_bitmap.h"
 #include "makise_primitives.h"
 
     

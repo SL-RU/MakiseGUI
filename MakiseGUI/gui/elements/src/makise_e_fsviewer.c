@@ -49,6 +49,14 @@ void m_create_fsviewer(MFSViewer* b, MContainer *c,
     printf("MFSViewer %d created\n", e->id);
 }
 
+
+const MakiseBitmap B_folder = { 
+    19,
+    19,
+    { 0x00, 0x00, 0xe0, 0x07, 0x80, 0x40, 0x00, 0x04, 0xfc, 0x21, 0x00, 0x10, 0xf9, 0xff, 0x28, 0x00, 0x48, 0x01, 0x40, 0x0a, 0x00, 0x52, 0x00, 0x90, 0x02, 0x80, 0x14, 0x00, 0xa4, 0x00, 0x20, 0x05, 0x00, 0x29, 0x00, 0x88, 0x01, 0x40, 0xf0, 0xff, 0x01, 0x00, 0x00, 0x00, 0x00,  }
+};
+
+
 //draw single item of the list
 static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseStyleTheme *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
 {
@@ -72,9 +80,9 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseStyleTheme *c_t
     //directory
     if(ci->am_dir)
     {
-	makise_d_rect_filled(l->el.gui->buffer,
-			     x + 2, y + 2, eh - 4, eh - 4,
-			     c_th->font_col, l->item_style->active.font_col);
+	makise_d_bitmap(l->el.gui->buffer, x, y,
+			&B_folder, l->item_style->active.font_col);
+
 	x += eh + 1;
 	w -= eh + 1;
     }
@@ -211,6 +219,8 @@ static uint8_t draw   (MElement* b)
     		  x + w + 1, y,
     		  x + w + 1, y + sh,
     		  th->font_col);
+
+        
     return M_OK;
 }
 
@@ -233,9 +243,9 @@ static MFocusEnum focus   (MElement* b,  MFocusEnum act)
 }
 
 //after selection or dirrectory movement
-static void update_selected_state()
-{
-}
+/* static void update_selected_state() */
+/* { */
+/* } */
 
 static MInputResultEnum input  (MElement* b, MInputData data)
 {
@@ -468,7 +478,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     getcwd(bu, 5);
     uint8_t isroot = (bu[0] == '/') && (bu[1] == 0);
     //printf("root %s| %d\n", bu, isroot);
-    uint32_t count = l->files_count = fsviewer_count_files(".") + !isroot;
+    //uint32_t count = l->files_count = fsviewer_count_files(".") + !isroot;
 
     //printf("files coint: %d\n", count);
     
@@ -497,12 +507,12 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     //printf("ch st: %d req %d\n", l->current_chunk_position, required_id);
     //FRESULT res;
     DIR * dir;
-    static struct stat fno;
+    //static struct stat fno;
     struct dirent * entry;
 
     uint32_t ci = !isroot, //file's ID
 	bi = 0; //id in the buffer
-    uint8_t sel_dir = 0; //was current dir selected
+    //uint8_t sel_dir = 0; //was current dir selected
 
     //add go back items
     if(l->current_chunk_position == 0 && !isroot)
@@ -546,7 +556,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	    else if(entry->d_name[0] == '.' && entry->d_name[1] == 0)
 	    {
 		l->current_folder = entry->d_ino; //set current dir
-		sel_dir = l->current_folder == l->selected_folder; //is current dir the selected
+		//sel_dir = l->current_folder == l->selected_folder; //is current dir the selected
 	    }
 	}
         closedir(dir);

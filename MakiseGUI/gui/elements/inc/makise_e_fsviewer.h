@@ -33,6 +33,27 @@ extern "C" {
 
 #define FM_BUFFERED 16 //how many lines are buffered
 
+
+typedef struct
+{
+    const MakiseFont*       font;
+    uint32_t                font_line_spacing;
+
+    //spacing set
+    uint8_t                 left_margin;
+    uint8_t                 item_margin; //vertical
+
+    //scroll
+    uint8_t                 scroll_width;
+    uint32_t                scroll_bg_color; //may be 0
+    uint32_t                scroll_color;
+
+    
+    
+} MakiseStyle_FSViewer;
+
+
+
 //Simple list element.
 //Can display items. Supports scrolling.
 //Modes: list, radio buttons, checkboxes.
