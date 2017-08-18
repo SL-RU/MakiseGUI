@@ -3,9 +3,10 @@ This utility is required to generate fonts for MakiseGUI.
 # Requirements:
 
 - python3.4 or newer
+- pip3
 - [PILLOW package](http://python-pillow.org/):
 ```Bash
-pip install Pillow
+pip3 install Pillow
 ```
 
 # HOW TO USE
