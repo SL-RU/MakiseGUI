@@ -46,7 +46,7 @@ void m_create_fsviewer(MFSViewer* b, MContainer *c,
     
     makise_g_cont_add(c, e);
 
-    printf("MFSViewer %d created\n", e->id);
+    MAKISE_DEBUG_OUTPUT("MFSViewer %d created\n", e->id);
 }
 
 //draw single item of the list
@@ -308,7 +308,7 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 	    {
 		e->was_selected = 1;
 		e->selected_folder = e->current_folder;
-		printf("fileviewer ok  onselection\n");
+		//printf("fileviewer ok  onselection\n");
 		if(strncmp(e->selected_file, it->name,
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS    
 			   13 ) != 13
@@ -349,7 +349,7 @@ uint32_t fsviewer_count_files(char* path)
     dirp = opendir(path); /* There should be error handling after this */
     if(dirp == NULL)
     {
-	printf("Directory read error!\n");
+	MAKISE_ERROR_OUTPUT("Directory read error!\n");
 	return 0;
     }
 
@@ -361,7 +361,7 @@ uint32_t fsviewer_count_files(char* path)
 	    count++;
     }
     
-    printf("file count: %d\n", count);
+    //printf("file count: %d\n", count);
     closedir(dirp);
 #else //FATFS
     DIR dir;
@@ -477,7 +477,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     }
     else
     {
-	printf("ERROR while oppenning directory! code: %d\n\r", res);
+	MAKISE_ERROR_OUTPUT("ERROR while oppenning directory! code: %d\n\r", res);
     }    
 }
 #else //STDIO
@@ -553,7 +553,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		if(ci >= l->current_chunk_position)
 		{
 		    strcpy(l->buffer[bi].name, entry->d_name);
-		    printf("file %d %s\n", ci, entry->d_name);
+		    //printf("file %d %s\n", ci, entry->d_name);
 
 		    l->buffer[bi].am_dir = entry->d_type == DT_DIR;
 
@@ -575,7 +575,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     }
     else
     {
-	printf("ERROR while oppenning directory!\n\r");
+	MAKISE_ERROR_OUTPUT("ERROR while oppenning directory!\n\r");
     }    
 
 }
