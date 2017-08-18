@@ -12,7 +12,7 @@ template_path = "font.template"
 parser = argparse.ArgumentParser(
     description='Create makise code from generated image and data.')
 parser.add_argument('json', nargs="?", default="img.json",
-                    help='Size of the font in pixels. Need only for TTF')
+                    help='Specifiy location of font data. Default: img.json')
 parser.add_argument('-b', '--binary', action='store_true',
                     help='Make output table binary. Default is hex')
 parser.add_argument('-o', '--out', default='out.c',
