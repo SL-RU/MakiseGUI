@@ -8,6 +8,9 @@ extern "C" {
 
 #include "makise_e_play_list.h"
 
+//**********************************************************************
+// Private functions ( Prototype ).
+//**********************************************************************
 static uint8_t              draw    ( MElement* b );
 static MFocusEnum           focus   ( MElement* b,   MFocusEnum act );
 static MInputResultEnum     input   ( MElement* b,   MInputData data );
@@ -72,22 +75,70 @@ void m_play_list_add ( MPlayList *obj, MPlayList_Item *item ) {
 void m_play_list_clear ( MPlayList *obj ) {
     obj->selected   = 0;
     obj->is_array   = 0;
-    obj->items      = 0;
+    obj->item_list  = 0;
 }
 
 // Remove item from linked list. Only if NOT is_array.
-void m_play_list_remove     ( MPlayList *obj, MPlayList_Item *item ) {
+void m_play_list_remove ( MPlayList *obj, MPlayList_Item *item ) {
+    if ( obj == 0 || item == 0 || obj->item_list == 0 ) return;
 
+    if ( obj->item_list == item ) {             // If first element.
+        if ( item->next == 0 ) {
+            m_play_list_clear( obj );
+            return;
+        }
+
+        obj->item_list          = obj->item_list->next;
+        obj->item_list->prev    = 0;
+        item->next              = 0;
+        item->prev              = 0;
+        obj->selected           = obj->item_list;
+        obj->len--;
+        return;
+    }
+
+    if ( item->prev == 0 ) return;          // WTF?... Bag!
+
+    if ( item->next == 0 ) {                // If last element.
+        obj->len--;
+
+        if ( item == obj->selected )
+            obj->selected = item->prev;
+
+        item->prev->next    = NULL;
+        item->prev          = NULL;
+
+        return;
+    }
+
+    if( item == obj->selected )
+        obj->selected = item->prev;
+
+    item->next->prev        = item->prev;
+    item->prev->next        = item->next;
+    item->prev              = NULL;
+    item->next              = NULL;
+    obj->len--;
 }
 
 // Set new data source. Simple array.
-void m_play_list_set_array  ( MPlayList *obj, MPlayList_Item *array, uint32_t len ) {
+void m_play_list_set_array ( MPlayList *obj, MPlayList_Item *array, uint32_t len ) {
 
 }
 
 // Set linked list as new data source.
-void m_play_list_set_list   ( MPlayList *obj, MPlayList_Item *first ) {
+void m_play_list_set_list ( MPlayList *obj, MPlayList_Item *first ) {
+    obj->item_list  = first;
+    obj->selected   = first;
+    obj->is_array   = 0;
+    obj->len        = 0;
+    if ( first == NULL ) return;
 
+    MPlayList_Item* lst = first;
+    while ( lst->next != NULL ) {
+        obj->len++;
+        lst = lst->next;
+    }
 }
 
 //**********************************************************************
