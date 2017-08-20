@@ -59,7 +59,7 @@ void m_create_slist( MSList*                b,
     }
 
 //draw line frome the list
-    static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
+static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
 
 	makise_d_rect_filled( l->el.gui->buffer,
 			      x, y, w, eh,
@@ -562,9 +562,9 @@ static uint8_t draw ( MElement* b ) {
 		e->onselection(e, e->selected);
 
 	    if ( data.key == M_KEY_OK ) {
-		if(e->selected != 0)
-		    input_item(e, e->selected);
-		handled = 1;
+            if(e->selected != 0)
+                input_item(e, e->selected);
+            handled = 1;
 	    }
 	}
     
@@ -592,13 +592,13 @@ static uint8_t draw ( MElement* b ) {
 	l->len ++;
     }
 
-    void m_slist_clear ( MSList *l ) {
-	l->selected = 0;
-	l->is_array = 0;
-	l->items = 0;
-    }
+void m_slist_clear ( MSList *l ) {
+    l->selected = 0;
+    l->is_array = 0;
+    l->items = 0;
+}
 
-    void m_slist_remove ( MSList *l, MSList_Item *item ) {
+void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	if ( l == 0 || item == 0 || l->items == 0 ) return;
 
 	if ( l->items == item ) { //if first element
@@ -617,8 +617,8 @@ static uint8_t draw ( MElement* b ) {
 	    return;
 	}
 
-	if(item->next == 0) {           //if last element
-	    if(item->prev == 0) return; //WTF
+    if( item->next == 0 ) {           //if last element
+        if( item->prev == 0 ) return; //WTF
 	    l->len --;
 	    if(item == l->selected)
 		l->selected = item->prev;
@@ -637,9 +637,9 @@ static uint8_t draw ( MElement* b ) {
 	item->prev = 0;
 	item->next = 0;
 	l->len --;
-    }
+}
 
-    void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
+void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
 	l->items = array;
 	l->len = len;
 	l->selected = array;
@@ -656,9 +656,9 @@ static uint8_t draw ( MElement* b ) {
 
 	    lst = &array[i];
 	}
-    }
+}
 
-    void m_slist_set_list ( MSList *l, MSList_Item *first ) {
+void m_slist_set_list ( MSList *l, MSList_Item *first ) {
 	l->items = first;
 	l->selected = first;
 	l->is_array = 0;
@@ -670,7 +670,7 @@ static uint8_t draw ( MElement* b ) {
 	    l->len ++;
 	    lst = lst->next;
 	}
-    }
+}
 
 #ifdef __cplusplus
 }

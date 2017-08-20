@@ -14,6 +14,9 @@ static MInputResultEnum     input   ( MElement* b,   MInputData data );
 
 static char* name = "PlayList";
 
+//**********************************************************************
+// Public functions ( element ).
+//**********************************************************************
 void m_create_play_list ( MPlayList*                obj_struct,
                           MContainer*               container,
                           MPosition                 pos,
@@ -60,11 +63,37 @@ void m_create_play_list ( MPlayList*                obj_struct,
     return;
 }
 
-void m_play_list_add        ( MPlayList *obj, MPlayList_Item *item );                     // Add one item to the list at the end. Only if NOT is_array.
-void m_play_list_clear      ( MPlayList *obj );                                           // Clear all pointers.
-void m_play_list_remove     ( MPlayList *obj, MPlayList_Item *item );                     // Remove item from linked list. Only if NOT is_array.
-void m_play_list_set_array  ( MPlayList *obj, MPlayList_Item *array, uint32_t len );      // Set new data source. Simple array.
-void m_play_list_set_list   ( MPlayList *obj, MPlayList_Item *first );                    // Set linked list as new data source.
+// Add one item to the list at the end. Only if NOT is_array.
+void m_play_list_add ( MPlayList *obj, MPlayList_Item *item ) {
+
+}
+
+// Clear all pointers.
+void m_play_list_clear ( MPlayList *obj ) {
+    obj->selected   = 0;
+    obj->is_array   = 0;
+    obj->items      = 0;
+}
+
+// Remove item from linked list. Only if NOT is_array.
+void m_play_list_remove     ( MPlayList *obj, MPlayList_Item *item ) {
+
+}
+
+// Set new data source. Simple array.
+void m_play_list_set_array  ( MPlayList *obj, MPlayList_Item *array, uint32_t len ) {
+
+}
+
+// Set linked list as new data source.
+void m_play_list_set_list   ( MPlayList *obj, MPlayList_Item *first ) {
+
+}
+
+//**********************************************************************
+// Private functions ( element ).
+//**********************************************************************
+
 
 //**********************************************************************
 // Private functions ( system ).
