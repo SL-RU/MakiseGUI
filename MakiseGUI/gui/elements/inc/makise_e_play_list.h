@@ -50,7 +50,7 @@ typedef struct {
 typedef struct _MPlayList_Item MPlayList_Item;
 typedef struct _MPlayList_Item{
     char                        name[256];
-    uint32_t                    len_itemsec;
+    uint32_t                    len_item_sec;
 
     MPlayList_Item*             prev;
     MPlayList_Item*             next;

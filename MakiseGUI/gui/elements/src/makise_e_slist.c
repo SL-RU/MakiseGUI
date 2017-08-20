@@ -116,7 +116,7 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th
 			       l->item_style->font,
 			       l->item_style->font_line_spacing,
 			       c_th->font_col );
-    }
+}
 
 static uint8_t draw ( MElement* b ) {
 	MSList *l = (MSList*)b->data;
@@ -263,9 +263,9 @@ static uint8_t draw ( MElement* b ) {
 	}
 
 	return M_OK;
-    }
+}
 
-    static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
+static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
 	MSList* e = b->data;
 	if ( act & M_G_FOCUS_GET )     e->state = 1;
 	if ( act == M_G_FOCUS_LEAVE )  e->state = 0;
@@ -275,7 +275,7 @@ static uint8_t draw ( MElement* b ) {
 	    : M_G_FOCUS_OK;
     }
 
-    static void input_item ( MSList *e, MSList_Item *it ) {
+static void input_item ( MSList *e, MSList_Item *it ) {
 	switch ( e->type ) {
 	case MSList_List:                                       break;
 	case MSList_Checkbox:       it->value = !it->value;     break;
@@ -294,11 +294,10 @@ static uint8_t draw ( MElement* b ) {
 	    it->value = 1;
 	}
 	if ( e->click != 0 ) e->click( e, it );
-    }
+}
 
 #if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
-
-    static uint8_t input_check_item ( MSList_Item *ci, MSList *l, uint32_t x, uint32_t y, uint32_t w, uint32_t eh, int32_t cx, int32_t cy ) {
+static uint8_t input_check_item ( MSList_Item *ci, MSList *l, uint32_t x, uint32_t y, uint32_t w, uint32_t eh, int32_t cx, int32_t cy ) {
 	//printf("check %s\n", ci->text);
 	if ( cx >= x && cx <= x + w &&
 	     cy >= y && cy <= y + eh ) {
@@ -308,9 +307,9 @@ static uint8_t draw ( MElement* b ) {
 	    return 1;
 	}
 	return 0;
-    }
+}
 
-    static MInputResultEnum input_cursor_click ( MSList* l, MElement *b, int32_t cx, int32_t cy ) {
+static MInputResultEnum input_cursor_click ( MSList* l, MElement *b, int32_t cx, int32_t cy ) {
 	if ( !( l->sx + 5 > cx && l->sx - 5 < cx &&
 		l->sy + 5 > cy && l->sy - 5 < cy ) ) // if cursor didnt moved a lot.
 	    return M_INPUT_NOT_HANDLED;
@@ -409,9 +408,9 @@ static uint8_t draw ( MElement* b ) {
 	y += b->position.real_y + 1;
     
 	return M_INPUT_NOT_HANDLED;
-    }
+}
 
-    static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
+static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
 	if(data.key != M_KEY_CURSOR)
 	    return M_INPUT_NOT_HANDLED;
 
@@ -485,11 +484,11 @@ static uint8_t draw ( MElement* b ) {
 	}
 
 	return M_INPUT_NOT_HANDLED;
-    }
+}
 
 #endif
 
-    static MInputResultEnum input ( MElement* b, MInputData data ) {
+static MInputResultEnum input ( MElement* b, MInputData data ) {
 	MSList *e = ((MSList*)b->data);
 
 	if ( e->items == 0 )
@@ -569,7 +568,7 @@ static uint8_t draw ( MElement* b ) {
 	}
     
 	return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
-    }
+}
 
 void m_slist_add( MSList *l, MSList_Item *item ) {
 	if ( l->is_array )  return;
