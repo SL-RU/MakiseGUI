@@ -68,7 +68,25 @@ void m_create_play_list ( MPlayList*                obj_struct,
 
 // Add one item to the list at the end. Only if NOT is_array.
 void m_play_list_add ( MPlayList *obj, MPlayList_Item *item ) {
+    if ( obj->is_array )  return;
+    if ( obj->item_list == NULL ) {                 // Add first item.
+        item->prev          = 0;
+        item->next          = 0;
+        obj->item_list      = item;
+        obj->len            = 1;
+        obj->selected       = item;
+        return;
+    }
 
+    MPlayList_Item *it = obj->item_list;
+
+    while ( it->next )
+        it = it->next;
+
+    it->next    = item;
+    item->next  = 0;
+    item->prev  = it;
+    obj->len++;
 }
 
 // Clear all pointers.

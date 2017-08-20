@@ -571,7 +571,7 @@ static uint8_t draw ( MElement* b ) {
 	return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
     }
 
-    void m_slist_add( MSList *l, MSList_Item *item ) {
+void m_slist_add( MSList *l, MSList_Item *item ) {
 	if ( l->is_array )  return;
 	if ( l->items == 0 )  {                             //add first item
 	    item->prev      = 0;
@@ -590,7 +590,7 @@ static uint8_t draw ( MElement* b ) {
 	item->next  = 0;
 	item->prev  = it;
 	l->len ++;
-    }
+}
 
 void m_slist_clear ( MSList *l ) {
     l->selected = 0;
