@@ -59,9 +59,9 @@ typedef struct
     uint32_t                scroll_bg_color; //may be 0
     uint32_t                scroll_color;
 
-    MakiseStyleTheme  normal;
-    MakiseStyleTheme  focused;
-    MakiseStyleTheme  active;    
+    MakiseStyleTheme        normal;
+    MakiseStyleTheme        focused;
+    MakiseStyleTheme        active;
 } MakiseStyle_FSViewer;
 
 typedef struct
@@ -89,19 +89,19 @@ typedef struct _MFSViewer MFSViewer;
 typedef struct _MFSViewer_Item
 {
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS    
-    char name[_MAX_LFN + 2];        //text of item
-    char fname[13];                 //short file name
-    DWORD sclust;                 //start of clust
+    char                        name[ FF_MAX_LFN + 2 ];         //text of item
+    char                        fname[13];                      //short file name
+    DWORD                       sclust;                         //start of clust
 #else //STDIO
-    char name[256];                 //text of item
-    uint32_t inode;                 //start of clust
+    char                        name[256];                 //text of item
+    uint32_t                    inode;                 //start of clust
 #endif //END std or fat   
-    uint8_t am_dir;                 //is dir 
-    uint32_t size;                  //file's size
-    //uint8_t selected;               //is selected
+    uint8_t                     am_dir;                         //is dir
+    uint32_t                    size;                           //file's size
+    //uint8_t selected;                                         //is selected
     
-    MFSViewer_Item *prev;
-    MFSViewer_Item *next;
+    MFSViewer_Item*             prev;
+    MFSViewer_Item*             next;
 
     uint32_t id;       //custom id, if NOT is_array, else - position in the array(will be computed automatically by MMFSViewer).
 } MFSViewer_Item;
@@ -151,14 +151,16 @@ typedef struct _MFSViewer {
     uint32_t state; //focus state
 } MFSViewer;
 
-void m_create_fsviewer(MFSViewer* b, MContainer *c,
-		       MPosition pos,
-		       char* header,
-		       uint8_t (*onselection)(MFSViewer *l, MFSViewer_Item *selected),
-		       void (*click)(MFSViewer *l, MFSViewer_Item *selected),
-		       MFSViewer_Type type,
-		       MakiseStyle_FSViewer *style,
-		       MakiseStyle_FSViewer_Item *item_style);
+void m_create_fsviewer( MFSViewer*                  b,
+                        MContainer*                 c,
+                        MPosition                   pos,
+                        char*                       header,
+                        uint8_t                     ( *onselection )    ( MFSViewer* l, MFSViewer_Item* selected ),
+                        void                        ( *click )          ( MFSViewer* l, MFSViewer_Item* selected ),
+                        MFSViewer_Type              type,
+                        MakiseStyle_FSViewer*       style,
+                        MakiseStyle_FSViewer_Item*  item_style );
+
 void m_fsviewer_deselect(MFSViewer *l); //deselect all
 void m_fsviewer_refresh(MFSViewer *l); //set linked list as new data source.
 void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position
