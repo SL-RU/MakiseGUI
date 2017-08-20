@@ -106,8 +106,7 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
 	    
 
 }
-static uint8_t draw   (MElement* b)
-{
+static uint8_t draw ( MElement* b ) {
     MFSViewer *l = (MFSViewer*)b->data;
     MakiseStyleTheme *th = l->state ? &l->style->focused : &l->style->normal;
     MakiseStyleTheme_FSViewer_Item *i_foc =
@@ -126,25 +125,31 @@ static uint8_t draw   (MElement* b)
     w = b->position.width - 5,
     h = b->position.height - 4,
     eh = l->item_style->font->height + l->item_style->font_line_spacing + 1,
-	ec = h / (eh + 1), //count of elements on the screen
-    sh = 0,   //scroll line height
-	cuid = 0, //current id
-	len = 0;  //count of items
+    ec = h / (eh + 1),  // count of elements on the screen
+    sh      = 0,        // scroll line height
+    cuid    = 0,        // current id
+    len     = 0;        // count of items
 
 
     //header
-    if(l->header != 0)
-    {
-	makise_d_string(b->gui->buffer,
-			l->header, MDTextAll,
-			x, y, MDTextPlacement_LeftUp,
-			l->style->font, th->font_col);
-    y += l->style->font->height;
-    h -= l->style->font->height;
-	makise_d_line(b->gui->buffer, b->position.real_x, y,
-              b->position.real_x + b->position.width, y,
-		      th->border_c);
-	ec = h / (eh + 1);
+    if ( l->header != 0 ) {
+        makise_d_string( b->gui->buffer,
+                         l->header,
+                         MDTextAll,
+                         x, y,
+                         MDTextPlacement_LeftUp,
+                         l->style->font,
+                         th->font_col );
+
+        y += l->style->font->height;
+        h -= l->style->font->height;
+
+        makise_d_line( b->gui->buffer,
+                       b->position.real_x, y,
+                       b->position.real_x + b->position.width, y,
+                       th->border_c);
+
+        ec = h / (eh + 1);
     }
     y += 1;
     
@@ -160,46 +165,37 @@ static uint8_t draw   (MElement* b)
     cuid = i = l->current_position;
     
     //compute start index of element to display & the last
-    if(ec >= len)
-    {
-	start = 0;
-	end = len;
-    }
-    else if ((i >= (ec / 2)) && ((len - i) > (ec - 1) / 2))
-    {
-	start = i - (ec / 2);
-	end = start + ec;
-    }
-    else if ((i > (ec / 2) && (len - i) <= (ec - 1) / 2))
-    {
-	end = len;
-	start = len - ec;
-    }
-    else if (i < (ec / 2) && (len - i) > (ec - 1) / 2)
-    {
-	start = 0;
-	end = ec;
+    if ( ec >= len ) {
+        start   = 0;
+        end     = len;
+    } else if ( ( i >= ( ec / 2 ) ) && ( ( len - i ) > ( ec - 1 ) / 2 ) ) {
+        start   = i - (ec / 2);
+        end     = start + ec;
+    } else if ( ( i > ( ec / 2 ) && ( len - i ) <= ( ec - 1 ) / 2 ) ) {
+        end     = len;
+        start   = len - ec;
+    } else if ( i < ( ec / 2 ) && ( len - i ) > ( ec - 1 ) / 2) {
+        start   = 0;
+        end     = ec;
     }
     
     //check if required chunk is loaded
-    if(start < l->current_chunk_position ||
-       end >= (l->current_chunk_position + FM_BUFFERED))
-    {
-	//load chunk
-	m_fsviewer_loadchunk(l, i);
+    if ( start < l->current_chunk_position ||
+         end >= ( l->current_chunk_position + FM_BUFFERED ) ) {
+        //load chunk
+        m_fsviewer_loadchunk(l, i);
     }
 
     //printf("start %d end %d\n", start, end);
     //array
-    for (i = start; i < end; i++)
-    {
-	ci = &l->buffer[i - l->current_chunk_position];
-	//printf("draw %d %s\n", i, ci->name);
-	ci->id = i;
-	c_th = (i == l->current_position) ? i_foc : i_nom;
-	
-	draw_item(ci, l, c_th, x, y, w, eh);
-	y += eh + 1;
+    for ( i = start; i < end; i++ ) {
+        ci = &l->buffer[i - l->current_chunk_position];
+        //printf("draw %d %s\n", i, ci->name);
+        ci->id = i;
+        c_th = (i == l->current_position) ? i_foc : i_nom;
+
+        draw_item(ci, l, c_th, x, y, w, eh);
+        y += eh + 1;
     }
     
 
@@ -208,48 +204,42 @@ static uint8_t draw   (MElement* b)
     
     h = b->position.height - 2;
     sh = h / len;
-    if(sh < 5)
-    {
-	y = cuid * (h + sh - 5) / len;
-	sh = 5;
+    if ( sh < 5 ) {
+        y = cuid * (h + sh - 5) / len;
+        sh = 5;
+    } else {
+        y = cuid * (h) / len;
     }
-    else
-	y = cuid * (h) / len;
     y += b->position.real_y + 1;
 
     
     // Drawing scroll.
     if ( l->style->scroll_width != 0 ) {
 	makise_d_rect_filled( b->gui->buffer,
-                  b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
-                  l->style->scroll_width + 1,
-                  l->el.position.height,
-			      th->border_c,
-			      l->style->scroll_bg_color );
+                          b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
+                          l->style->scroll_width + 1,
+                          l->el.position.height,
+                          th->border_c,
+                          l->style->scroll_bg_color );
 
 	makise_d_rect_filled( b->gui->buffer,
-                  b->position.real_x + b->position.width - l->style->scroll_width - 1,
-			      y,               
-                  l->style->scroll_width + 1,
-			      sh + 1,
-			      th->border_c,
-			      l->style->scroll_color );
+                          b->position.real_x + b->position.width - l->style->scroll_width - 1,
+                          y,
+                          l->style->scroll_width + 1,
+                          sh + 1,
+                          th->border_c,
+                          l->style->scroll_color );
     }
-
         
     return M_OK;
 }
 
-static MFocusEnum focus   (MElement* b,  MFocusEnum act)
-{
+static MFocusEnum focus (MElement* b,  MFocusEnum act) {
     //MFSViewer *e = ((MFSViewer*)b->data);
-    if(act & M_G_FOCUS_GET)
-    {
-	((MFSViewer*)b->data)->state = 1;
-    }
-    if(act == M_G_FOCUS_LEAVE)
-    {
-	((MFSViewer*)b->data)->state = 0;
+    if(act & M_G_FOCUS_GET)    {
+        ((MFSViewer*)b->data)->state = 1;
+    } if ( act == M_G_FOCUS_LEAVE )    {
+        ((MFSViewer*)b->data)->state = 0;
     }
 
     return (act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT)
@@ -339,7 +329,7 @@ return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
 }
 
 
-uint32_t fsviewer_count_files(char* path)
+uint32_t fsviewer_count_files ( char* path )
 {
     uint32_t count = 0;
 
@@ -372,7 +362,7 @@ uint32_t fsviewer_count_files(char* path)
     res = f_opendir(&dir, path);                       /* Open the directory */
     //printf("opdir %d\n", res);
     if (res == FR_OK) {
-	res = f_readdir(&dir, 0   );
+    res = f_readdir( &dir, NULL );
 	for (;;) {
 	    res = f_readdir(&dir, &fno);                   /* Read a directory item */
 	    //printf("%d %d %s\n", count, res, fno.fname);
@@ -395,31 +385,24 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     uint8_t isroot = f_getcwd(bu, 5);
     isroot = (bu[0] == '/') && (bu[1] == 0);
     //printf("root %s| %d\n", bu, isroot);
-    //uint32_t count = l->files_count = fsviewer_count_files("") + !isroot;
+    l->files_count = fsviewer_count_files( l->path );
 
     //printf("files coint: %d\n", count);
     
     //calculate chunk's start position
-    if(required_id >= FM_BUFFERED/2)
-    {
-	l->current_chunk_position = required_id - FM_BUFFERED/2;
-	if(l->current_chunk_position != 0 &&
-	   l->current_chunk_position + FM_BUFFERED/2 - 1 >= l->files_count)
-	{
-	    uint32_t d = l->current_chunk_position + FM_BUFFERED/2 - 1 - l->files_count;
-	    if(d > l->current_chunk_position)
-	    {
-		l->current_chunk_position = 0;
-	    }
-	    else
-	    {
-		l->current_chunk_position -= d;
-	    }
-	}
-    }
-    else
-    {
-	l->current_chunk_position = 0;
+    if ( required_id >= FM_BUFFERED / 2 ) {
+        l->current_chunk_position = required_id - FM_BUFFERED / 2;
+        if ( l->current_chunk_position != 0 &&
+             l->current_chunk_position + FM_BUFFERED/2 - 1 >= l->files_count ) {
+            uint32_t d = l->current_chunk_position + FM_BUFFERED/2 - 1 - l->files_count;
+            if ( d > l->current_chunk_position ) {
+                l->current_chunk_position = 0;
+            } else {
+                l->current_chunk_position -= d;
+            }
+        }
+    } else {
+        l->current_chunk_position = 0;
     }
     //printf("ch st: %d req %d\n", l->current_chunk_position, required_id);
     FRESULT res;
