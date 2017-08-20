@@ -48,7 +48,13 @@ typedef struct {
 } MakiseStyle_PlayListItem;
 
 typedef struct {
+    char                        name[256];
+    uint32_t                    len_itemsec;
 
+    MPlayList_Item*                prev;
+    MPlayList_Item*                next;
+
+    uint32_t                    id;             // Custom id, if NOT is_array, else - position in the array (will be computed automatically by PlayList).
 } MPlayList_Item;
 
 typedef struct {
@@ -68,6 +74,12 @@ void m_create_play_list ( MPlayList*                b,
                           MPlayList_CallbackFunc*   user_func,
                           MakiseStyle_PlayList*     style,
                           MakiseStyle_PlayListItem* item_style);
+
+void m_play_list_add        ( MPlayList *obj, MPlayList_Item *item );                     // Add one item to the list at the end. Only if NOT is_array.
+void m_play_list_clear      ( MPlayList *obj );                                           // Clear all pointers.
+void m_play_list_remove     ( MPlayList *obj, MPlayList_Item *item );                     // Remove item from linked list. Only if NOT is_array.
+void m_play_list_set_array  ( MPlayList *obj, MPlayList_Item *array, uint32_t len );      // Set new data source. Simple array.
+void m_play_list_set_list   ( MPlayList *obj, MPlayList_Item *first );                    // Set linked list as new data source.
 
 #ifdef __cplusplus
 }
