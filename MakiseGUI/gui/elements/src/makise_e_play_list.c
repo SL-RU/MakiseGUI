@@ -189,6 +189,93 @@ static void draw_item ( MPlayList_Item *pl_i, MPlayList *obj, MakiseStyleTheme_P
                    c_th->font_col );
 }
 
+static uint32_t get_selected_item_number ( MPlayList *obj, uint32_t* current_id ) {
+    uint32_t i;
+    MPlayList_Item* ci  = NULL;
+    // Get selected item number.
+    if ( obj->is_array ) {
+        i = obj->selected->id;
+    } else {
+        ci = obj->item_list;
+        uint32_t ti = 0;
+        i = UINT32_MAX;
+        while ( ci != 0 ) {
+            if ( ci == obj->selected ) {
+                *current_id = i = ti;
+                break;
+            }
+            ci = ci->next;
+            ti ++;
+        }
+        if ( i == UINT32_MAX ) return M_ERROR;          // if we didn't found it
+    }
+    return i;
+}
+
+// ec = count_elements_on_screen.
+// len - count item.
+// i = selected item.
+static void get_index_start_and_last_item_for_draw ( const uint32_t* ec, const uint32_t* len, const uint32_t* i, uint32_t* start_index, uint32_t* last_index ) {
+    // Compute start index of element to display & the last.
+    if ( *ec >= *len ) {
+        *start_index = 0;
+        *last_index  = *len;
+    } else if ( ( *i >= ( *ec / 2 ) ) && ( ( *len - *i ) > ( *ec - 1 ) / 2) ) {
+        *start_index = *i - (*ec / 2);
+        *last_index  = *start_index + *ec;
+    } else if ( ( *i > ( *ec / 2 ) && ( *len - *i ) <= ( *ec - 1 ) / 2 ) ) {
+        *last_index  = *len;
+        *start_index = *len - *ec;
+    } else if ( *i < ( *ec / 2 ) && ( *len - *i ) > ( *ec - 1 ) / 2) {
+        *start_index = 0;
+        *last_index  = *ec;
+    }
+    return;
+}
+
+static void header_text_draw ( const MPlayList* obj, const MakiseStyleTheme_PlayList* th, const int16_t* x, int16_t* y, const uint32_t* height_block, uint32_t* free_h ) {
+    if ( obj->header_text != NULL ) {
+        makise_d_string_frame( obj->e.gui->buffer,
+                               obj->header_text, MDTextAll,
+                               *x + 2,  // One line board + One line space.
+                               *y + 2,  // One line board + One line space.
+                               obj->e.position.width - 4, *height_block,
+                               obj->item_style->font,
+                               obj->item_style->font_line_spacing,
+                               th->font_col );
+
+        *y += obj->style->font->height + 4;        // Two line board + 2 line space.
+        free_h -= obj->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
+
+        makise_d_line( obj->gui->buffer,
+                       obj->e.position.real_x, *y,
+                       obj->e.position.real_x + obj->e.position.width,
+                       *y,
+                       th->border_c);
+    }
+    return;
+}
+
+static void drawing_scroll ( const MPlayList* obj, const MakiseStyleTheme_PlayList* th, const int16_t* y_pos, const uint32_t* h_scroll ) {
+    if ( obj->style->scroll_width != 0 ) {
+        makise_d_rect_filled( obj->e.gui->buffer,
+                  obj->e.position.real_x + obj->e.position.width - obj->style->scroll_width, obj->e.position.real_y,
+                  obj->style->scroll_width,
+                  obj->e.position.height,
+                  th->border_c,
+                  obj->style->scroll_bg_color );
+
+        makise_d_rect_filled( obj->e.gui->buffer,
+                  obj->e.position.real_x + obj->e.position.width - obj->style->scroll_width,
+                  *y_pos,
+                  obj->style->scroll_width,
+                  *h_scroll,
+                  th->border_c,
+                  obj->style->scroll_color );
+    }
+
+}
+
 //**********************************************************************
 // Private functions ( system ).
 //**********************************************************************
@@ -203,10 +290,6 @@ static uint8_t draw ( MElement* b ) {
     //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
     _m_e_helper_draw_box_param( b->gui->buffer, &b->position, th->border_c, th->bg_color, th->double_border );
 
-    uint32_t    i       = 0;
-    uint32_t    start   = 0;
-    uint32_t    end     = 0;
-
     int16_t     y       = b->position.real_y;
     int16_t     x       = b->position.real_x  + obj->style->left_margin;
     uint32_t    w       = b->position.width   - obj->style->scroll_width;
@@ -220,66 +303,21 @@ static uint8_t draw ( MElement* b ) {
     uint32_t    cuid    = 0;         // Current id.
     uint32_t    len     = 0;         //count of items
 
-    MPlayList_Item* ci  = NULL;
+    header_text_draw( obj, th, &x, &y, &eh, &h );
 
-    if ( obj->header_text != NULL ) {
-        makise_d_string_frame( obj->e.gui->buffer,
-                               obj->header_text, MDTextAll,
-                               x + 2, y + 2,
-                               w - 4, eh,
-                               obj->item_style->font,
-                               obj->item_style->font_line_spacing,
-                               th->font_col );
-
-        y += obj->style->font->height + 4;
-        h -= obj->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
-
-        makise_d_line( b->gui->buffer,
-                       b->position.real_x, y,
-                       b->position.real_x + b->position.width,
-                       y,
-                       th->border_c);
-    }
-
-    uint32_t ec = h / (eh - 1);                 // Count of elements on the screen.
-                                                // One line total.
+    uint32_t ec = h / (eh - 1);      // Count of elements on the screen.
+                                     // One line total.
     if ( ec == 0 ) return M_ERROR;
 
     MPlayList_Item* pl_i = 0;
 
-    // Get selected item number.
-    if ( obj->is_array ) {
-        i = obj->selected->id;
-    } else {
-        ci = obj->item_list;
-        uint32_t ti = 0;
-        i = UINT32_MAX;
-        while ( ci != 0 ) {
-            if ( ci == obj->selected ) {
-                cuid = i = ti;
-                break;
-            }
-            ci = ci->next;
-            ti ++;
-        }
-        if ( i == UINT32_MAX ) return M_ERROR;          // if we didn't found it
-    }
+    uint32_t    i       = 0;
+    uint32_t    start   = 0;
+    uint32_t    end     = 0;
 
+    i = get_selected_item_number( obj, &cuid );
     len = obj->len;
-    //compute start index of element to display & the last
-    if ( ec >= len ) {
-        start = 0;
-        end = len;
-    } else if ( ( i >= ( ec / 2 ) ) && ( ( len - i ) > ( ec - 1 ) / 2) ) {
-        start = i - (ec / 2);
-        end = start + ec;
-    } else if ( ( i > (ec / 2) && (len - i) <= ( ec - 1 ) / 2 ) ) {
-        end = len;
-        start = len - ec;
-    } else if ( i < ( ec / 2 ) && ( len - i ) > ( ec - 1 ) / 2) {
-        start = 0;
-        end = ec;
-    }
+    get_index_start_and_last_item_for_draw( &ec, &len, &i, &start, &end );
 
     if ( obj->is_array ) {
         //array
@@ -313,33 +351,17 @@ static uint8_t draw ( MElement* b ) {
 
     h = b->position.height - 2;
     sh = h / len;
-    if(sh < 5)
-    {
+
+    if ( sh < 5 )    {
         y = cuid * (h + sh - 5) / len;
         sh = 5;
-    }
-    else
+    }  else {
         y = cuid * (h) / len;
+    }
+
     y += b->position.real_y + 1;
 
-
-    // Drawing scroll.
-    if ( obj->style->scroll_width != 0 ) {
-        makise_d_rect_filled( b->gui->buffer,
-                  b->position.real_x + b->position.width - obj->style->scroll_width - 1, b->position.real_y,
-                  obj->style->scroll_width + 1,
-                  obj->e.position.height,
-                  th->border_c,
-                  obj->style->scroll_bg_color );
-
-        makise_d_rect_filled( b->gui->buffer,
-                  b->position.real_x + b->position.width - obj->style->scroll_width - 1,
-                  y,               // BUG!
-                  obj->style->scroll_width + 1,
-                  sh + 1,
-                  th->border_c,
-                  obj->style->scroll_color );
-    }
+    drawing_scroll( obj, th, &y, &h );
 
     return M_OK;
 }
