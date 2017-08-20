@@ -141,7 +141,19 @@ void m_play_list_remove ( MPlayList *obj, MPlayList_Item *item ) {
 
 // Set new data source. Simple array.
 void m_play_list_set_array ( MPlayList *obj, MPlayList_Item *array, uint32_t len ) {
+    obj->item_list      = array;
+    obj->len            = len;
+    obj->selected       = array;
+    obj->is_array       = 1;
 
+    MPlayList_Item *lst = NULL;
+
+    for ( uint32_t i = 0; i < len; i++ ) {
+        array[i].prev = lst;
+        array[i].next = ( ( i + 1 ) < len ) ? &array[ i + 1 ] : NULL;
+        array[i].id = i;
+        lst = &array[i];
+    }
 }
 
 // Set linked list as new data source.
