@@ -6,21 +6,21 @@
 extern "C" {
 #endif
 
-    static uint8_t draw   (MElement* b);
-    static MFocusEnum focus(MElement* b,  MFocusEnum act);
-    static MInputResultEnum input  (MElement* b, MInputData data);
+static uint8_t draw   (MElement* b);
+static MFocusEnum focus(MElement* b,  MFocusEnum act);
+static MInputResultEnum input  (MElement* b, MInputData data);
 
-    static char *name = "SList";
+static char *name = "SList";
 
-    void m_create_slist( MSList*                b,
-			 MContainer*            c,
-			 MPosition              pos,
-			 char*                  text,
-			 void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
-			 void                   ( *click )          ( MSList *l, MSList_Item *selected ),
-			 MSList_Type            type,
-			 MakiseStyle_SList*     style,
-			 MakiseStyle_SListItem* item_style) {
+void m_create_slist( MSList*                b,
+                     MContainer*            c,
+                     MPosition              pos,
+                     char*                  text,
+                     void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
+                     void                   ( *click )          ( MSList *l, MSList_Item *selected ),
+                     MSList_Type            type,
+                     MakiseStyle_SList*     style,
+                     MakiseStyle_SListItem* item_style) {
 	MElement *e = &b->el;
 	m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
 			 1, 1, pos,

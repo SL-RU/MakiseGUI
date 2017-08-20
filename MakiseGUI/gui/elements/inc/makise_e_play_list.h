@@ -47,7 +47,8 @@ typedef struct {
     MakiseStyleTheme_PlayList   active;
 } MakiseStyle_PlayListItem;
 
-typedef struct {
+typedef struct _MPlayList_Item MPlayList_Item;
+typedef struct _MPlayList_Item{
     char                        name[256];
     uint32_t                    len_itemsec;
 
@@ -57,13 +58,14 @@ typedef struct {
     uint32_t                    id;             // Custom id, if NOT is_array, else - position in the array (will be computed automatically by PlayList).
 } MPlayList_Item;
 
+typedef struct _MPlayList MPlayList;
 typedef struct {
     void        ( *item_selected )     ( MPlayList *obj, MPlayList_Item* selected_item );
     void        ( *item_click )        ( MPlayList *obj, MPlayList_Item* selected_item );
     uint32_t    ( *get_item_count )    ( char* dir );
 } MPlayList_CallbackFunc;
 
-typedef struct {
+typedef struct _MPlayList {
     MakiseGUI*                  gui;
     MElement                    e;
     char*                       header_text;
@@ -87,8 +89,6 @@ typedef struct {
     MakiseStyle_PlayList*       style;
     MakiseStyle_PlayListItem*   item_style;
 } MPlayList;
-
-
 
 void m_create_play_list     ( MPlayList*                obj_struct,
                               MContainer*               container,
