@@ -6,15 +6,16 @@ static MFocusEnum focus(MElement* b,  MFocusEnum act);
 static MInputResultEnum input  (MElement* b, MInputData data);
 
 static char *name = "MFSViewer";
-void m_create_fsviewer(MFSViewer* b, MContainer *c,
-		       MPosition pos,
-		       char* header,
-		       uint8_t (*onselection)(MFSViewer *l, MFSViewer_Item *selected),
-		       void (*click)(MFSViewer *l, MFSViewer_Item *selected),
-		       MFSViewer_Type type,
-		       MakiseStyle_FSViewer *style,
-		       MakiseStyle_FSViewer_Item *item_style)
-{
+
+void m_create_fsviewer( MFSViewer*                  b,
+                        MContainer*                 c,
+                        MPosition                   pos,
+                        char*                       header,
+                        uint8_t                     ( *onselection )    ( MFSViewer* l, MFSViewer_Item* selected ),
+                        void                        ( *click )          ( MFSViewer* l, MFSViewer_Item* selected ),
+                        MFSViewer_Type              type,
+                        MakiseStyle_FSViewer*       style,
+                        MakiseStyle_FSViewer_Item*  item_style ) {
     MElement *e = &b->el;
     m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
 		     1, 1, pos,
@@ -84,12 +85,12 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
 	}
 	else //icon
 	{
-	    int yc = l->style->bitmap_folder->height / 2; //place icon in center
+        int yc = l->style->bitmap_folder->height_pixel / 2; //place icon in center
 	    yc = (eh / 2) - yc; 
 	    makise_d_bitmap(l->el.gui->buffer, x + 1, y + yc,
 			    l->style->bitmap_folder, c_th->icon_col);
-	    x += l->style->bitmap_folder->width + 2;
-	    w -= l->style->bitmap_folder->width + 2;
+        x += l->style->bitmap_folder->width_pixel + 2;
+        w -= l->style->bitmap_folder->width_pixel + 2;
 	}
 	
     }
@@ -103,7 +104,7 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
 			  l->item_style->font_line_spacing,
 			  c_th->font_col);
 	    
-    
+
 }
 static uint8_t draw   (MElement* b)
 {
@@ -122,11 +123,11 @@ static uint8_t draw   (MElement* b)
     int16_t y = b->position.real_y + 1,
 	x = b->position.real_x + 2;
     uint32_t
-	w = b->position.width - 5,
-	h = b->position.height - 4,
-	eh = l->item_style->font->height + l->item_style->font_line_spacing + 1,
+    w = b->position.width - 5,
+    h = b->position.height - 4,
+    eh = l->item_style->font->height + l->item_style->font_line_spacing + 1,
 	ec = h / (eh + 1), //count of elements on the screen
-	sh = 0,   //scroll line height
+    sh = 0,   //scroll line height
 	cuid = 0, //current id
 	len = 0;  //count of items
 
@@ -138,10 +139,10 @@ static uint8_t draw   (MElement* b)
 			l->header, MDTextAll,
 			x, y, MDTextPlacement_LeftUp,
 			l->style->font, th->font_col);
-	y += l->style->font->height;
-	h -= l->style->font->height;
+    y += l->style->font->height;
+    h -= l->style->font->height;
 	makise_d_line(b->gui->buffer, b->position.real_x, y,
-		      b->position.real_x + b->position.width, y,
+              b->position.real_x + b->position.width, y,
 		      th->border_c);
 	ec = h / (eh + 1);
     }
@@ -220,16 +221,16 @@ static uint8_t draw   (MElement* b)
     // Drawing scroll.
     if ( l->style->scroll_width != 0 ) {
 	makise_d_rect_filled( b->gui->buffer,
-			      b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
-			      l->style->scroll_width + 1,
-			      l->el.position.height,
+                  b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
+                  l->style->scroll_width + 1,
+                  l->el.position.height,
 			      th->border_c,
 			      l->style->scroll_bg_color );
 
 	makise_d_rect_filled( b->gui->buffer,
-			      b->position.real_x + b->position.width - l->style->scroll_width - 1,
+                  b->position.real_x + b->position.width - l->style->scroll_width - 1,
 			      y,               
-			      l->style->scroll_width + 1,
+                  l->style->scroll_width + 1,
 			      sh + 1,
 			      th->border_c,
 			      l->style->scroll_color );
@@ -517,7 +518,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     }
     //printf("ch st: %d req %d\n", l->current_chunk_position, required_id);
     //FRESULT res;
-    DIR * dir;
+    DIR* dir;
     //static struct stat fno;
     struct dirent * entry;
 
@@ -586,8 +587,7 @@ void m_fsviewer_deselect(MFSViewer *l)
     l->was_selected = 0;
 }
 
-void fsviewer_open(MFSViewer *l, char *path)
-{
+void fsviewer_open( MFSViewer *l, char* path ) {
     //set path
     l->path = path;
     //go to dir
