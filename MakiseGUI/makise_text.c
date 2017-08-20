@@ -169,6 +169,134 @@ uint32_t makise_d_string_height_get ( char*             s,
     return height;
 }
 
+/**
+ * Get total line count of the text in the frame with selected width.
+ * Methods calculates line wraps and new line returns.
+ *
+ * @param s text
+ * @param len length of text
+ * @param w width of frame
+ * @param font 
+ * @return count of text lines
+ */
+uint32_t    makise_d_string_get_line_count (
+                                     char *s,
+                                     uint32_t len,
+                                     uint16_t w,
+                                     const MakiseFont *font )
+{
+    uint32_t width, i = 0;
+
+    uint32_t ch, xt = 0, lines = 1;
+
+    if(s == 0)
+	return 0;
+
+    while ( i < len && s[i] ) {
+	if(s[i] == '\n' || s[i] == '\r')
+	{
+	    //calculate return
+	    xt = 0;
+	    lines ++;
+	    i++;
+	}
+	else
+	{
+#if MAKISE_UNICODE
+	    uint8_t bts = 0;
+	    ch = makise_d_utf_char_id( &s[i], len - i, &bts );
+	    ch = makise_d_utf_char_font(ch, font);
+	    if ( ch > font->num_uni ) ch = 0;
+	    i += bts;
+#else
+	    ch = s[i];
+	    ch = (uint8_t)ch - font->offset;
+	    if (ch > font->num_char) ch = 0;
+	    i++;
+#endif
+	    width = font->width ? font->width : font->char_width[ch];
+	    
+	    if(xt + width > w)
+	    {
+		xt = 0;
+		lines ++;
+	    }
+	    xt += width + font->space_char;
+	}
+    }
+    return lines;
+}
+
+
+/**
+ * Returns pointer to the n's line. It calculates returns, wraps and etc.
+ *
+ * @param s string
+ * @param len string's len
+ * @param line required line
+ * @param w width of frame
+ * @param font font
+ * @return pointer tobeginning og n's line
+ */
+char *     makise_d_string_get_line (
+                                     char *s,
+                                     uint32_t len,
+				     uint32_t n,
+                                     uint16_t w,
+                                     const MakiseFont *font )
+{
+    uint32_t width, i = 0;
+
+    uint32_t ch, xt = 0, lines = 0;
+
+    if(s == 0)
+	return s;
+    if(n == 0)
+	return s;
+
+    while ( i < len && s[i] ) {
+	if(s[i] == '\n' || s[i] == '\r')
+	{
+	    //calculate return
+	    xt = 0;
+	    lines ++;
+	    i++;
+	    if(lines == n)
+		return &s[i];
+	}
+	else
+	{
+#if MAKISE_UNICODE
+	    uint8_t bts = 0;
+	    ch = makise_d_utf_char_id( &s[i], len - i, &bts );
+	    ch = makise_d_utf_char_font(ch, font);
+	    if ( ch > font->num_uni ) ch = 0;
+#else
+	    ch = s[i];
+	    ch = (uint8_t)ch - font->offset;
+	    if (ch > font->num_char) ch = 0;
+#endif
+	    width = font->width ? font->width : font->char_width[ch];
+	    
+	    if(xt + width > w)
+	    {
+		xt = 0;
+		lines ++;
+		if(lines == n)
+		    return &s[i];
+	    }
+#if MAKISE_UNICODE
+	    i += bts;
+#else
+	    i++;
+#endif
+
+	    xt += width + font->space_char;
+	}
+    }
+    return 0;
+}
+
 //draw multiline text in the defined frame
 void makise_d_string_frame(MakiseBuffer *b, char *s, uint32_t len, int16_t x, int16_t y, uint16_t w, uint16_t h, const MakiseFont *font, uint16_t line_spacing, uint32_t c)
 {

@@ -68,7 +68,40 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
                                      const MakiseFont *font,
                                      uint16_t line_spacing,
                                      uint32_t c );
+/**
+ * Get total line count of the text in the frame with selected width.
+ * Methods calculates line wraps and new line returns.
+ *
+ * @param s text
+ * @param len length of text
+ * @param w width of frame
+ * @param font 
+ * @return count of text lines
+ */
+uint32_t    makise_d_string_get_line_count (
+                                     char *s,
+                                     uint32_t len,
+                                     uint16_t w,
+                                     const MakiseFont *font );
+    
+/**
+ * Returns pointer to the n's line. It calculates returns, wraps and etc.
+ *
+ * @param s string
+ * @param len string's len
+ * @param line required line
+ * @param w width of frame
+ * @param font font
+ * @return pointer tobeginning og n's line
+ */
+char *     makise_d_string_get_line (
+                                     char *s,
+                                     uint32_t len,
+				     uint32_t n,
+                                     uint16_t w,
+                                     const MakiseFont *font );
 
+    
 // Get height text for user width window.
 uint32_t makise_d_string_height_get ( char*             s,
                                       uint32_t          len,
