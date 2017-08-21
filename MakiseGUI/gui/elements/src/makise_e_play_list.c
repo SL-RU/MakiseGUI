@@ -24,6 +24,7 @@ void m_create_play_list ( MPlayList*                obj_struct,
                           MContainer*               container,
                           MPosition                 pos,
                           char*                     header_text,
+                          char*                     current_dir,
                           MPlayList_CallbackFunc*   user_func,
                           MakiseStyle_PlayList*     style,
                           MakiseStyle_PlayListItem* item_style ) {
@@ -57,6 +58,8 @@ void m_create_play_list ( MPlayList*                obj_struct,
     obj_struct->sitem                   = NULL;
 #endif
 
+    obj_struct->current_dir             = current_dir;
+    obj_struct->file_count_of_dir       = obj_struct->f_array->get_file_count_of_dir( current_dir );
     makise_g_cont_add ( container, e );
 
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )

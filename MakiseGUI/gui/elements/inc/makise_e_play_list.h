@@ -63,7 +63,7 @@ typedef struct _MPlayList MPlayList;
 typedef struct {
     void        ( *item_selected )     ( MPlayList *obj, MPlayList_Item* selected_item );
     void        ( *item_click )        ( MPlayList *obj, MPlayList_Item* selected_item );
-    uint32_t    ( *get_item_count )    ( char* dir );
+    uint32_t    ( *get_file_count_of_dir)    ( char* dir );
 } MPlayList_CallbackFunc;
 
 typedef struct _MPlayList {
@@ -88,12 +88,17 @@ typedef struct _MPlayList {
 
     MakiseStyle_PlayList*       style;
     MakiseStyle_PlayListItem*   item_style;
+
+    char*                       current_dir;
+    uint32_t                    file_count_of_dir;
+
 } MPlayList;
 
 void m_create_play_list     ( MPlayList*                obj_struct,
                               MContainer*               container,
                               MPosition                 pos,
                               char*                     header_text,
+                              char*                     current_dir,
                               MPlayList_CallbackFunc*   user_func,
                               MakiseStyle_PlayList*     style,
                               MakiseStyle_PlayListItem* item_style);
