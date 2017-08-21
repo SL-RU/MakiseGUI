@@ -355,7 +355,6 @@ static uint8_t draw ( MElement* b ) {
 
     if ( obj->style->scroll_width == 0 ) return M_OK;
 
-    // Scroll.scroll_y
     h = b->position.height - 2;
     sh = h / len;
 
