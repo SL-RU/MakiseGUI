@@ -57,7 +57,7 @@ void m_create_play_list ( MPlayList*                obj_struct,
     obj_struct->sitem                   = NULL;
 #endif
 
-    makise_g_cont_add (container, e );
+    makise_g_cont_add ( container, e );
 
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
     MAKISE_DEBUG_OUTPUT( "PlayList %d created\n", e->id );
@@ -177,39 +177,38 @@ void m_play_list_set_list ( MPlayList *obj, MPlayList_Item *first ) {
 //draw line frome the list
 static void draw_item ( MPlayList_Item *pl_i, MPlayList *obj, MakiseStyleTheme_PlayList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
     makise_d_rect_filled( obj->e.gui->buffer,
-                  x, y, w, eh,
-                  c_th->border_c, c_th->bg_color);
+                          x, y, w, eh,
+                          c_th->border_c, c_th->bg_color);
 
     makise_d_string_frame( obj->e.gui->buffer,
-                   pl_i->name, MDTextAll,
-                   x + 2, y + 2,
-                   w - 4, eh,
-                   obj->item_style->font,
-                   obj->item_style->font_line_spacing,
-                   c_th->font_col );
+                           pl_i->name, MDTextAll,
+                           x + 2, y + 2,
+                           w - 4, eh,
+                           obj->item_style->font,
+                           obj->item_style->font_line_spacing,
+                           c_th->font_col );
 }
 
-static uint32_t get_selected_item_number ( MPlayList *obj, uint32_t* current_id ) {
-    uint32_t i;
+static uint32_t get_selected_item_number ( const MPlayList *obj, uint32_t* current_id ) {
     MPlayList_Item* ci  = NULL;
     // Get selected item number.
     if ( obj->is_array ) {
-        i = obj->selected->id;
+        *current_id = obj->selected->id;
     } else {
         ci = obj->item_list;
         uint32_t ti = 0;
-        i = UINT32_MAX;
+        *current_id = UINT32_MAX;
         while ( ci != 0 ) {
             if ( ci == obj->selected ) {
-                *current_id = i = ti;
+                *current_id = ti;
                 break;
             }
             ci = ci->next;
-            ti ++;
+            ti++;
         }
-        if ( i == UINT32_MAX ) return M_ERROR;          // if we didn't found it
+        if ( *current_id == UINT32_MAX ) return M_ERROR;          // if we didn't found it
     }
-    return i;
+    return M_OK;
 }
 
 // ec = count_elements_on_screen.
@@ -245,9 +244,9 @@ static void header_text_draw ( const MPlayList* obj, const MakiseStyleTheme_Play
                                th->font_col );
 
         *y += obj->style->font->height + 4;        // Two line board + 2 line space.
-        free_h -= obj->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
+        *free_h -= obj->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
 
-        makise_d_line( obj->gui->buffer,
+        makise_d_line( obj->e.gui->buffer,
                        obj->e.position.real_x, *y,
                        obj->e.position.real_x + obj->e.position.width,
                        *y,
@@ -286,24 +285,26 @@ static uint8_t draw ( MElement* b ) {
     MakiseStyleTheme_PlayList *i_nom = &obj->item_style->normal,
 
     *c_th = 0;
-
-    //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
     _m_e_helper_draw_box_param( b->gui->buffer, &b->position, th->border_c, th->bg_color, th->double_border );
 
     int16_t     y       = b->position.real_y;
     int16_t     x       = b->position.real_x  + obj->style->left_margin;
     uint32_t    w       = b->position.width   - obj->style->scroll_width;
+                w      += ( obj->style->scroll_width != 0 ) ? 1 : 0;
     uint32_t    h       = b->position.height;
 
     uint32_t    eh      = obj->item_style->font->height + obj->item_style->font_line_spacing +
                           2 +        // 2 line board.
                           2;         // 2 space line.
 
-    uint32_t    sh      = 0;         // Scroll line height
-    uint32_t    cuid    = 0;         // Current id.
-    uint32_t    len     = 0;         //count of items
+    uint32_t    sh      = 0;         // Scroll line height.
+    uint32_t    cu_id   = 0;         // Current id.
+    uint32_t    len     = 0;         // Count of items.
 
     header_text_draw( obj, th, &x, &y, &eh, &h );
+    uint32_t    scroll_y    = y;
+
+    if ( obj->item_list == NULL ) return M_OK;
 
     uint32_t ec = h / (eh - 1);      // Count of elements on the screen.
                                      // One line total.
@@ -315,7 +316,7 @@ static uint8_t draw ( MElement* b ) {
     uint32_t    start   = 0;
     uint32_t    end     = 0;
 
-    i = get_selected_item_number( obj, &cuid );
+    if ( get_selected_item_number( obj, &cu_id ) != M_OK ) return M_ERROR;
     len = obj->len;
     get_index_start_and_last_item_for_draw( &ec, &len, &i, &start, &end );
 
@@ -325,9 +326,9 @@ static uint8_t draw ( MElement* b ) {
             pl_i = &obj->item_list[i];
             pl_i->id = i;
             c_th = (pl_i == obj->selected) ? i_foc : i_nom;
-            if ( pl_i == obj->selected ) cuid = i;
 
-            draw_item( pl_i, obj, c_th, x, y, w, eh );
+            if ( pl_i == obj->selected ) cu_id = i;
+                draw_item( pl_i, obj, c_th, x, y, w, eh );
 
             y += eh - 1;
         }
@@ -349,14 +350,17 @@ static uint8_t draw ( MElement* b ) {
         }
     }
 
+    if ( obj->style->scroll_width == 0 ) return M_OK;
+
+    // Scroll.scroll_y
     h = b->position.height - 2;
     sh = h / len;
 
     if ( sh < 5 )    {
-        y = cuid * (h + sh - 5) / len;
+        y = cu_id * (h + sh - 5) / len;
         sh = 5;
     }  else {
-        y = cuid * (h) / len;
+        y = cu_id * (h) / len;
     }
 
     y += b->position.real_y + 1;

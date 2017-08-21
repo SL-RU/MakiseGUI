@@ -9,6 +9,7 @@
 extern "C" {
 #endif
 
+#include <string.h>
 #include "makise_e.h"
 
 typedef struct {
@@ -66,7 +67,6 @@ typedef struct {
 } MPlayList_CallbackFunc;
 
 typedef struct _MPlayList {
-    MakiseGUI*                  gui;
     MElement                    e;
     char*                       header_text;
 
@@ -98,12 +98,24 @@ void m_create_play_list     ( MPlayList*                obj_struct,
                               MakiseStyle_PlayList*     style,
                               MakiseStyle_PlayListItem* item_style);
 
-void m_play_list_add        ( MPlayList *obj, MPlayList_Item *item );                     // Add one item to the list at the end. Only if NOT is_array.
-void m_play_list_clear      ( MPlayList *obj );                                           // Clear all pointers.
-void m_play_list_remove     ( MPlayList *obj, MPlayList_Item *item );                     // Remove item from linked list. Only if NOT is_array.
-void m_play_list_set_array  ( MPlayList *obj, MPlayList_Item *array, uint32_t len );      // Set new data source. Simple array.
-void m_play_list_set_list   ( MPlayList *obj, MPlayList_Item *first );                    // Set linked list as new data source.
+void m_play_list_add                    ( MPlayList *obj, MPlayList_Item* item );                     // Add one item to the list at the end. Only if NOT is_array.
+void m_play_list_clear                  ( MPlayList *obj );                                           // Clear all pointers.
+void m_play_list_remove                 ( MPlayList *obj, MPlayList_Item* item );                     // Remove item from linked list. Only if NOT is_array.
+void m_play_list_set_array              ( MPlayList *obj, MPlayList_Item* array, uint32_t len );      // Set new data source. Simple array.
+void m_play_list_set_list               ( MPlayList *obj, MPlayList_Item* first );                    // Set linked list as new data source.
 
+
+/*
+// Update data item.
+void m_play_list_item_data_update ( MPlayList_Item* item, char* name_track, uint32_t time_sec ) {
+    strcpy( item->name, );
+}
+
+// Set count item in directory.
+void m_play_list_set_count_item_in_dir ( uint32_t count_item ) {
+
+}
+  */
 #ifdef __cplusplus
 }
 #endif
