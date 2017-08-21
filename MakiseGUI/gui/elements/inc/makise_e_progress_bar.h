@@ -19,13 +19,12 @@ typedef struct {
 
 // Progress bar.
 typedef struct {
-    MakiseGUI*                      gui;
     MElement                        el;
 
     uint8_t                         duty;
     uint8_t                         margin;
 
-    MakiseStyle_ProgressBar*    style;
+    MakiseStyle_ProgressBar*        style;
 } MProgressBar;
 
 void m_create_progress_bar ( MProgressBar*                  b,

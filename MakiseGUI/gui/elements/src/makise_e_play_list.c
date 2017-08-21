@@ -15,6 +15,19 @@ static uint8_t              draw    ( MElement* b );
 static MFocusEnum           focus   ( MElement* b,   MFocusEnum act );
 static MInputResultEnum     input   ( MElement* b,   MInputData data );
 
+// Set new data source. Simple array.
+void m_play_list_init_item_array ( MPlayList_Item *array, uint32_t len ) {
+    MPlayList_Item *lst = NULL;
+
+    for ( uint32_t i = 0; i < len; i++ ) {
+        array[i].stait = 0;
+        array[i].prev = lst;
+        array[i].next = ( ( i + 1 ) < len ) ? &array[ i + 1 ] : NULL;
+        array[i].id = i;
+        lst = &array[i];
+    }
+}
+
 static char* name = "PlayList";
 
 //**********************************************************************
@@ -44,12 +57,21 @@ void m_create_play_list ( MPlayList*                obj_struct,
     obj_struct->style                   = style;
     obj_struct->item_style              = item_style;
 
-    obj_struct->item_list               = NULL;
-    obj_struct->is_array                = 0;
-    obj_struct->len                     = 0;
 
-    obj_struct->selected                = NULL;
-    obj_struct->state                   = 0;
+
+    // Height one string list for lcd.
+    obj_struct->eh                      = item_style->font->height +
+                                          2 +        // 2 line board.
+                                          2;         // 2 space line.
+
+    obj_struct->item_array_len          = pos.height / ( obj_struct->eh - 1 );  // Count of elements on the screen.
+                                                                                // One line total.
+
+    obj_struct->item_array              = user_func->create_array_item( obj_struct->item_array_len );
+    m_play_list_init_item_array( obj_struct->item_array, obj_struct->item_array_len );
+    obj_struct->selected                = obj_struct->item_array;
+    obj_struct->selected ->stait        = 2;         // Выбранный трек.
+    obj_struct->focus_file_number       = 0;
 
 #if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
     obj_struct->started                 = 0;
@@ -58,8 +80,16 @@ void m_create_play_list ( MPlayList*                obj_struct,
     obj_struct->sitem                   = NULL;
 #endif
 
+    // Get information about the directory.
     obj_struct->current_dir             = current_dir;
     obj_struct->file_count_of_dir       = obj_struct->f_array->get_file_count_of_dir( current_dir );
+
+    uint32_t selected_track = 0;
+    for ( uint32_t i_loop = 0; i_loop < obj_struct->item_array_len ; i_loop++ ) {
+        obj_struct->f_array->get_item_name_and_time( &obj_struct->item_array[ i_loop ], selected_track );
+        selected_track++;
+    }
+
     makise_g_cont_add ( container, e );
 
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
@@ -69,116 +99,11 @@ void m_create_play_list ( MPlayList*                obj_struct,
     return;
 }
 
-// Add one item to the list at the end. Only if NOT is_array.
-void m_play_list_add ( MPlayList *obj, MPlayList_Item *item ) {
-    if ( obj->is_array )  return;
-    if ( obj->item_list == NULL ) {                 // Add first item.
-        item->prev          = 0;
-        item->next          = 0;
-        obj->item_list      = item;
-        obj->len            = 1;
-        obj->selected       = item;
-        return;
-    }
-
-    MPlayList_Item *it = obj->item_list;
-
-    while ( it->next )
-        it = it->next;
-
-    it->next    = item;
-    item->next  = 0;
-    item->prev  = it;
-    obj->len++;
-}
-
-// Clear all pointers.
-void m_play_list_clear ( MPlayList *obj ) {
-    obj->selected   = 0;
-    obj->is_array   = 0;
-    obj->item_list  = 0;
-}
-
-// Remove item from linked list. Only if NOT is_array.
-void m_play_list_remove ( MPlayList *obj, MPlayList_Item *item ) {
-    if ( obj == 0 || item == 0 || obj->item_list == 0 ) return;
-
-    if ( obj->item_list == item ) {             // If first element.
-        if ( item->next == 0 ) {
-            m_play_list_clear( obj );
-            return;
-        }
-
-        obj->item_list          = obj->item_list->next;
-        obj->item_list->prev    = 0;
-        item->next              = 0;
-        item->prev              = 0;
-        obj->selected           = obj->item_list;
-        obj->len--;
-        return;
-    }
-
-    if ( item->prev == 0 ) return;          // WTF?... Bag!
-
-    if ( item->next == 0 ) {                // If last element.
-        obj->len--;
-
-        if ( item == obj->selected )
-            obj->selected = item->prev;
-
-        item->prev->next    = NULL;
-        item->prev          = NULL;
-
-        return;
-    }
-
-    if( item == obj->selected )
-        obj->selected = item->prev;
-
-    item->next->prev        = item->prev;
-    item->prev->next        = item->next;
-    item->prev              = NULL;
-    item->next              = NULL;
-    obj->len--;
-}
-
-// Set new data source. Simple array.
-void m_play_list_set_array ( MPlayList *obj, MPlayList_Item *array, uint32_t len ) {
-    obj->item_list      = array;
-    obj->len            = len;
-    obj->selected       = array;
-    obj->is_array       = 1;
-
-    MPlayList_Item *lst = NULL;
-
-    for ( uint32_t i = 0; i < len; i++ ) {
-        array[i].prev = lst;
-        array[i].next = ( ( i + 1 ) < len ) ? &array[ i + 1 ] : NULL;
-        array[i].id = i;
-        lst = &array[i];
-    }
-}
-
-// Set linked list as new data source.
-void m_play_list_set_list ( MPlayList *obj, MPlayList_Item *first ) {
-    obj->item_list  = first;
-    obj->selected   = first;
-    obj->is_array   = 0;
-    obj->len        = 0;
-    if ( first == NULL ) return;
-
-    MPlayList_Item* lst = first;
-    while ( lst->next != NULL ) {
-        obj->len++;
-        lst = lst->next;
-    }
-}
-
 //**********************************************************************
 // Private functions ( element ).
 //**********************************************************************
 //draw line frome the list
-static void draw_item ( MPlayList_Item *pl_i, MPlayList *obj, MakiseStyleTheme_PlayList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
+static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_PlayList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
     makise_d_rect_filled( obj->e.gui->buffer,
                           x, y, w, eh,
                           c_th->border_c, c_th->bg_color);
@@ -192,51 +117,14 @@ static void draw_item ( MPlayList_Item *pl_i, MPlayList *obj, MakiseStyleTheme_P
                            c_th->font_col );
 }
 
-static uint32_t get_selected_item_number ( const MPlayList *obj, uint32_t* current_id ) {
-    MPlayList_Item* ci  = NULL;
-    // Get selected item number.
-    if ( obj->is_array ) {
-        *current_id = obj->selected->id;
-    } else {
-        ci = obj->item_list;
-        uint32_t ti = 0;
-        *current_id = UINT32_MAX;
-        while ( ci != 0 ) {
-            if ( ci == obj->selected ) {
-                *current_id = ti;
-                break;
-            }
-            ci = ci->next;
-            ti++;
-        }
-        if ( *current_id == UINT32_MAX ) return M_ERROR;          // if we didn't found it
-    }
-    return M_OK;
+static uint32_t get_selected_item_number ( const MPlayList *obj ) {
+    return obj->selected->id;
 }
 
-// ec = count_elements_on_screen.
-// len - count item.
-// i = selected item.
-static void get_index_start_and_last_item_for_draw ( const uint32_t* ec, const uint32_t* len, const uint32_t* i, uint32_t* start_index, uint32_t* last_index ) {
-    // Compute start index of element to display & the last.
-    if ( *ec >= *len ) {
-        *start_index = 0;
-        *last_index  = *len;
-    } else if ( ( *i >= ( *ec / 2 ) ) && ( ( *len - *i ) > ( *ec - 1 ) / 2) ) {
-        *start_index = *i - (*ec / 2);
-        *last_index  = *start_index + *ec;
-    } else if ( ( *i > ( *ec / 2 ) && ( *len - *i ) <= ( *ec - 1 ) / 2 ) ) {
-        *last_index  = *len;
-        *start_index = *len - *ec;
-    } else if ( *i < ( *ec / 2 ) && ( *len - *i ) > ( *ec - 1 ) / 2) {
-        *start_index = 0;
-        *last_index  = *ec;
-    }
-    return;
-}
-
-static void header_text_draw ( const MPlayList* obj, const MakiseStyleTheme_PlayList* th, const int16_t* x, int16_t* y, const uint32_t* height_block, uint32_t* free_h ) {
+static void header_text_draw ( const MPlayList* obj, const int16_t* x, int16_t* y, const uint32_t* height_block, uint32_t* free_h ) {
     if ( obj->header_text != NULL ) {
+        MakiseStyleTheme_PlayList* th = &obj->style->theme;
+
         makise_d_string_frame( obj->e.gui->buffer,
                                obj->header_text, MDTextAll,
                                *x + 2,  // One line board + One line space.
@@ -246,7 +134,7 @@ static void header_text_draw ( const MPlayList* obj, const MakiseStyleTheme_Play
                                obj->item_style->font_line_spacing,
                                th->font_col );
 
-        *y += obj->style->font->height + 4;        // Two line board + 2 line space.
+        *y += obj->style->font->height + 4;         // Two line board + 2 line space.
         *free_h -= obj->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
 
         makise_d_line( obj->e.gui->buffer,
@@ -283,12 +171,13 @@ static void drawing_scroll ( const MPlayList* obj, const MakiseStyleTheme_PlayLi
 //**********************************************************************
 static uint8_t draw ( MElement* b ) {
     MPlayList *obj = ( MPlayList* )b->data;
+    /*
     MakiseStyleTheme_PlayList *th    = obj->state ? &obj->style->focused : &obj->style->normal;
     MakiseStyleTheme_PlayList *i_foc = obj->state ? &obj->item_style->focused : &obj->item_style->active;
-    MakiseStyleTheme_PlayList *i_nom = &obj->item_style->normal,
+    MakiseStyleTheme_PlayList *i_nom = &obj->item_style->normal,*/
 
-    *c_th = 0;
-    _m_e_helper_draw_box_param( b->gui->buffer, &b->position, th->border_c, th->bg_color, th->double_border );
+    MakiseStyleTheme_PlayList* st = &obj->style->theme;
+    _m_e_helper_draw_box_param( b->gui->buffer, &b->position, st->border_c, st->bg_color, st->double_border );
 
     int16_t     y       = b->position.real_y;
     int16_t     x       = b->position.real_x  + obj->style->left_margin;
@@ -296,78 +185,24 @@ static uint8_t draw ( MElement* b ) {
                 w      += ( obj->style->scroll_width != 0 ) ? 1 : 0;
     uint32_t    h       = b->position.height;
 
-    uint32_t    eh      = obj->item_style->font->height + obj->item_style->font_line_spacing +
-                          2 +        // 2 line board.
-                          2;         // 2 space line.
-
-    uint32_t    sh      = 0;         // Scroll line height.
-    uint32_t    cu_id   = 0;         // Current id.
-    uint32_t    len     = 0;         // Count of items.
-
-    header_text_draw( obj, th, &x, &y, &eh, &h );
+    header_text_draw( obj, &x, &y, &obj->eh, &h );                   // Draw header.
     uint32_t    scroll_y    = y;
 
-    if ( obj->item_list == NULL ) return M_OK;
-
-    uint32_t ec = h / (eh - 1);      // Count of elements on the screen.
-                                     // One line total.
-    if ( ec == 0 ) return M_ERROR;
-
-    MPlayList_Item* pl_i = 0;
-
-    uint32_t    i       = 0;
-    uint32_t    start   = 0;
-    uint32_t    end     = 0;
-
-    if ( get_selected_item_number( obj, &cu_id ) != M_OK ) return M_ERROR;
-    len = obj->len;
-    get_index_start_and_last_item_for_draw( &ec, &len, &i, &start, &end );
-
-    if ( obj->is_array ) {
-        //array
-        for ( i = start; i < end; i++ ) {
-            pl_i = &obj->item_list[i];
-            pl_i->id = i;
-            c_th = (pl_i == obj->selected) ? i_foc : i_nom;
-
-            if ( pl_i == obj->selected ) cu_id = i;
-                draw_item( pl_i, obj, c_th, x, y, w, eh );
-
-            y += eh - 1;
-        }
-    } else {
-        //Linked list
-        pl_i = obj->selected;
-        while ( i != start ) {
-            i --;
-            pl_i = pl_i->prev;
+    for ( uint32_t i = 0; i < obj->item_array_len; i++ ) {
+        switch ( obj->item_array[ i ].stait ) {
+        case 2: st = &obj->item_style->selected; break;
+        case 1: st = &obj->item_style->play;     break;
+        case 0: st = &obj->item_style->normal;   break;
         }
 
-        for ( i = start; i < end; i++ ) {
-            c_th = (pl_i == obj->selected) ? i_foc : i_nom;
+        draw_item( obj, &obj->item_array[ i ], st, x, y, w, obj->eh );
 
-            draw_item( pl_i, obj, c_th, x, y, w, eh );
-
-            y += eh - 1;
-            pl_i = pl_i->next;
-        }
+        y += obj->eh - 1;
     }
 
     if ( obj->style->scroll_width == 0 ) return M_OK;
 
-    h = b->position.height - 2;
-    sh = h / len;
-
-    if ( sh < 5 )    {
-        y = cu_id * (h + sh - 5) / len;
-        sh = 5;
-    }  else {
-        y = cu_id * (h) / len;
-    }
-
-    y += b->position.real_y + 1;
-
-    drawing_scroll( obj, th, &y, &h );
+  //  drawing_scroll( obj, th, &y, &h );
 
     return M_OK;
 }

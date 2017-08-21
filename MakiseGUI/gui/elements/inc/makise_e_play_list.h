@@ -34,9 +34,7 @@ typedef struct {
     uint32_t                    scroll_color;
 
 
-    MakiseStyleTheme_PlayList  normal;
-    MakiseStyleTheme_PlayList  focused;
-    MakiseStyleTheme_PlayList  active;
+    MakiseStyleTheme_PlayList   theme;
 } MakiseStyle_PlayList;
 
 typedef struct {
@@ -44,38 +42,41 @@ typedef struct {
     uint32_t                    font_line_spacing;
 
     MakiseStyleTheme_PlayList   normal;
-    MakiseStyleTheme_PlayList   focused;
-    MakiseStyleTheme_PlayList   active;
+    MakiseStyleTheme_PlayList   play;
+    MakiseStyleTheme_PlayList   selected;
 } MakiseStyle_PlayListItem;
 
 typedef struct _MPlayList_Item MPlayList_Item;
 typedef struct _MPlayList_Item{
     char                        name[256];
-    uint32_t                    len_item_sec;
+    char                        time[ 2 + 1 + 2 + 1 + 2 + 1 ];  // Max: 99:99:59\0. HH:MM:SS\0.
+                                                                // Example: 1:20:0\0 1:14:2\0 1:08\0
 
     MPlayList_Item*             prev;
     MPlayList_Item*             next;
 
-    uint32_t                    id;             // Custom id, if NOT is_array, else - position in the array (will be computed automatically by PlayList).
+    // 0 - normal, 1 - play, 2 - selected.
+    uint8_t                     stait;
+    uint32_t                    id;
 } MPlayList_Item;
 
 typedef struct _MPlayList MPlayList;
 typedef struct {
-    void        ( *item_selected )     ( MPlayList *obj, MPlayList_Item* selected_item );
-    void        ( *item_click )        ( MPlayList *obj, MPlayList_Item* selected_item );
-    uint32_t    ( *get_file_count_of_dir)    ( char* dir );
+    MPlayList_Item* ( *create_array_item )          ( uint32_t len );
+    void            ( *item_selected )              ( MPlayList_Item* selected_item );
+    void            ( *get_item_click )             ( MPlayList_Item* selected_item );
+    void            ( *get_item_name_and_time )     ( MPlayList_Item* selected_item, uint32_t treck_number );
+    uint32_t        ( *get_file_count_of_dir)       ( char* dir );
 } MPlayList_CallbackFunc;
 
 typedef struct _MPlayList {
     MElement                    e;
     char*                       header_text;
 
-    MPlayList_Item*             item_list;
-    uint8_t                     is_array;       // If 1 then items will be
-    uint32_t                    len;            // matters only if is_array.
-
+    MPlayList_Item*             item_array;
+    uint32_t                    item_array_len;
+    uint32_t                    eh;             // Height one string list for lcd.
     MPlayList_Item*             selected;
-    uint32_t                    state;          // Focus state.
 
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     uint8_t                     started;        // Was pressing already started
@@ -84,14 +85,14 @@ typedef struct _MPlayList {
     MPlayList_Item*             sitem;          // Focused item when pressing was started.
 #endif
 
-    MPlayList_CallbackFunc*     f_array;        // User function.
+    MPlayList_CallbackFunc*     f_array;            // User function.
 
     MakiseStyle_PlayList*       style;
     MakiseStyle_PlayListItem*   item_style;
 
     char*                       current_dir;
     uint32_t                    file_count_of_dir;
-
+    uint32_t                    focus_file_number;  // Focus state.
 } MPlayList;
 
 void m_create_play_list     ( MPlayList*                obj_struct,
@@ -101,14 +102,7 @@ void m_create_play_list     ( MPlayList*                obj_struct,
                               char*                     current_dir,
                               MPlayList_CallbackFunc*   user_func,
                               MakiseStyle_PlayList*     style,
-                              MakiseStyle_PlayListItem* item_style);
-
-void m_play_list_add                    ( MPlayList *obj, MPlayList_Item* item );                     // Add one item to the list at the end. Only if NOT is_array.
-void m_play_list_clear                  ( MPlayList *obj );                                           // Clear all pointers.
-void m_play_list_remove                 ( MPlayList *obj, MPlayList_Item* item );                     // Remove item from linked list. Only if NOT is_array.
-void m_play_list_set_array              ( MPlayList *obj, MPlayList_Item* array, uint32_t len );      // Set new data source. Simple array.
-void m_play_list_set_list               ( MPlayList *obj, MPlayList_Item* first );                    // Set linked list as new data source.
-
+                              MakiseStyle_PlayListItem* item_style );
 
 /*
 // Update data item.
