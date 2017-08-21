@@ -419,60 +419,61 @@ static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
 	switch ( data.event ) {
 	case M_INPUT_PRESSING:                                          // If mouse button is pressing.
 	    if ( l->started ) {                                         // If press is already started
-		//int32_t dx = data.cursor.x - l->sx;
-		int32_t dy = data.cursor.y - l->sy;
-		int32_t eh = l->item_style->font->height +
-		    l->item_style->font_line_spacing + 3;                   // height of one item
+            //int32_t dx = data.cursor.x - l->sx;
+            int32_t dy = data.cursor.y - l->sy;
+            int32_t eh = l->item_style->font->height +
+                l->item_style->font_line_spacing + 3;                   // height of one item
 
-		float cf = (float)dy / (float)eh;                       // how many items need to scroll
-		if ( eh * l->len > b->position.height * 1.5f )          // if there are many items - we'll speedup scrolling
-		    cf *= 1.8f;
-		int32_t c = cf;
+            float cf = (float)dy / (float)eh;                       // how many items need to scroll
+            if ( eh * l->len > b->position.height * 1.5f )          // if there are many items - we'll speedup scrolling
+                cf *= 1.8f;
+            int32_t c = cf;
 
-		if(l->is_array) {                                       //if array then just compute new index
-		    MSList_Item *it = l->selected;
-		    if ( c < 0 ) {
-			if ( l->sitem->id >= -c )
-			    l->selected = &l->items[l->sitem->id + c];
-			else
-			    l->selected = l->items;
-		    } else {
-			if( l->sitem->id + c < l->len )
-			    l->selected = &l->items[l->sitem->id + c];
-			else
-			    l->selected = &l->items[l->len - 1];
-		    }
-		    if ( it != l->selected ) {
-			//send selected event before
-			if ( l->onselection != 0 )
-			    l->onselection(l, l->selected);
-		    }
-		} else {
-		    int32_t i = c < 0 ? -c : c;
-		    MSList_Item *it = l->sitem;
-		    while ( i > 0 ) {
-			if ( c < 0 ) {
-			    if(it->prev == 0) break;
-			    it = it->prev;
-			} else {
-			    if ( it->next == 0 ) break;
-			    it = it->next;
-			}
-			i --;
-		    }
+            if(l->is_array) {                                       //if array then just compute new index
+                MSList_Item *it = l->selected;
+                if ( c < 0 ) {
+                    if ( l->sitem->id >= -c )
+                        l->selected = &l->items[l->sitem->id + c];
+                    else
+                        l->selected = l->items;
+                } else {
+                    if( l->sitem->id + c < l->len )
+                        l->selected = &l->items[l->sitem->id + c];
+                    else
+                        l->selected = &l->items[l->len - 1];
+                }
 
-		    if( l->selected != it ) {
-			l->selected = it;
-			//send selected event before
-			if ( l->onselection != 0 )
-			    l->onselection(l, l->selected);
-		    }
-		}
+                if ( it != l->selected ) {
+                //send selected event before
+                    if ( l->onselection != 0 )
+                        l->onselection(l, l->selected);
+                }
+            } else {
+                int32_t i = c < 0 ? -c : c;
+                MSList_Item *it = l->sitem;
+                while ( i > 0 ) {
+                    if ( c < 0 ) {
+                        if(it->prev == 0) break;
+                        it = it->prev;
+                    } else {
+                        if ( it->next == 0 ) break;
+                        it = it->next;
+                    }
+                    i --;
+                }
+
+                if( l->selected != it ) {
+                    l->selected = it;
+                    //send selected event before
+                    if ( l->onselection != 0 )
+                        l->onselection(l, l->selected);
+                }
+            }
 	    } else {                                                         //first touch
-		l->sx = data.cursor.x;
-		l->sy = data.cursor.y;
-		l->sitem = l->selected;
-		l->started = 1;
+            l->sx = data.cursor.x;
+            l->sy = data.cursor.y;
+            l->sitem = l->selected;
+            l->started = 1;
 	    }
 	    return M_INPUT_HANDLED;
 
@@ -508,57 +509,57 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
 	if ( data.event == M_INPUT_CLICK ) {
 	    switch ( data.key ) {
 	    case M_KEY_DOWN:
-		if ( e->is_array) {
-		    MSList_Item *n = 0;
-		    for ( uint32_t i = 0; i < e->len; i++ ) {
-			e->items[i].id = i;
-			if ( i == (e->selected->id + 1 ) )
-			    n = &e->items[i];
-		    }
+            if ( e->is_array ) {
+                MSList_Item *n = 0;
+                for ( uint32_t i = 0; i < e->len; i++ ) {
+                    e->items[i].id = i;
+                    if ( i == ( e->selected->id + 1 ) )
+                        n = &e->items[i];
+                }
 
-		    if ( n != 0)
-			e->selected = n;
-		    else
-			e->selected = e->items;
-		} else {
-		    if(e->selected->next != 0)
-			e->selected = e->selected->next;
-		    else
-			e->selected = e->items;
-		}
-		handled = 1;
-		break;
+                if ( n != 0)
+                    e->selected = n;
+                else
+                    e->selected = e->items;
+            } else {
+                if(e->selected->next != 0)
+                    e->selected = e->selected->next;
+                else
+                    e->selected = e->items;
+            }
+            handled = 1;
+            break;
 
 	    case M_KEY_UP:
-		if ( e->is_array ) {
-		    MSList_Item *n = 0;
-		    for ( uint32_t i = 0; i < e->len; i++ ) {
-			e->items[i].id = i;
-			if ( i == ( e->selected->id - 1 ) )
-			    n = &e->items[i];
-		    }
-		    if ( n != 0 )
-			e->selected = n;
-		    else
-			e->selected = &e->items[e->len - 1];
-		} else {
-		    if(e->selected->prev != 0) {
-			e->selected = e->selected->prev;
-		    } else {
-			MSList_Item *n = e->items;
-			while ( n->next != 0 )
-			    n = n->next;
-			e->selected = n;
-		    }
-		}
-		handled = 1;
-		break;
+            if ( e->is_array ) {
+                MSList_Item *n = 0;
+                for ( uint32_t i = 0; i < e->len; i++ ) {
+                    e->items[i].id = i;
+                if ( i == ( e->selected->id - 1 ) )
+                    n = &e->items[i];
+                }
+                if ( n != 0 )
+                    e->selected = n;
+                else
+                    e->selected = &e->items[e->len - 1];
+            } else {
+                if(e->selected->prev != 0) {
+                    e->selected = e->selected->prev;
+                } else {
+                    MSList_Item *n = e->items;
+                    while ( n->next != 0 )
+                        n = n->next;
+                    e->selected = n;
+                }
+            }
+            handled = 1;
+            break;
 	    default: break;
 	    }
 
-	    //send selected event before
+        // Send selected event before
 	    if ( e->onselection != 0 && last_item != e->selected )
-		e->onselection(e, e->selected);
+            e->onselection(e, e->selected);
 
 	    if ( data.key == M_KEY_OK ) {
             if(e->selected != 0)
