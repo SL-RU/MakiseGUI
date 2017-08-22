@@ -226,7 +226,7 @@ static uint8_t draw ( MElement* b ) {
 
     uint32_t y_scroll       = obj->e.position.real_y + obj->style->font->height + 4;
     uint32_t field_height   = obj->e.position.height - obj->style->font->height - 4;
-    uint32_t scroll_height  = ( field_height - 2 )/ obj->item_array_len;                // 2 line for line frame.
+    uint32_t scroll_height  = field_height / obj->file_count_of_dir;                // 2 line for line frame.
     drawing_scroll( obj, field_height, y_scroll, y_scroll + scroll_height * obj->selected->id + 1, scroll_height );
 
     return M_OK;
@@ -237,7 +237,11 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
     MPlayList *obj = ( MPlayList* )b->data;
     switch ( data.key ) {
     case M_KEY_DOWN:
-
+        if ( obj->selected->id < obj->item_array_len - 1 ) {
+            obj->selected->stait = 0;
+            obj->selected = obj->selected->next;
+            obj->selected->stait = 2;
+        }
         return M_INPUT_HANDLED;
     case M_KEY_UP:
 
