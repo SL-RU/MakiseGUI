@@ -13,6 +13,7 @@ extern "C" {
 //**********************************************************************
 static uint8_t              draw    ( MElement* b );
 static MInputResultEnum     input   ( MElement* b,   MInputData data );
+static MFocusEnum           focus   ( MElement* b,   MFocusEnum act );
 
 // Set new data source. Simple array.
 void m_play_list_init_item_array ( MPlayList_Item *array, uint32_t len ) {
@@ -48,7 +49,7 @@ void m_create_play_list ( MPlayList*                obj_struct,
                        0,
                        0,
                        &input,
-                       NULL,
+                       &focus,
                        0, 0);
 
     obj_struct->header_text             = header_text;
@@ -232,7 +233,24 @@ static uint8_t draw ( MElement* b ) {
 }
 
 static MInputResultEnum input ( MElement* b, MInputData data ) {
+    if ( data.event != M_INPUT_CLICK ) return M_INPUT_NOT_HANDLED;
+    MPlayList *obj = ( MPlayList* )b->data;
+    switch ( data.key ) {
+    case M_KEY_DOWN:
 
+        return M_INPUT_HANDLED;
+    case M_KEY_UP:
+
+        return M_INPUT_HANDLED;
+    }
+    return M_INPUT_NOT_HANDLED;
+}
+
+static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
+    MPlayList* e = b->data;
+    return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT )
+        ? M_G_FOCUS_NOT_NEEDED
+        : M_G_FOCUS_OK;
 }
 
 #ifdef __cplusplus

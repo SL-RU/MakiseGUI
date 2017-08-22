@@ -273,7 +273,7 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
 	return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT )
 	    ? M_G_FOCUS_NOT_NEEDED
 	    : M_G_FOCUS_OK;
-    }
+}
 
 static void input_item ( MSList *e, MSList_Item *it ) {
 	switch ( e->type ) {
