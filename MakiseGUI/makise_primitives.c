@@ -44,10 +44,10 @@ void makise_d_rect( MakiseBuffer* b,
         y = 0;
     }
 
-    if ( x + w >= b->width )
-        w = b->width - x - 1;
-    if(y + h >= b->height)
-        h = b->height - y - 1;
+    if ( x + w > b->width )
+        w = b->width - x;
+    if(y + h > b->height)
+        h = b->height - y;
     
     if(w == 0 || h == 0)
     return;
