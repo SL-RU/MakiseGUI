@@ -12,7 +12,6 @@ extern "C" {
 // Private functions ( Prototype ).
 //**********************************************************************
 static uint8_t              draw    ( MElement* b );
-static MFocusEnum           focus   ( MElement* b,   MFocusEnum act );
 static MInputResultEnum     input   ( MElement* b,   MInputData data );
 
 // Set new data source. Simple array.
@@ -49,7 +48,7 @@ void m_create_play_list ( MPlayList*                obj_struct,
                        0,
                        0,
                        &input,
-                       &focus,
+                       NULL,
                        0, 0);
 
     obj_struct->header_text             = header_text;
@@ -64,8 +63,11 @@ void m_create_play_list ( MPlayList*                obj_struct,
                                           2 +        // 2 line board.
                                           2;         // 2 space line.
 
-    obj_struct->item_array_len          = pos.height / ( obj_struct->eh - 1 );  // Count of elements on the screen.
-                                                                                // One line total.
+    // Count of elements on the screen. One line total.
+    obj_struct->item_array_len          = pos.height;
+    obj_struct->item_array_len         -= ( header_text != NULL ) ? obj_struct->style->font->height + 4 : 0;
+    obj_struct->item_array_len         /= ( obj_struct->eh - 1 );
+
 
     obj_struct->item_array              = user_func->create_array_item( obj_struct->item_array_len );
     m_play_list_init_item_array( obj_struct->item_array, obj_struct->item_array_len );
@@ -108,10 +110,21 @@ static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_P
                           x, y, w, eh,
                           c_th->border_c, c_th->bg_color);
 
+    uint32_t time_width;
+    time_width = makise_d_string_width( pl_i->time, MDTextAll, obj->item_style->font );
+
+    makise_d_string_frame( obj->e.gui->buffer,                                                  // Draw time string.
+                           pl_i->time, MDTextAll,
+                           w - time_width, y + 2,
+                           time_width, eh,
+                           obj->item_style->font,
+                           obj->item_style->font_line_spacing,
+                           c_th->font_col );
+
     makise_d_string_frame( obj->e.gui->buffer,
                            pl_i->name, MDTextAll,
                            x + 2, y + 2,
-                           w - 4, eh,
+                           w - 4 - time_width, eh,
                            obj->item_style->font,
                            obj->item_style->font_line_spacing,
                            c_th->font_col );
@@ -146,20 +159,23 @@ static void header_text_draw ( const MPlayList* obj, const int16_t* x, int16_t* 
     return;
 }
 
-static void drawing_scroll ( const MPlayList* obj, const MakiseStyleTheme_PlayList* th, const int16_t* y_pos, const uint32_t* h_scroll ) {
+static void drawing_scroll ( const MPlayList* obj, uint32_t field_h, uint32_t field_y, const uint32_t y_pos, const uint32_t h_scroll ) {
     if ( obj->style->scroll_width != 0 ) {
+        MakiseStyleTheme_PlayList* th = &obj->style->theme;
+
         makise_d_rect_filled( obj->e.gui->buffer,
-                  obj->e.position.real_x + obj->e.position.width - obj->style->scroll_width, obj->e.position.real_y,
+                  obj->e.position.real_x + obj->e.position.width - obj->style->scroll_width,
+                  field_y,
                   obj->style->scroll_width,
-                  obj->e.position.height,
+                  field_h,
                   th->border_c,
                   obj->style->scroll_bg_color );
 
         makise_d_rect_filled( obj->e.gui->buffer,
                   obj->e.position.real_x + obj->e.position.width - obj->style->scroll_width,
-                  *y_pos,
+                  y_pos,
                   obj->style->scroll_width,
-                  *h_scroll,
+                  h_scroll,
                   th->border_c,
                   obj->style->scroll_color );
     }
@@ -171,13 +187,8 @@ static void drawing_scroll ( const MPlayList* obj, const MakiseStyleTheme_PlayLi
 //**********************************************************************
 static uint8_t draw ( MElement* b ) {
     MPlayList *obj = ( MPlayList* )b->data;
-    /*
-    MakiseStyleTheme_PlayList *th    = obj->state ? &obj->style->focused : &obj->style->normal;
-    MakiseStyleTheme_PlayList *i_foc = obj->state ? &obj->item_style->focused : &obj->item_style->active;
-    MakiseStyleTheme_PlayList *i_nom = &obj->item_style->normal,*/
 
     MakiseStyleTheme_PlayList* st = &obj->style->theme;
-    _m_e_helper_draw_box_param( b->gui->buffer, &b->position, st->border_c, st->bg_color, st->double_border );
 
     int16_t     y       = b->position.real_y;
     int16_t     x       = b->position.real_x  + obj->style->left_margin;
@@ -185,8 +196,8 @@ static uint8_t draw ( MElement* b ) {
                 w      += ( obj->style->scroll_width != 0 ) ? 1 : 0;
     uint32_t    h       = b->position.height;
 
+    _m_e_helper_draw_box_param( b->gui->buffer, &b->position, st->border_c, st->bg_color, st->double_border );
     header_text_draw( obj, &x, &y, &obj->eh, &h );                   // Draw header.
-    uint32_t    scroll_y    = y;
 
     for ( uint32_t i = 0; i < obj->item_array_len; i++ ) {
         switch ( obj->item_array[ i ].stait ) {
@@ -200,15 +211,24 @@ static uint8_t draw ( MElement* b ) {
         y += obj->eh - 1;
     }
 
+
+    // If overlap occurs, the frame is more important.
+    st = &obj->style->theme;
+    makise_d_rect( b->gui->buffer,
+                   b->position.real_x,
+                   b->position.real_y,
+                   b->position.width,
+                   b->position.height,
+                   st->border_c );
+
     if ( obj->style->scroll_width == 0 ) return M_OK;
 
-  //  drawing_scroll( obj, th, &y, &h );
+    uint32_t y_scroll       = obj->e.position.real_y + obj->style->font->height + 4;
+    uint32_t field_height   = obj->e.position.height - obj->style->font->height - 4;
+    uint32_t scroll_height  = ( field_height - 2 )/ obj->item_array_len;                // 2 line for line frame.
+    drawing_scroll( obj, field_height, y_scroll, y_scroll + scroll_height * obj->selected->id + 1, scroll_height );
 
     return M_OK;
-}
-
-static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
-
 }
 
 static MInputResultEnum input ( MElement* b, MInputData data ) {
