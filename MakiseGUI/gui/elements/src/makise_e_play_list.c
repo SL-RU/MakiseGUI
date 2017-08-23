@@ -90,6 +90,7 @@ void m_create_play_list ( MPlayList*                obj_struct,
     uint32_t selected_track = 0;
     for ( uint32_t i_loop = 0; i_loop < obj_struct->item_array_len ; i_loop++ ) {
         obj_struct->f_array->get_item_name_and_time( &obj_struct->item_array[ i_loop ], selected_track );
+        obj_struct->item_array[ i_loop ].real_number_track = selected_track;
         selected_track++;
     }
 
@@ -116,7 +117,7 @@ static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_P
 
     makise_d_string_frame( obj->e.gui->buffer,                                                  // Draw time string.
                            pl_i->time, MDTextAll,
-                           w - time_width, y + 2,
+                           w - time_width - 1, y + 2,
                            time_width, eh,
                            obj->item_style->font,
                            obj->item_style->font_line_spacing,
@@ -226,8 +227,8 @@ static uint8_t draw ( MElement* b ) {
 
     uint32_t y_scroll       = obj->e.position.real_y + obj->style->font->height + 4;
     uint32_t field_height   = obj->e.position.height - obj->style->font->height - 4;
-    uint32_t scroll_height  = field_height / obj->file_count_of_dir;                // 2 line for line frame.
-    drawing_scroll( obj, field_height, y_scroll, y_scroll + scroll_height * obj->selected->id + 1, scroll_height );
+    uint32_t scroll_height  = ( field_height - 2 ) / obj->file_count_of_dir;                // 2 line for line frame.
+    drawing_scroll( obj, field_height, y_scroll, y_scroll + (scroll_height + 1 )* obj->selected->real_number_track + 1, scroll_height );
 
     return M_OK;
 }
@@ -237,12 +238,32 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
     MPlayList *obj = ( MPlayList* )b->data;
     switch ( data.key ) {
     case M_KEY_DOWN:
+        // Move the scroll in the visible part of the screen.
         if ( obj->selected->id < obj->item_array_len - 1 ) {
             obj->selected->stait = 0;
             obj->selected = obj->selected->next;
             obj->selected->stait = 2;
+            return M_INPUT_HANDLED;
         }
-        return M_INPUT_HANDLED;
+
+        // Shift the elements up. The upper one is lost.
+        if ( obj->selected->real_number_track < obj->file_count_of_dir - 1 ) {
+            char* b_char_name = obj->item_array[ 0 ].name;
+            char* b_char_time = obj->item_array[ 0 ].time;
+
+            for ( uint32_t p_l = 1; p_l < obj->item_array_len; p_l++ ) {
+                obj->item_array[ p_l - 1 ].name                 = obj->item_array[ p_l ].name;
+                obj->item_array[ p_l - 1 ].time                 = obj->item_array[ p_l ].time;
+                obj->item_array[ p_l - 1 ].real_number_track    = obj->item_array[ p_l ].real_number_track;
+            }
+
+            obj->item_array[ obj->item_array_len - 1 ].name = b_char_name;
+            obj->item_array[ obj->item_array_len - 1 ].time = b_char_time;
+
+            obj->f_array->get_item_name_and_time( &obj->item_array[ obj->item_array_len - 1 ], obj->selected->real_number_track + 1 );
+            obj->item_array[ obj->item_array_len - 1 ].real_number_track = obj->selected->real_number_track + 1;
+        }
+
     case M_KEY_UP:
 
         return M_INPUT_HANDLED;

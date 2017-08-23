@@ -46,12 +46,14 @@ typedef struct {
     MakiseStyleTheme_PlayList   selected;
 } MakiseStyle_PlayListItem;
 
+// [256]
+// [ 2 + 1 + 2 + 1 + 2 + 1 ]
 typedef struct _MPlayList_Item MPlayList_Item;
 typedef struct _MPlayList_Item{
-    char                        name[256];
-    char                        time[ 2 + 1 + 2 + 1 + 2 + 1 ];  // Max: 99:99:59\0. HH:MM:SS\0.
+    char*                       name;                           // 255 char + 1 zero (256 char string).
+    char*                       time;                           // Max: 99:99:59\0. HH:MM:SS\0 (9 char string).
                                                                 // Example: 1:20:0\0 1:14:2\0 1:08\0
-
+    uint32_t                    real_number_track;              // The track number in your list. 0..MAX_UINT32_T.
     MPlayList_Item*             prev;
     MPlayList_Item*             next;
 
