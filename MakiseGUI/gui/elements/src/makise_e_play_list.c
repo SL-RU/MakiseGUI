@@ -184,6 +184,27 @@ static void drawing_scroll ( const MPlayList* obj, uint32_t field_h, uint32_t fi
 
 }
 
+static void array_reset_to_start ( const MPlayList* obj_struct ) {
+    for ( uint32_t i_loop = 0; i_loop < obj_struct->item_array_len ; i_loop++ ) {
+        obj_struct->f_array->get_item_name_and_time( &obj_struct->item_array[ i_loop ], i_loop );
+        obj_struct->item_array[ i_loop ].real_number_track = i_loop;
+    }
+}
+
+static void array_reset_to_end ( const MPlayList* obj_struct ) {
+    if ( obj_struct->file_count_of_dir <= obj_struct->item_array_len ) {
+        array_reset_to_start( obj_struct );
+        return;
+    }
+
+    uint32_t p_track = obj_struct->file_count_of_dir - obj_struct->item_array_len;
+    for ( uint32_t i_loop = 0; i_loop < obj_struct->item_array_len; i_loop++ ) {
+        obj_struct->f_array->get_item_name_and_time( &obj_struct->item_array[ i_loop ], p_track );
+        obj_struct->item_array[ i_loop ].real_number_track = p_track;
+        p_track++;
+    }
+}
+
 //**********************************************************************
 // Private functions ( system ).
 //**********************************************************************
@@ -212,7 +233,6 @@ static uint8_t draw ( MElement* b ) {
 
         y += obj->eh - 1;
     }
-
 
     // If overlap occurs, the frame is more important.
     st = &obj->style->theme;
@@ -262,10 +282,50 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
 
             obj->f_array->get_item_name_and_time( &obj->item_array[ obj->item_array_len - 1 ], obj->selected->real_number_track + 1 );
             obj->item_array[ obj->item_array_len - 1 ].real_number_track = obj->selected->real_number_track + 1;
+
+            return M_INPUT_HANDLED;
         }
 
-    case M_KEY_UP:
+        // Go to the beginning.
+        obj->selected->stait = 0;
+        array_reset_to_start( obj );
+        obj->selected = obj->item_array;
+        obj->selected->stait = 2;
 
+        return M_INPUT_HANDLED;
+
+    case M_KEY_UP:
+        if ( obj->selected != obj->item_array ) {
+            obj->selected->stait = 0;
+            obj->selected = obj->selected->prev;
+            obj->selected->stait = 2;
+            return M_INPUT_HANDLED;
+        }
+
+        if ( obj->selected->real_number_track != 0 ) {
+            char* b_char_name = obj->item_array[ obj->item_array_len - 1 ].name;
+            char* b_char_time = obj->item_array[ obj->item_array_len - 1 ].time;
+
+            for ( uint32_t p_l = obj->item_array_len - 1; p_l > 0; p_l-- ) {
+                obj->item_array[ p_l ].name                 = obj->item_array[ p_l - 1 ].name;
+                obj->item_array[ p_l ].time                 = obj->item_array[ p_l - 1 ].time;
+                obj->item_array[ p_l ].real_number_track    = obj->item_array[ p_l - 1 ].real_number_track;
+            }
+
+            obj->item_array[ 0 ].name = b_char_name;
+            obj->item_array[ 0 ].time = b_char_time;
+
+            obj->f_array->get_item_name_and_time( &obj->item_array[ 0 ], obj->selected->real_number_track - 1 );
+            obj->item_array[ 0 ].real_number_track = obj->selected->real_number_track - 1;
+
+            return M_INPUT_HANDLED;
+        }
+
+        // Go to the ending.
+        obj->selected->stait = 0;
+        array_reset_to_end( obj );
+        obj->selected = &obj->item_array[ obj->item_array_len - 1 ];
+        obj->selected->stait = 2;
         return M_INPUT_HANDLED;
     }
     return M_INPUT_NOT_HANDLED;
