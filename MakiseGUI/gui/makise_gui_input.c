@@ -111,7 +111,7 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
 }
 #endif
 
-void makise_gui_input_perform(MHost *h)
+void makise_gui_input_perform ( MHost *h )
 {
     if(h == 0 ||
        h->input.buf_index == 0)

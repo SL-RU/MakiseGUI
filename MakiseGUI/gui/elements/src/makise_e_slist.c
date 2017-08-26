@@ -6,21 +6,21 @@
 extern "C" {
 #endif
 
-    static uint8_t draw   (MElement* b);
-    static MFocusEnum focus(MElement* b,  MFocusEnum act);
-    static MInputResultEnum input  (MElement* b, MInputData data);
+static uint8_t draw   (MElement* b);
+static MFocusEnum focus(MElement* b,  MFocusEnum act);
+static MInputResultEnum input  (MElement* b, MInputData data);
 
-    static char *name = "SList";
+static char *name = "SList";
 
-    void m_create_slist( MSList*                b,
-			 MContainer*            c,
-			 MPosition              pos,
-			 char*                  text,
-			 void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
-			 void                   ( *click )          ( MSList *l, MSList_Item *selected ),
-			 MSList_Type            type,
-			 MakiseStyle_SList*     style,
-			 MakiseStyle_SListItem* item_style) {
+void m_create_slist( MSList*                b,
+                     MContainer*            c,
+                     MPosition              pos,
+                     char*                  text,
+                     void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
+                     void                   ( *click )          ( MSList *l, MSList_Item *selected ),
+                     MSList_Type            type,
+                     MakiseStyle_SList*     style,
+                     MakiseStyle_SListItem* item_style) {
 	MElement *e = &b->el;
 	m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
 			 1, 1, pos,
@@ -59,7 +59,7 @@ extern "C" {
     }
 
 //draw line frome the list
-    static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
+static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
 
 	makise_d_rect_filled( l->el.gui->buffer,
 			      x, y, w, eh,
@@ -116,7 +116,7 @@ extern "C" {
 			       l->item_style->font,
 			       l->item_style->font_line_spacing,
 			       c_th->font_col );
-    }
+}
 
 static uint8_t draw ( MElement* b ) {
 	MSList *l = (MSList*)b->data;
@@ -263,9 +263,9 @@ static uint8_t draw ( MElement* b ) {
 	}
 
 	return M_OK;
-    }
+}
 
-    static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
+static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
 	MSList* e = b->data;
 	if ( act & M_G_FOCUS_GET )     e->state = 1;
 	if ( act == M_G_FOCUS_LEAVE )  e->state = 0;
@@ -273,9 +273,9 @@ static uint8_t draw ( MElement* b ) {
 	return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT )
 	    ? M_G_FOCUS_NOT_NEEDED
 	    : M_G_FOCUS_OK;
-    }
+}
 
-    static void input_item ( MSList *e, MSList_Item *it ) {
+static void input_item ( MSList *e, MSList_Item *it ) {
 	switch ( e->type ) {
 	case MSList_List:                                       break;
 	case MSList_Checkbox:       it->value = !it->value;     break;
@@ -294,11 +294,10 @@ static uint8_t draw ( MElement* b ) {
 	    it->value = 1;
 	}
 	if ( e->click != 0 ) e->click( e, it );
-    }
+}
 
 #if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
-
-    static uint8_t input_check_item ( MSList_Item *ci, MSList *l, uint32_t x, uint32_t y, uint32_t w, uint32_t eh, int32_t cx, int32_t cy ) {
+static uint8_t input_check_item ( MSList_Item *ci, MSList *l, uint32_t x, uint32_t y, uint32_t w, uint32_t eh, int32_t cx, int32_t cy ) {
 	//printf("check %s\n", ci->text);
 	if ( cx >= x && cx <= x + w &&
 	     cy >= y && cy <= y + eh ) {
@@ -308,9 +307,9 @@ static uint8_t draw ( MElement* b ) {
 	    return 1;
 	}
 	return 0;
-    }
+}
 
-    static MInputResultEnum input_cursor_click ( MSList* l, MElement *b, int32_t cx, int32_t cy ) {
+static MInputResultEnum input_cursor_click ( MSList* l, MElement *b, int32_t cx, int32_t cy ) {
 	if ( !( l->sx + 5 > cx && l->sx - 5 < cx &&
 		l->sy + 5 > cy && l->sy - 5 < cy ) ) // if cursor didnt moved a lot.
 	    return M_INPUT_NOT_HANDLED;
@@ -409,9 +408,9 @@ static uint8_t draw ( MElement* b ) {
 	y += b->position.real_y + 1;
     
 	return M_INPUT_NOT_HANDLED;
-    }
+}
 
-    static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
+static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
 	if(data.key != M_KEY_CURSOR)
 	    return M_INPUT_NOT_HANDLED;
 
@@ -420,60 +419,61 @@ static uint8_t draw ( MElement* b ) {
 	switch ( data.event ) {
 	case M_INPUT_PRESSING:                                          // If mouse button is pressing.
 	    if ( l->started ) {                                         // If press is already started
-		//int32_t dx = data.cursor.x - l->sx;
-		int32_t dy = data.cursor.y - l->sy;
-		int32_t eh = l->item_style->font->height +
-		    l->item_style->font_line_spacing + 3;                   // height of one item
+            //int32_t dx = data.cursor.x - l->sx;
+            int32_t dy = data.cursor.y - l->sy;
+            int32_t eh = l->item_style->font->height +
+                l->item_style->font_line_spacing + 3;                   // height of one item
 
-		float cf = (float)dy / (float)eh;                       // how many items need to scroll
-		if ( eh * l->len > b->position.height * 1.5f )          // if there are many items - we'll speedup scrolling
-		    cf *= 1.8f;
-		int32_t c = cf;
+            float cf = (float)dy / (float)eh;                       // how many items need to scroll
+            if ( eh * l->len > b->position.height * 1.5f )          // if there are many items - we'll speedup scrolling
+                cf *= 1.8f;
+            int32_t c = cf;
 
-		if(l->is_array) {                                       //if array then just compute new index
-		    MSList_Item *it = l->selected;
-		    if ( c < 0 ) {
-			if ( l->sitem->id >= -c )
-			    l->selected = &l->items[l->sitem->id + c];
-			else
-			    l->selected = l->items;
-		    } else {
-			if( l->sitem->id + c < l->len )
-			    l->selected = &l->items[l->sitem->id + c];
-			else
-			    l->selected = &l->items[l->len - 1];
-		    }
-		    if ( it != l->selected ) {
-			//send selected event before
-			if ( l->onselection != 0 )
-			    l->onselection(l, l->selected);
-		    }
-		} else {
-		    int32_t i = c < 0 ? -c : c;
-		    MSList_Item *it = l->sitem;
-		    while ( i > 0 ) {
-			if ( c < 0 ) {
-			    if(it->prev == 0) break;
-			    it = it->prev;
-			} else {
-			    if ( it->next == 0 ) break;
-			    it = it->next;
-			}
-			i --;
-		    }
+            if(l->is_array) {                                       //if array then just compute new index
+                MSList_Item *it = l->selected;
+                if ( c < 0 ) {
+                    if ( l->sitem->id >= -c )
+                        l->selected = &l->items[l->sitem->id + c];
+                    else
+                        l->selected = l->items;
+                } else {
+                    if( l->sitem->id + c < l->len )
+                        l->selected = &l->items[l->sitem->id + c];
+                    else
+                        l->selected = &l->items[l->len - 1];
+                }
 
-		    if( l->selected != it ) {
-			l->selected = it;
-			//send selected event before
-			if ( l->onselection != 0 )
-			    l->onselection(l, l->selected);
-		    }
-		}
+                if ( it != l->selected ) {
+                //send selected event before
+                    if ( l->onselection != 0 )
+                        l->onselection(l, l->selected);
+                }
+            } else {
+                int32_t i = c < 0 ? -c : c;
+                MSList_Item *it = l->sitem;
+                while ( i > 0 ) {
+                    if ( c < 0 ) {
+                        if(it->prev == 0) break;
+                        it = it->prev;
+                    } else {
+                        if ( it->next == 0 ) break;
+                        it = it->next;
+                    }
+                    i --;
+                }
+
+                if( l->selected != it ) {
+                    l->selected = it;
+                    //send selected event before
+                    if ( l->onselection != 0 )
+                        l->onselection(l, l->selected);
+                }
+            }
 	    } else {                                                         //first touch
-		l->sx = data.cursor.x;
-		l->sy = data.cursor.y;
-		l->sitem = l->selected;
-		l->started = 1;
+            l->sx = data.cursor.x;
+            l->sy = data.cursor.y;
+            l->sitem = l->selected;
+            l->started = 1;
 	    }
 	    return M_INPUT_HANDLED;
 
@@ -485,11 +485,11 @@ static uint8_t draw ( MElement* b ) {
 	}
 
 	return M_INPUT_NOT_HANDLED;
-    }
+}
 
 #endif
 
-    static MInputResultEnum input ( MElement* b, MInputData data ) {
+static MInputResultEnum input ( MElement* b, MInputData data ) {
 	MSList *e = ((MSList*)b->data);
 
 	if ( e->items == 0 )
@@ -509,69 +509,69 @@ static uint8_t draw ( MElement* b ) {
 	if ( data.event == M_INPUT_CLICK ) {
 	    switch ( data.key ) {
 	    case M_KEY_DOWN:
-		if ( e->is_array) {
-		    MSList_Item *n = 0;
-		    for ( uint32_t i = 0; i < e->len; i++ ) {
-			e->items[i].id = i;
-			if ( i == (e->selected->id + 1 ) )
-			    n = &e->items[i];
-		    }
+            if ( e->is_array ) {
+                MSList_Item *n = 0;
+                for ( uint32_t i = 0; i < e->len; i++ ) {
+                    e->items[i].id = i;
+                    if ( i == ( e->selected->id + 1 ) )
+                        n = &e->items[i];
+                }
 
-		    if ( n != 0)
-			e->selected = n;
-		    else
-			e->selected = e->items;
-		} else {
-		    if(e->selected->next != 0)
-			e->selected = e->selected->next;
-		    else
-			e->selected = e->items;
-		}
-		handled = 1;
-		break;
+                if ( n != 0)
+                    e->selected = n;
+                else
+                    e->selected = e->items;
+            } else {
+                if(e->selected->next != 0)
+                    e->selected = e->selected->next;
+                else
+                    e->selected = e->items;
+            }
+            handled = 1;
+            break;
 
 	    case M_KEY_UP:
-		if ( e->is_array ) {
-		    MSList_Item *n = 0;
-		    for ( uint32_t i = 0; i < e->len; i++ ) {
-			e->items[i].id = i;
-			if ( i == ( e->selected->id - 1 ) )
-			    n = &e->items[i];
-		    }
-		    if ( n != 0 )
-			e->selected = n;
-		    else
-			e->selected = &e->items[e->len - 1];
-		} else {
-		    if(e->selected->prev != 0) {
-			e->selected = e->selected->prev;
-		    } else {
-			MSList_Item *n = e->items;
-			while ( n->next != 0 )
-			    n = n->next;
-			e->selected = n;
-		    }
-		}
-		handled = 1;
-		break;
+            if ( e->is_array ) {
+                MSList_Item *n = 0;
+                for ( uint32_t i = 0; i < e->len; i++ ) {
+                    e->items[i].id = i;
+                if ( i == ( e->selected->id - 1 ) )
+                    n = &e->items[i];
+                }
+                if ( n != 0 )
+                    e->selected = n;
+                else
+                    e->selected = &e->items[e->len - 1];
+            } else {
+                if(e->selected->prev != 0) {
+                    e->selected = e->selected->prev;
+                } else {
+                    MSList_Item *n = e->items;
+                    while ( n->next != 0 )
+                        n = n->next;
+                    e->selected = n;
+                }
+            }
+            handled = 1;
+            break;
 	    default: break;
 	    }
 
-	    //send selected event before
+        // Send selected event before
 	    if ( e->onselection != 0 && last_item != e->selected )
-		e->onselection(e, e->selected);
+            e->onselection(e, e->selected);
 
 	    if ( data.key == M_KEY_OK ) {
-		if(e->selected != 0)
-		    input_item(e, e->selected);
-		handled = 1;
+            if(e->selected != 0)
+                input_item(e, e->selected);
+            handled = 1;
 	    }
 	}
     
 	return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
-    }
+}
 
-    void m_slist_add( MSList *l, MSList_Item *item ) {
+void m_slist_add( MSList *l, MSList_Item *item ) {
 	if ( l->is_array )  return;
 	if ( l->items == 0 )  {                             //add first item
 	    item->prev      = 0;
@@ -590,15 +590,15 @@ static uint8_t draw ( MElement* b ) {
 	item->next  = 0;
 	item->prev  = it;
 	l->len ++;
-    }
+}
 
-    void m_slist_clear ( MSList *l ) {
-	l->selected = 0;
-	l->is_array = 0;
-	l->items = 0;
-    }
+void m_slist_clear ( MSList *l ) {
+    l->selected = 0;
+    l->is_array = 0;
+    l->items = 0;
+}
 
-    void m_slist_remove ( MSList *l, MSList_Item *item ) {
+void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	if ( l == 0 || item == 0 || l->items == 0 ) return;
 
 	if ( l->items == item ) { //if first element
@@ -617,8 +617,8 @@ static uint8_t draw ( MElement* b ) {
 	    return;
 	}
 
-	if(item->next == 0) {           //if last element
-	    if(item->prev == 0) return; //WTF
+    if( item->next == 0 ) {           //if last element
+        if( item->prev == 0 ) return; //WTF
 	    l->len --;
 	    if(item == l->selected)
 		l->selected = item->prev;
@@ -637,9 +637,9 @@ static uint8_t draw ( MElement* b ) {
 	item->prev = 0;
 	item->next = 0;
 	l->len --;
-    }
+}
 
-    void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
+void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
 	l->items = array;
 	l->len = len;
 	l->selected = array;
@@ -656,9 +656,9 @@ static uint8_t draw ( MElement* b ) {
 
 	    lst = &array[i];
 	}
-    }
+}
 
-    void m_slist_set_list ( MSList *l, MSList_Item *first ) {
+void m_slist_set_list ( MSList *l, MSList_Item *first ) {
 	l->items = first;
 	l->selected = first;
 	l->is_array = 0;
@@ -670,7 +670,7 @@ static uint8_t draw ( MElement* b ) {
 	    l->len ++;
 	    lst = lst->next;
 	}
-    }
+}
 
 #ifdef __cplusplus
 }
