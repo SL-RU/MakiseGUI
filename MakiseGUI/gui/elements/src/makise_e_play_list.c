@@ -327,6 +327,10 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
         obj->selected = &obj->item_array[ obj->item_array_len - 1 ];
         obj->selected->stait = 2;
         return M_INPUT_HANDLED;
+
+    case M_KEY_OK:
+        obj->f_array->item_click( obj->selected );
+        return M_INPUT_HANDLED;
     }
     return M_INPUT_NOT_HANDLED;
 }

@@ -66,7 +66,7 @@ typedef struct _MPlayList MPlayList;
 typedef struct {
     MPlayList_Item* ( *create_array_item )          ( uint32_t len );
     void            ( *item_selected )              ( MPlayList_Item* selected_item );
-    void            ( *get_item_click )             ( MPlayList_Item* selected_item );
+    void            ( *item_click )                 ( MPlayList_Item* click_item );
     void            ( *get_item_name_and_time )     ( MPlayList_Item* selected_item, uint32_t treck_number );
     uint32_t        ( *get_file_count_of_dir)       ( char* dir );
 } MPlayList_CallbackFunc;
