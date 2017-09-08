@@ -57,8 +57,8 @@ typedef struct _MPlayList_Item{
     MPlayList_Item*             prev;
     MPlayList_Item*             next;
 
-    // 0 - normal, 1 - play, 2 - selected.
-    uint8_t                     stait;
+    uint8_t                     play_state;                     // 1 - treck selected how play. 0 - no.
+    uint8_t                     selected_state;                 // 1 - treck selected how selected. 0 - no.
     uint32_t                    id;
 } MPlayList_Item;
 
@@ -66,7 +66,7 @@ typedef struct _MPlayList MPlayList;
 typedef struct {
     MPlayList_Item* ( *create_array_item )          ( uint32_t len );
     void            ( *item_selected )              ( MPlayList_Item* selected_item );
-    void            ( *item_click )                 ( MPlayList_Item* click_item );
+    uint8_t         ( *item_click )                 ( MPlayList_Item* click_item );
     void            ( *get_item_name_and_time )     ( MPlayList_Item* selected_item, uint32_t treck_number );
     uint32_t        ( *get_file_count_of_dir)       ( char* dir );
 } MPlayList_CallbackFunc;
@@ -95,6 +95,7 @@ typedef struct _MPlayList {
     char*                       current_dir;
     uint32_t                    file_count_of_dir;
     uint32_t                    focus_file_number;  // Focus state.
+    int32_t                     play_file_number;   // -1 == no play file.
 } MPlayList;
 
 void m_create_play_list     ( MPlayList*                obj_struct,
