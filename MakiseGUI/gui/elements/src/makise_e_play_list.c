@@ -115,10 +115,10 @@ static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_P
                           c_th->border_c, c_th->bg_color);
 
     uint32_t time_width;
-    time_width = makise_d_string_width( pl_i->time, MDTextAll, obj->item_style->font );
+    time_width = makise_d_string_width( pl_i->time_string, MDTextAll, obj->item_style->font );
 
     makise_d_string_frame( obj->e.gui->buffer,                                                  // Draw time string.
-                           pl_i->time, MDTextAll,
+                           pl_i->time_string, MDTextAll,
                            w - time_width - 1, y + 2,
                            time_width, eh,
                            obj->item_style->font,
@@ -126,7 +126,7 @@ static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_P
                            c_th->font_col );
 
     makise_d_string_frame( obj->e.gui->buffer,
-                           pl_i->name, MDTextAll,
+                           pl_i->name_string, MDTextAll,
                            x + 2, y + 2,
                            w - 4 - time_width, eh,
                            obj->item_style->font,
@@ -291,17 +291,20 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
 
         // Shift the elements up. The upper one is lost.
         if ( obj->selected->real_number_track < obj->file_count_of_dir - 1 ) {
-            char* b_char_name = obj->item_array[ 0 ].name;
-            char* b_char_time = obj->item_array[ 0 ].time;
+            char* b_char_name = obj->item_array[ 0 ].name_string;
+            char* b_char_time = obj->item_array[ 0 ].time_string;
+            uint32_t time_sec   = obj->item_array[ 0 ].time_sec;
 
             for ( uint32_t p_l = 1; p_l < obj->item_array_len; p_l++ ) {
-                obj->item_array[ p_l - 1 ].name                 = obj->item_array[ p_l ].name;
-                obj->item_array[ p_l - 1 ].time                 = obj->item_array[ p_l ].time;
-                obj->item_array[ p_l - 1 ].real_number_track    = obj->item_array[ p_l ].real_number_track;
+                obj->item_array[ p_l - 1 ].name_string                 = obj->item_array[ p_l ].name_string;
+                obj->item_array[ p_l - 1 ].time_string                 = obj->item_array[ p_l ].time_string;
+                obj->item_array[ p_l - 1 ].real_number_track           = obj->item_array[ p_l ].real_number_track;
+                obj->item_array[ p_l - 1 ].time_sec                    = obj->item_array[ p_l ].time_sec;
             }
 
-            obj->item_array[ obj->item_array_len - 1 ].name = b_char_name;
-            obj->item_array[ obj->item_array_len - 1 ].time = b_char_time;
+            obj->item_array[ obj->item_array_len - 1 ].name_string = b_char_name;
+            obj->item_array[ obj->item_array_len - 1 ].time_string = b_char_time;
+            obj->item_array[ obj->item_array_len - 1 ].time_sec    = time_sec;
 
             obj->f_array->get_item_name_and_time( &obj->item_array[ obj->item_array_len - 1 ], obj->selected->real_number_track + 1 );
             obj->item_array[ obj->item_array_len - 1 ].real_number_track = obj->selected->real_number_track + 1;
@@ -330,17 +333,19 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
         }
 
         if ( obj->selected->real_number_track != 0 ) {
-            char* b_char_name = obj->item_array[ obj->item_array_len - 1 ].name;
-            char* b_char_time = obj->item_array[ obj->item_array_len - 1 ].time;
+            char* b_char_name = obj->item_array[ obj->item_array_len - 1 ].name_string;
+            char* b_char_time = obj->item_array[ obj->item_array_len - 1 ].time_string;
+            uint32_t time_sec = obj->item_array[ obj->item_array_len - 1 ].time_sec;
 
             for ( uint32_t p_l = obj->item_array_len - 1; p_l > 0; p_l-- ) {
-                obj->item_array[ p_l ].name                 = obj->item_array[ p_l - 1 ].name;
-                obj->item_array[ p_l ].time                 = obj->item_array[ p_l - 1 ].time;
+                obj->item_array[ p_l ].name_string                 = obj->item_array[ p_l - 1 ].name_string;
+                obj->item_array[ p_l ].time_string                 = obj->item_array[ p_l - 1 ].time_string;
                 obj->item_array[ p_l ].real_number_track    = obj->item_array[ p_l - 1 ].real_number_track;
             }
 
-            obj->item_array[ 0 ].name = b_char_name;
-            obj->item_array[ 0 ].time = b_char_time;
+            obj->item_array[ 0 ].name_string = b_char_name;
+            obj->item_array[ 0 ].time_string = b_char_time;
+            obj->item_array[ 0 ].time_sec    = time_sec;
 
             obj->f_array->get_item_name_and_time( &obj->item_array[ 0 ], obj->selected->real_number_track - 1 );
             obj->item_array[ 0 ].real_number_track = obj->selected->real_number_track - 1;

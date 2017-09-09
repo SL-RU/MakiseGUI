@@ -131,6 +131,12 @@ uint32_t makise_d_string_height_get ( char*             s,
     uint32_t    makise_d_utf_char_font  ( uint32_t c, const MakiseFont *font);
 #endif //unicode
 
+//**********************************************************************
+// Convert the time represented in seconds to hours:minutes:seconds
+// (HH:MM:SS).
+//**********************************************************************
+void convert_time_sec_to_char ( uint32_t time_sec, char* array );
+
 #ifdef __cplusplus
 }
 #endif //cpp

@@ -473,3 +473,30 @@ uint32_t    makise_d_utf_char_font  ( uint32_t c, const MakiseFont *font)
 }
 
 #endif //unicode
+
+static void uint_to_2_char ( uint32_t* number, char* const p ) {
+    *p          = *number / 10 + '0';
+    *(p + 1)    = *number % 10 + '0';
+}
+
+// Convert the time represented in seconds to hours:minutes:seconds (HH:MM:SS).
+void convert_time_sec_to_char ( uint32_t time_sec, char* array ) {
+    const uint32_t one_min  = 60;
+    const uint32_t one_hour = 60 * one_min;
+
+    // Convert sec on hours, minutes and seconds.
+    uint32_t hour       = 0;
+    uint32_t min        = 0;
+    uint32_t sec        = time_sec;
+
+    hour      = sec / one_hour;
+    sec      -= hour * one_hour;
+
+    min       = sec / one_min;
+    sec      -= min * one_min;
+
+    uint_to_2_char( &hour, &array[0] );
+    uint_to_2_char( &min, &array[3] );
+    uint_to_2_char( &sec, &array[6] );
+}
+
