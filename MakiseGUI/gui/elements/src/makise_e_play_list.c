@@ -76,6 +76,7 @@ void m_create_play_list ( MPlayList*                obj_struct,
     obj_struct->selected                    = obj_struct->item_array;
     obj_struct->selected->selected_state    = 1;
     obj_struct->focus_file_number           = 0;
+    obj_struct->play_file_number            = -1;       // No play track.
 
 #if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
     obj_struct->started                 = 0;
