@@ -107,6 +107,8 @@ void m_create_play_list     ( MPlayList*                obj_struct,
                               MakiseStyle_PlayList*     style,
                               MakiseStyle_PlayListItem* item_style );
 
+void m_click_play_list      ( MPlayList* b, MInputKeyEnum key );
+
 /*
 // Update data item.
 void m_play_list_item_data_update ( MPlayList_Item* item, char* name_track, uint32_t time_sec ) {

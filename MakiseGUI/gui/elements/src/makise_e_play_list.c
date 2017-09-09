@@ -266,6 +266,13 @@ static void update_play_state ( MPlayList *obj ) {
     }
 }
 
+void m_click_play_list ( MPlayList* b, MInputKeyEnum key ) {
+    MInputData  in_data;
+    in_data.key         = key;
+    in_data.event       = M_INPUT_CLICK;
+    input( &b->e, in_data );
+}
+
 static MInputResultEnum input ( MElement* b, MInputData data ) {
     if ( data.event != M_INPUT_CLICK ) return M_INPUT_NOT_HANDLED;
     MPlayList *obj = ( MPlayList* )b->data;
