@@ -11,8 +11,8 @@ static uint8_t draw    ( MElement* b );
 static char name[] = "Play bar";
 static char init_char_array[9] = "00:00:00";
 
-void m_create_play_bar ( MPlayBar*                      b,
-                         MContainer*                    c,
+void m_create_play_bar ( MContainer*                    c,
+                         MPlayBar*                      b,
                          MPosition                      pos,
                          uint8_t                        margin_play_bar,
                          MakiseStyle_PlayBar*           style ) {

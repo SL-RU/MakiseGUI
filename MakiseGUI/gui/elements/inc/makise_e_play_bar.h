@@ -33,8 +33,8 @@ typedef struct {
     uint32_t                        pb_width;
 } MPlayBar;
 
-void m_create_play_bar ( MPlayBar*                      b,
-                         MContainer*                    c,
+void m_create_play_bar ( MContainer*                    c,
+                         MPlayBar*                      b,
                          MPosition                      pos,
                          uint8_t                        margin_play_bar,
                          MakiseStyle_PlayBar*           style );
