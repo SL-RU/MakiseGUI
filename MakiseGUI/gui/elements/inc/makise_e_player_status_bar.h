@@ -18,7 +18,6 @@ typedef struct {
     const uint32_t                border_color;
 } MakiseStyle_SMPlayerStatusBar;
 
-
 typedef struct {
     uint32_t ( *get_state_play )          ( void );
     uint32_t ( *get_percent_battery )     ( void );
@@ -31,10 +30,13 @@ typedef struct {
 } MPlayerStatusBar;
 
 void m_create_player_status_bar( MPlayerStatusBar*              b,
-                                 MContainer*                    c,
+                                 MakiseGUI*                     gui,
                                  MPosition                      pos,
                                  MakiseStyle_SMPlayerStatusBar* s,
                                  MPlayerStatusBar_CallbackFunc* f );
+
+void m_player_status_bar_add_to_container( MContainer*         c,
+                                           MPlayerStatusBar*   b );
 
 #ifdef __cplusplus
 }

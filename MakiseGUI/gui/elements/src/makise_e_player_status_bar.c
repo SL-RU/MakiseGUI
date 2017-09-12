@@ -6,17 +6,17 @@
 extern "C" {
 #endif
 
-static uint8_t draw   (MElement* b);
+static uint8_t draw ( MElement* b );
 
 static char *name = "PlayerStatusBar";
 
 void m_create_player_status_bar( MPlayerStatusBar*              b,
-                                 MContainer*                    c,
+                                 MakiseGUI*                     gui,
                                  MPosition                      pos,
                                  MakiseStyle_SMPlayerStatusBar* s,
                                  MPlayerStatusBar_CallbackFunc* f ) {
     MElement *e = &b->e;
-    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+    m_element_create(e, gui, name, b,
              1, 1, pos,
              &draw,
              0,
@@ -28,11 +28,15 @@ void m_create_player_status_bar( MPlayerStatusBar*              b,
     b->s = s;
     b->f = f;
 
-    makise_g_cont_add(c, e);
-
 #if ( MAKISE_ENABLE_DEBUG_OUTPUT > 0 )
     MAKISE_DEBUG_OUTPUT( "PlayerStatusBar %d created\n", e->id );
 #endif
+}
+
+void m_player_status_bar_add_to_container( MContainer*         c,
+                                           MPlayerStatusBar*   b ) {
+    MElement *e = &b->e;
+    makise_g_cont_add( c, e );
 }
 
 static uint8_t draw ( MElement* b ) {
