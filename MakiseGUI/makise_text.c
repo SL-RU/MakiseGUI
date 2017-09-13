@@ -238,7 +238,7 @@ uint32_t    makise_d_string_get_line_count (
  * @param font font
  * @return pointer tobeginning og n's line
  */
-char *     makise_d_string_get_line (
+char* makise_d_string_get_line (
                                      char *s,
                                      uint32_t len,
 				     uint32_t n,
@@ -500,3 +500,27 @@ void convert_time_sec_to_char ( uint32_t time_sec, char* array ) {
     uint_to_2_char( &sec, &array[6] );
 }
 
+void convert_uint32_t_to_string ( uint32_t value, char* array ) {
+    char* p = array;
+    uint32_t dev = 1000000000;
+    uint32_t v = value;
+    uint32_t flag_start_char = 0;
+    for ( int l = 0; l < 9; l++ ) {
+        uint32_t buf = v / dev;
+        if ( flag_start_char != 0 ) {
+             *p = buf + '0';
+             p++;
+        } else {
+            if ( buf != 0 ) {
+                flag_start_char = 0xFFFFFFFF;
+                *p = buf + '0';
+                p++;
+            }
+        }
+        v %= dev;
+        dev /= 10;
+    }
+    *p = v + '0';
+    p++;
+    *p = 0;
+}

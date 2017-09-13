@@ -30,13 +30,11 @@ typedef struct {
 } MPlayerStatusBar;
 
 void m_create_player_status_bar( MPlayerStatusBar*              b,
-                                 MakiseGUI*                     gui,
+                                 MContainer*                    c,
                                  MPosition                      pos,
                                  MakiseStyle_SMPlayerStatusBar* s,
                                  MPlayerStatusBar_CallbackFunc* f );
 
-void m_player_status_bar_add_to_container( MContainer*         c,
-                                           MPlayerStatusBar*   b );
 
 #ifdef __cplusplus
 }

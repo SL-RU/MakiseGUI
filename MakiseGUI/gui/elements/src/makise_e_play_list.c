@@ -249,10 +249,15 @@ static uint8_t draw ( MElement* b ) {
 
     if ( obj->style->scroll_width == 0 ) return M_OK;
 
-    uint32_t y_scroll       = obj->e.position.real_y + obj->style->font->height + 4;
-    uint32_t field_height   = obj->e.position.height - obj->style->font->height - 4;
+    uint32_t y_scroll = obj->e.position.real_y;
+
+    if ( obj->header_text != NULL ) {
+        y_scroll += obj->style->font->height + 4;
+    }
+
+    uint32_t field_height   = obj->e.position.height;
     uint32_t scroll_height  = ( field_height - 2 ) / obj->file_count_of_dir;                // 2 line for line frame.
-    drawing_scroll( obj, field_height, y_scroll, y_scroll + (scroll_height + 1 )* obj->selected->real_number_track + 1, scroll_height );
+    drawing_scroll( obj, field_height, y_scroll, y_scroll + scroll_height * obj->selected->real_number_track + 1, scroll_height );
 
     return M_OK;
 }

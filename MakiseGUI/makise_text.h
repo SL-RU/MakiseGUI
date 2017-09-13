@@ -137,6 +137,7 @@ uint32_t makise_d_string_height_get ( char*             s,
 //**********************************************************************
 void convert_time_sec_to_char ( uint32_t time_sec, char* array );
 
+void convert_uint32_t_to_string ( uint32_t value, char* array );
 #ifdef __cplusplus
 }
 #endif //cpp
