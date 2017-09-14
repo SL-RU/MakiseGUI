@@ -68,8 +68,8 @@ def img_to_code(im):
             bits.append(sg)
             sg = ""
         rgb = im.getpixel((i % im.width, i/im.width))
-        ou += "#" if rgb > 100 else " "
-        sg += "1" if rgb > 100 else "0"
+        ou += "#" if rgb < 100 else " "
+        sg += "1" if rgb < 100 else "0"
 
     if i % 8 != 0:
         while i % 8 != 0:
