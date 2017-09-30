@@ -333,7 +333,32 @@ uint32_t fsviewer_count_files ( char* path )
 {
     uint32_t count = 0;
 
-#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_STDIO
+#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
+    DIR dir;
+    static FILINFO fno;
+    FRESULT res;
+
+    if(path == 0)
+	res = f_opendir(&dir, "");
+    else
+	res = f_opendir(&dir, path);
+    //printf("opdir %d\n", res);
+    if (res == FR_OK) {
+    res = f_readdir( &dir, NULL );
+	for (;;) {
+	    res = f_readdir(&dir, &fno);                   /* Read a directory item */
+	    printf("%d %d %s\n", count, res, fno.fname);
+	    
+	    if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
+	    count ++;
+	}
+	f_closedir(&dir);
+    }
+    else
+    {
+	printf("opendir err %d\n", res);
+    }
+#else //STDIO
     DIR * dirp;
     struct dirent * entry;
 
@@ -354,24 +379,6 @@ uint32_t fsviewer_count_files ( char* path )
     
     //printf("file count: %d\n", count);
     closedir(dirp);
-#else //FATFS
-    DIR dir;
-    static FILINFO fno;
-    FRESULT res;
-    
-    res = f_opendir(&dir, path);                       /* Open the directory */
-    //printf("opdir %d\n", res);
-    if (res == FR_OK) {
-    res = f_readdir( &dir, NULL );
-	for (;;) {
-	    res = f_readdir(&dir, &fno);                   /* Read a directory item */
-	    //printf("%d %d %s\n", count, res, fno.fname);
-	    
-	    if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-	    count ++;
-	}
-	f_closedir(&dir);
-    }
 #endif    
     return count;
 }
@@ -385,9 +392,9 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     uint8_t isroot = f_getcwd(bu, 5);
     isroot = (bu[0] == '/') && (bu[1] == 0);
     //printf("root %s| %d\n", bu, isroot);
-    l->files_count = fsviewer_count_files( l->path );
+    l->files_count = fsviewer_count_files(0);
 
-    //printf("files coint: %d\n", count);
+    printf("files coint: %d\n", l->files_count);
     
     //calculate chunk's start position
     if ( required_id >= FM_BUFFERED / 2 ) {
@@ -419,6 +426,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	strcpy(l->buffer[0].name, "..");
 	strcpy(l->buffer[0].fname, "..");
 	l->buffer[0].am_dir = 1;
+	l->files_count ++;
     }
     
     res = f_opendir(&dir, "");                       /* Open current directory */
@@ -426,7 +434,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	l->current_folder = dir.obj.sclust; //set current dir
 	sel_dir = l->current_folder == l->selected_folder; //is current dir the selected
 	
-	//printf("sclust %d\n", dir.obj.sclust);
+	printf("sclust %d\n", dir.obj.sclust);
         for (;;) {
 	    if(ci >= l->current_chunk_position)
 	    {
@@ -436,10 +444,10 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	    }
             res = f_readdir(&dir, &fno);                   /* Read a directory item */
             if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-	    //printf("cl %d %s ", ci, fno.fname);
+	    printf("cl %d %s ", ci, fno.fname);
 	    if(ci >= l->current_chunk_position)
 	    {
-		//printf("buf %d\n", bi);
+		printf("buf %d\n", bi);
 		//if(fno.lfname[0] == 0)
 		strcpy(l->buffer[bi].name, fno.fname);
 		strcpy(l->buffer[bi].fname, fno.altname);
@@ -450,8 +458,8 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		l->buffer[bi].id = ci;
 		bi ++;
 	    }
-	    //else
-	    //printf("\n");
+	    else
+		printf("\n");
 	    ci ++;
 	    if(bi >= FM_BUFFERED)
 		break;
