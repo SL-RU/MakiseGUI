@@ -78,6 +78,10 @@ typedef struct _MElement {
 
     uint8_t                 is_parent;      // Is element parent(contains other elements.
     MContainer*             children;       // Only if element is parent.
+
+#if MAKISE_MUTEX
+    MAKISE_MUTEX_t mutex;
+#endif    
 } MElement;
 
 void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,

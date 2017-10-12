@@ -19,7 +19,9 @@ typedef struct _MContainer
     MElement*       first; //pointer to the first element or 0 if container is empty
     MElement*       last; //pointer to the last element
     MElement*       focused; //pointer to the focused element. Element must be in the container
-    
+#if MAKISE_MUTEX
+    MAKISE_MUTEX_t mutex;
+#endif    
 //    void (*on_add)(MElement* el);
 } MContainer;
 

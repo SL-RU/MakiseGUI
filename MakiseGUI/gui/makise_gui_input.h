@@ -81,6 +81,10 @@ typedef struct _MInputHostData
                              // second - is cursor input allowed for this session
     MInputCursorEvent last;
 #endif    
+
+#if MAKISE_MUTEX
+    MAKISE_MUTEX_t mutex;
+#endif
     
 } MInputHostData;
     

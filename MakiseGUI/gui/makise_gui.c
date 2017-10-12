@@ -15,8 +15,11 @@ void makise_gui_init ( MHost* host )
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     inp->cursor_session = 0;
     inp->last = (MInputCursorEvent){0};
-#endif    
-
+#endif
+    
+#if MAKISE_MUTEX
+    m_mutex_create(&inp->mutex);
+#endif
 }
 
 

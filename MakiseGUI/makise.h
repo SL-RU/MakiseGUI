@@ -39,6 +39,14 @@ typedef struct _MakiseDriver MakiseDriver;
 #ifndef MAKISEGUI_DISPLAY_INVERTED
 #define MAKISEGUI_DISPLAY_INVERTED 0
 #endif
+
+#if defined(MAKISE_MUTEX) && MAKISE_MUTEX
+#define MAKISE_MUTEX_REQUEST(x) m_mutex_request_grant(x)
+#define MAKISE_MUTEX_RELEASE(x) m_mutex_release_grant(x)    
+#else
+#define MAKISE_MUTEX_REQUEST(...)
+#define MAKISE_MUTEX_RELEASE(...)    
+#endif
     
 typedef struct
 {

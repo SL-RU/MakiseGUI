@@ -1,4 +1,4 @@
-#ifndef MAKISE_CONFIG_H
+v#ifndef MAKISE_CONFIG_H
 #define MAKISE_CONFIG_H
 #include <stdio.h>
 
@@ -36,8 +36,30 @@
 #define MAKISE_E_TEXT_FIELD        1
 #define MAKISE_E_TOGGLE            1
 #define MAKISE_E_FSVIEWER          MAKISE_E_FSVIEWER_FATFS
+//or #define MAKISE_E_FSVIEWER          MAKISE_E_FSVIEWER_STDIO
 #define MAKISE_UNICODE             1
 #define MAKISE_DISPLAY_INVERTED    0
+
+#define MAKISE_MUTEX               0
+
+#if MAKISE_MUTEX
+#include "FreeRTOS.h"
+#include "semphr.h"
+#define MAKISE_MUTEX_t       xSemaphoreHandle //change for your OS
+#define MAKISE_MUTEX_TIMEOUT 1000
+
+//implement this functions for your OS
+
+//create mutex object
+uint8_t m_mutex_create (MAKISE_MUTEX_t *sobj);
+//delete mutex
+uint8_t m_mutex_delete (MAKISE_MUTEX_t *sobj);
+//Request Grant to Access some object
+uint8_t m_mutex_request_grant (MAKISE_MUTEX_t *sobj);
+//Release Grant to Access the Volume
+uint8_t m_mutex_release_grant (MAKISE_MUTEX_t *sobj);
+#endif
+
 
 
 #ifdef MAKISE_ILI9340_USE
