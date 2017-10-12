@@ -204,13 +204,13 @@ int32_t makise_g_cont_contains(MContainer * cont, MElement *el)
     if(el->parent == 0 || //if element has no parent
        el->parent != cont) //if element's parent isn't requested container
     {
-	MAKISE_MUTEX_RELEASE(&e1->mutex);
-	MAKISE_MUTEX_RELEASE(&e2->mutex);
+	MAKISE_MUTEX_RELEASE(&cont->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex);
 	return -1;
     }
     
-    MAKISE_MUTEX_RELEASE(&e1->mutex);
-    MAKISE_MUTEX_RELEASE(&e2->mutex);
+    MAKISE_MUTEX_RELEASE(&cont->mutex);
+    MAKISE_MUTEX_RELEASE(&el->mutex);
     return makise_g_cont_index(el);
 }
 int32_t makise_g_cont_index(MElement *el)
@@ -225,10 +225,10 @@ int32_t makise_g_cont_index(MElement *el)
 	MAKISE_MUTEX_RELEASE(&el->mutex);
 	return -1;
     }
-    MAKISE_MUTEX_REQUEST(&el->parent.mutex);
+    MAKISE_MUTEX_REQUEST(&el->parent->mutex);
     if(el->parent->first == 0)
     {
-	MAKISE_MUTEX_RELEASE(&el->parent.mutex);
+	MAKISE_MUTEX_RELEASE(&el->parent->mutex);
 	MAKISE_MUTEX_RELEASE(&el->mutex);
 	return -1;
     }
@@ -239,7 +239,7 @@ int32_t makise_g_cont_index(MElement *el)
     while (e != 0) {
 	if(e == el)
 	{
-	    MAKISE_MUTEX_RELEASE(&el->parent.mutex);
+	    MAKISE_MUTEX_RELEASE(&el->parent->mutex);
 	    MAKISE_MUTEX_RELEASE(&el->mutex);
 	    return i;
 	}
@@ -250,7 +250,7 @@ int32_t makise_g_cont_index(MElement *el)
 	
 	i++;
     }
-    MAKISE_MUTEX_RELEASE(&el->parent.mutex);
+    MAKISE_MUTEX_RELEASE(&el->parent->mutex);
     MAKISE_MUTEX_RELEASE(&el->mutex);
     return -1;
 }
