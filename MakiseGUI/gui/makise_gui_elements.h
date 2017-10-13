@@ -58,10 +58,6 @@ typedef struct _MElement {
     uint32_t                id;             // Unique id.
     char*                   name;
     
-    MElement*               prev;           // Previous if exists.
-    MElement*               next;           // Next element if exists.
-    MContainer*             parent;         // Parent element, if exists.
-
     uint8_t                 enabled;        // If enabled - methods will be executed.
     MPosition               position;       // Relative position of the element.
 
@@ -78,9 +74,13 @@ typedef struct _MElement {
 
     uint8_t                 is_parent;      // Is element parent(contains other elements.
     MContainer*             children;       // Only if element is parent.
+    MElement*               prev;           // Previous if exists.
+    MElement*               next;           // Next element if exists.
+    MContainer*             parent;         // Parent element, if exists.
 
 #if MAKISE_MUTEX
-    MAKISE_MUTEX_t mutex;
+    MAKISE_MUTEX_t mutex_cont; //mutex for is_parent, children, prev, next & parent
+    MAKISE_MUTEX_t mutex;      //mutex for everything else
 #endif    
 } MElement;
 

@@ -19,7 +19,7 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
     if(cont == 0 || el == 0)
 	return;
     MAKISE_MUTEX_REQUEST(&cont->mutex);
-    MAKISE_MUTEX_REQUEST(&el->mutex);
+    MAKISE_MUTEX_REQUEST(&el->mutex_cont);
     el->parent = cont;
     el->gui = cont->gui;
     if(cont->first == 0) //empty conainer
@@ -31,7 +31,7 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
 	el->prev = 0;
 
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	return;
     }
     MElement *m = cont->last;
@@ -40,18 +40,18 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
     el->next = 0;
     cont->last = el;
     MAKISE_MUTEX_RELEASE(&cont->mutex);
-    MAKISE_MUTEX_RELEASE(&el->mutex);	
+    MAKISE_MUTEX_RELEASE(&el->mutex_cont);	
 }
 void makise_g_cont_rem(MElement *el)
 {
     if(el == 0)
 	return;
 
-    MAKISE_MUTEX_REQUEST(&el->mutex);
+    MAKISE_MUTEX_REQUEST(&el->mutex_cont);
     
     if(el->parent == 0)
     {
-	MAKISE_MUTEX_RELEASE(&el->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	return;
     }
     MContainer *c = el->parent;
@@ -86,7 +86,7 @@ void makise_g_cont_rem(MElement *el)
 	c->last = c->first = 0;
 	el->next = el->prev = 0;
     }
-    MAKISE_MUTEX_RELEASE(&el->mutex);
+    MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 }
 void makise_g_cont_clear(MContainer *c)
 {
@@ -102,11 +102,12 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 {
     if(cont == 0 || el == 0)
 	return -1;
-    MAKISE_MUTEX_REQUEST(&cont->mutex);
-    MAKISE_MUTEX_REQUEST(&el->mutex);
 
     makise_g_cont_rem(el); //remove element from previous parent
 
+    MAKISE_MUTEX_REQUEST(&cont->mutex);
+    MAKISE_MUTEX_REQUEST(&el->mutex_cont);
+    
     uint32_t i = 0;
 
     if(index == 0 || cont->first == 0) //required index is 0 or if there is no elements in container
@@ -122,7 +123,7 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	cont->first->prev = el;
 	cont->first = el;
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	return 0;
     }
     
@@ -148,7 +149,7 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	    }
 	    e->next = el;
 	    MAKISE_MUTEX_RELEASE(&cont->mutex);
-	    MAKISE_MUTEX_RELEASE(&el->mutex);
+	    MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	    return i;
 	}
 	if(e->next == 0) //if element is last
@@ -160,57 +161,59 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	    el->next = 0;
 	    el->prev = e;
 	    MAKISE_MUTEX_RELEASE(&cont->mutex);
-	    MAKISE_MUTEX_RELEASE(&el->mutex);
+	    MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	    return i;
 	}
 	e = e->next;
     }
     MAKISE_MUTEX_RELEASE(&cont->mutex);
-    MAKISE_MUTEX_RELEASE(&el->mutex);
+    MAKISE_MUTEX_RELEASE(&el->mutex_cont);
     return -1;
 }
 void makise_g_cont_replace(MElement *e1, MElement *e2)
 {
     if(e1 == 0 || e2 == 0 || e1 == e2)
 	return;
-    MAKISE_MUTEX_REQUEST(&e1->mutex);
-    MAKISE_MUTEX_REQUEST(&e2->mutex);
+    MAKISE_MUTEX_REQUEST(&e1->mutex_cont);
+    MAKISE_MUTEX_REQUEST(&e2->mutex_cont);
     
     if(e1->parent == 0 || e2->parent == 0)
     {
-	MAKISE_MUTEX_RELEASE(&e1->mutex);
-	MAKISE_MUTEX_RELEASE(&e2->mutex);
+	MAKISE_MUTEX_RELEASE(&e1->mutex_cont);
+	MAKISE_MUTEX_RELEASE(&e2->mutex_cont);
 	return;
     }
 
-    uint32_t i1 = makise_g_cont_index(e1),
-	i2 = makise_g_cont_index(e2);
     MContainer *p1 = e1->parent,
 	*p2 = e2->parent;
+    
+    MAKISE_MUTEX_RELEASE(&e1->mutex_cont);
+    MAKISE_MUTEX_RELEASE(&e2->mutex_cont);	
 
+    
+    uint32_t i1 = makise_g_cont_index(e1),
+	i2 = makise_g_cont_index(e2);
     makise_g_cont_insert(p1, e2, i1);
     makise_g_cont_insert(p2, e1, i2);
     
-    MAKISE_MUTEX_RELEASE(&e1->mutex);
-    MAKISE_MUTEX_RELEASE(&e2->mutex);	
 }
 int32_t makise_g_cont_contains(MContainer * cont, MElement *el)
 {
     if(cont == 0 || el == 0)
 	return -1;
     MAKISE_MUTEX_REQUEST(&cont->mutex);
-    MAKISE_MUTEX_REQUEST(&el->mutex);
+    MAKISE_MUTEX_REQUEST(&el->mutex_cont);
 
     if(el->parent == 0 || //if element has no parent
        el->parent != cont) //if element's parent isn't requested container
     {
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	return -1;
     }
     
     MAKISE_MUTEX_RELEASE(&cont->mutex);
-    MAKISE_MUTEX_RELEASE(&el->mutex);
+    MAKISE_MUTEX_RELEASE(&el->mutex_cont);
     return makise_g_cont_index(el);
 }
 int32_t makise_g_cont_index(MElement *el)
@@ -218,40 +221,39 @@ int32_t makise_g_cont_index(MElement *el)
     if(el == 0)
 	return -1;
     
-    MAKISE_MUTEX_REQUEST(&el->mutex);
+    MAKISE_MUTEX_REQUEST(&el->mutex_cont); //block element cont
 
     if(el->parent == 0)
     {
-	MAKISE_MUTEX_RELEASE(&el->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont); //release element cont
 	return -1;
     }
     MAKISE_MUTEX_REQUEST(&el->parent->mutex);
     if(el->parent->first == 0)
     {
 	MAKISE_MUTEX_RELEASE(&el->parent->mutex);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont); //release element cont
 	return -1;
     }
 
     uint32_t i = 0;
     MElement *e = el->parent->first, *ep;
+    MAKISE_MUTEX_RELEASE(&el->mutex_cont); //release element cont
     
     while (e != 0) {
 	if(e == el)
 	{
 	    MAKISE_MUTEX_RELEASE(&el->parent->mutex);
-	    MAKISE_MUTEX_RELEASE(&el->mutex);
 	    return i;
 	}
-	MAKISE_MUTEX_REQUEST(&e->mutex);
+	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	ep = e;
 	e = e->next;
-	MAKISE_MUTEX_RELEASE(&ep->mutex);
+	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 	
 	i++;
     }
     MAKISE_MUTEX_RELEASE(&el->parent->mutex);
-    MAKISE_MUTEX_RELEASE(&el->mutex);
     return -1;
 }
 
@@ -259,8 +261,8 @@ int32_t makise_g_cont_index(MElement *el)
 uint8_t makise_g_cont_call_common_predraw(MElement *b)
 {
     if(b == 0)
-	return M_ZERO_POINTER;;
-    MAKISE_MUTEX_REQUEST(&b->mutex);
+	return M_ZERO_POINTER;
+
     uint32_t px = 0, py = 0,
 	pw = b->position.width, ph = b->position.height;
 
@@ -302,7 +304,6 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
 	    b->position.height = 0;
     	break;
     }
-    MAKISE_MUTEX_RELEASE(&b->mutex);
     return M_OK;
 }
 uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
@@ -318,10 +319,10 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
 
     if(cont->el != 0) //container itself
     {
-	MAKISE_MUTEX_REQUEST(&cont->el->mutex);
+	MAKISE_MUTEX_REQUEST(&cont->el->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(cont->el);
-	MAKISE_MUTEX_RELEASE(&cont->el->mutex);
+	MAKISE_MUTEX_RELEASE(&cont->el->mutex_cont);
 //	m_element_call(cont->el, type);
     }
     
@@ -329,13 +330,13 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
 
     while(e != 0)
     {
-	MAKISE_MUTEX_REQUEST(&e->mutex);
+	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(e);
 	m_element_call(e, type);
 	ep = e;
 	e = e->next;
-	MAKISE_MUTEX_RELEASE(&ep->mutex);
+	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
     }
     MAKISE_MUTEX_RELEASE(&cont->mutex);
     return M_OK;
@@ -352,10 +353,10 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
     
     if(cont->focused != 0)
     {
-	MAKISE_MUTEX_REQUEST(&cont->focused->mutex);
+	MAKISE_MUTEX_REQUEST(&cont->focused->mutex_cont);
 	MInputResultEnum r
 	    = cont->focused->input(cont->focused, data);
-	MAKISE_MUTEX_RELEASE(&cont->focused->mutex);
+	MAKISE_MUTEX_RELEASE(&cont->focused->mutex_cont);
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	return r;
     }
