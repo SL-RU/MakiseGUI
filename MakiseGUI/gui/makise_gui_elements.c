@@ -43,7 +43,10 @@ uint8_t m_element_call(MElement* el, uint8_t type)
 {
     if(el == 0)
 	return M_ZERO_POINTER;
-
+    
+    MAKISE_MUTEX_REQUEST(&el->mutex);
+    uint8_t result;
+    
     if(type == M_G_CALL_DRAW && el->draw != 0)
     {
 	MakiseBufferBorderData d =makise_add_border(el->gui->buffer,
@@ -53,15 +56,24 @@ uint8_t m_element_call(MElement* el, uint8_t type)
 							    el->position.width,
 							    el->position.height,
 							    0, 0});
-	uint8_t r = el->draw(el);
+	result = el->draw(el);
 	makise_rem_border(el->gui->buffer, d);
-	return r;
+	MAKISE_MUTEX_RELEASE(&el->mutex);
+	return result;
     }
     if(type == M_G_CALL_PREDRAW && el->predraw != 0)
-	return el->predraw(el);
+    {
+ 	result = el->predraw(el);
+	MAKISE_MUTEX_RELEASE(&el->mutex);
+	return result;
+    }
     if(type == M_G_CALL_UPDATE && el->update != 0)
-	return el->update(el);
-
+    {
+	result = el->update(el);
+	MAKISE_MUTEX_RELEASE(&el->mutex);
+	return result;
+    }
+    MAKISE_MUTEX_RELEASE(&el->mutex);
     return M_ERROR;
 }
 

@@ -55,13 +55,7 @@ typedef struct _MPosition {
 typedef struct _MElement {
     MakiseGUI*              gui;            // Current gui.
 
-    uint32_t                id;             // Unique id.
-    char*                   name;
-    
-    uint8_t                 enabled;        // If enabled - methods will be executed.
     MPosition               position;       // Relative position of the element.
-
-    uint8_t                 focus_prior;    // Relative position in focus queu. 0 means focus doesn't required.
     
     void*                   data;
 
@@ -72,14 +66,20 @@ typedef struct _MElement {
     MFocusEnum              ( *focus )      ( MElement* el, MFocusEnum act );
     
 
-    uint8_t                 is_parent;      // Is element parent(contains other elements.
-    MContainer*             children;       // Only if element is parent.
-    MElement*               prev;           // Previous if exists.
-    MElement*               next;           // Next element if exists.
-    MContainer*             parent;         // Parent element, if exists.
+    uint8_t       is_parent;      // Is element parent(contains other elements.
+    MContainer*   children;       // Only if element is parent.
+    MElement*     prev;           // Previous if exists.
+    MElement*     next;           // Next element if exists.
+    MContainer*   parent;         // Parent element, if exists.
+    uint8_t       enabled;        // If enabled - methods will be executed.
+    uint8_t       focus_prior;    // Relative position in focus queu. 0 means focus doesn't required.
+    uint32_t      id;             // Unique id.
+    char*         name;
+    
+
 
 #if MAKISE_MUTEX
-    MAKISE_MUTEX_t mutex_cont; //mutex for is_parent, children, prev, next & parent
+    MAKISE_MUTEX_t mutex_cont; //mutex for is_parent, children, prev, next, enabled, focus prior, name, id & parent
     MAKISE_MUTEX_t mutex;      //mutex for everything else
 #endif    
 } MElement;

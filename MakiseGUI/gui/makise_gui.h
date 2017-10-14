@@ -40,6 +40,10 @@ typedef struct _MHost
 {
     MContainer *host;
     MInputHostData input;
+#if MAKISE_MUTEX
+    MAKISE_MUTEX_t mutex;
+#endif    
+
 } MHost;
 
 void makise_gui_init(MHost *host);

@@ -263,6 +263,8 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
     if(b == 0)
 	return M_ZERO_POINTER;
 
+    MAKISE_MUTEX_REQUEST(&b->mutex);
+    
     uint32_t px = 0, py = 0,
 	pw = b->position.width, ph = b->position.height;
 
@@ -304,6 +306,7 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
 	    b->position.height = 0;
     	break;
     }
+    MAKISE_MUTEX_RELEASE(&b->mutex);
     return M_OK;
 }
 uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
@@ -322,7 +325,7 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
 	MAKISE_MUTEX_REQUEST(&cont->el->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(cont->el);
-	MAKISE_MUTEX_RELEASE(&cont->el->mutex_cont);
+	MAKISE_MUTEX_RELEASE(&cont->el->mutex);
 //	m_element_call(cont->el, type);
     }
     
@@ -372,7 +375,9 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
 				    uint8_t first)
 {
     uint8_t f = 1; //if current element is parent - we need to try switch it
+    MElement *ep;
     while (e != 0) {
+	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	if(e->enabled && e->focus_prior != 0)
 	{
 	    //element is enabled && it requires focus
@@ -398,10 +403,12 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
 	    }
 	    f = 0; //first element was tested
 	}
+	ep = e;
 	if(next)
 	    e = e->next;
 	else
 	    e = e->prev;
+	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
     }
     return M_G_FOCUS_NOT_NEEDED;
 }
@@ -418,6 +425,7 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 {
     if(cont == 0)
 	return M_ZERO_POINTER;
+    MAKISE_MUTEX_REQUEST(&cont->mutex);
     if(cont->first == 0)
 	return M_G_FOCUS_NOT_NEEDED;
     
@@ -430,10 +438,13 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	e = cont->focused;
 	first = 0;
     }
-    
+
     //try to focus next element
     if(_makise_g_cont_focus_ord(e, next, first) == M_G_FOCUS_OK)
+    {
+	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	return M_G_FOCUS_OK;
+    }
     
     //if no more elements can switch focus
     if(cont->el == 0)
@@ -444,9 +455,11 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	    e = cont->first;
 	else
 	    e = cont->last;
+	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	//try again
 	return _makise_g_cont_focus_ord(e, next, 1);
     }
+    MAKISE_MUTEX_RELEASE(&cont->mutex);
     return M_G_FOCUS_NOT_NEEDED;
 }
 MFocusEnum makise_g_cont_focus_next(MContainer *cont)
@@ -462,9 +475,10 @@ void makise_g_cont_focus_leave(MContainer *cont)
 {
     if(cont == 0)
 	return;
+    MAKISE_MUTEX_REQUEST(&cont->mutex);
     if(cont->focused == 0)
 	return;
-
+    
     if(cont->focused->is_parent && cont->focused->children != 0)
     {
 	makise_g_cont_focus_leave(cont->focused->children);
@@ -473,19 +487,29 @@ void makise_g_cont_focus_leave(MContainer *cont)
     if(cont->focused->focus != 0)
 	cont->focused->focus(cont->focused, M_G_FOCUS_LEAVE);
     cont->focused = 0;
+    
+    MAKISE_MUTEX_RELEASE(&cont->mutex);
 }
 
 MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y)
 {
-    if(cont == 0 || cont->first == 0)
+    if(cont == 0)
 	return 0;
+    MAKISE_MUTEX_REQUEST(&cont->mutex);
+    if(cont->first == 0)
+    {
+	MAKISE_MUTEX_RELEASE(&cont->mutex);
+	return 0;
+    }
     
     MElement *e = cont->last; //last - means upper in draw queue
+    MElement *ep;
 
-//    printf("point %d %d %d\n", x, y, e);
-    
+
     while(e != 0)
     {
+	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
+	MAKISE_MUTEX_REQUEST(&e->mutex); //because we accessing position
 //	printf("check %d\n", e->id);
 	if(x >= e->position.real_x && x < e->position.real_x + e->position.width &&
 	   y >= e->position.real_y && y < e->position.real_y + e->position.height)
@@ -497,12 +521,25 @@ MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y
 		//if parent
 		if(e->children != 0)
 		{
-		    return makise_g_cont_element_on_point(e->children, x, y);
+		    MElement *el
+			= makise_g_cont_element_on_point(
+			    e->children, x, y);
+		    MAKISE_MUTEX_RELEASE(&cont->mutex);
+		    MAKISE_MUTEX_RELEASE(&e->mutex_cont);
+		    MAKISE_MUTEX_RELEASE(&e->mutex);
+		    return el;
 		}
 	    }
+	    MAKISE_MUTEX_RELEASE(&cont->mutex);
+	    MAKISE_MUTEX_RELEASE(&e->mutex_cont);
+	    MAKISE_MUTEX_RELEASE(&e->mutex);
 	    return e; //element found
 	}
+	ep = e;
 	e = e->prev;
+	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
+	MAKISE_MUTEX_RELEASE(&ep->mutex);
     }
+    MAKISE_MUTEX_RELEASE(&cont->mutex);
     return 0;
 }
