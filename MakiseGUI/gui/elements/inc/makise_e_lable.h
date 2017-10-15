@@ -39,6 +39,11 @@ void m_create_lable( MLable*             b,
                      char*               text,
                      MakiseStyle_Lable*   style );
 
+void m_lable_set_text( MLable *b,
+		       char   *text);
+
+char* m_lable_get_text( MLable *b );
+    
 #ifdef __cplusplus
 }
 #endif

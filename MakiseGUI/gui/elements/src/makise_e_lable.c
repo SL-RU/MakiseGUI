@@ -53,6 +53,27 @@ static uint8_t draw ( MElement* b ) {
     return M_OK;
 }
 
+void m_lable_set_text( MLable *b,
+		       char   *text)
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+
+    b->text = text;
+    
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+}
+
+char* m_lable_get_text( MLable *b )
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+
+    char *t = b->text;
+    
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    
+    return t;
+}
+    
 #ifdef __cplusplus
 }
 #endif

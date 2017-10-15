@@ -66,7 +66,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     {
 	MAKISE_DEBUG_OUTPUT("Focus %d\n", el->id);
 	//if focus need be recieved
-	MElement *e = el;
+	MElement *e = el,
+	    *ep; //element that was mutexed
 
 	MFocusEnum r = 0; //focus result of required element
 	uint8_t was = 0;
@@ -77,11 +78,13 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	while(e != 0)
 	{
 	    MAKISE_MUTEX_REQUEST(&e->mutex_cont);
+	    ep = e;
+	    
 	    if(e->enabled == 0
 	       || e->focus == 0
 	       || e->focus_prior == 0)
 	    {
-		MAKISE_MUTEX_RELEASE(&e->mutex_cont);
+		MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 		return M_G_FOCUS_NOT_NEEDED;
 	    }
 	    
@@ -104,7 +107,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
-			    MAKISE_MUTEX_RELEASE(&e->mutex_cont);
+			    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
@@ -124,7 +127,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
-			    MAKISE_MUTEX_RELEASE(&e->mutex_cont);
+			    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
@@ -132,14 +135,15 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		}
 	    }
 	    
+	    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 	}
-	MAKISE_MUTEX_RELEASE(&e->mutex_cont);
 	return r;
     }
     else if(event == M_G_FOCUS_LEAVE)
     {
 	MAKISE_DEBUG_OUTPUT("Focus leave %d\n", el->id);
-	MElement *e = el;
+	MElement *e = el,
+	    *ep; //element that was mutexed
 
 	MFocusEnum r = 0;
 	uint8_t was = M_G_FOCUS_NOT_NEEDED;
@@ -152,6 +156,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	while(e != 0)
 	{
 	    MAKISE_MUTEX_REQUEST(&e->mutex_cont);
+	    ep = e;
 	    if(e->parent != 0)
 	    {
 		if(e->parent->focused == e)
@@ -164,7 +169,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
-			    MAKISE_MUTEX_RELEASE(&e->mutex_cont);   
+			    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);   
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
@@ -175,8 +180,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	    }
 	    else
 		break;
+	    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);   
 	}
-	MAKISE_MUTEX_RELEASE(&e->mutex_cont);   
 	return r;
     }
     

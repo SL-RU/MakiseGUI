@@ -56,6 +56,10 @@ void m_create_button( MButton*              b,
                       void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
                       MakiseStyle_Button*    style );
 
+void m_button_set_click   (MButton *b, void (*click   )(MButton* b));
+void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data));
+void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type));
+    
 #ifdef __cplusplus
 }
 #endif

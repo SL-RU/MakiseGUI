@@ -99,18 +99,18 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
     return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT ) ? M_G_FOCUS_NOT_NEEDED : M_G_FOCUS_OK;
 }
 
-/* void m_button_set_click   (MButton *b, void (*click   )(MButton* b)) */
-/* { */
-/*     b->click = click; */
-/* } */
-/* void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data)) */
-/* { */
-/*     b->onkey = onkey; */
-/* } */
-/* void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type)) */
-/* { */
-/*     b->onfocus = onfocus; */
-/* } */
+void m_button_set_click   (MButton *b, void (*click   )(MButton* b))
+{
+    b->click = click;
+}
+void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data))
+{
+    b->onkey = onkey;
+}
+void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type))
+{
+    b->onfocus = onfocus;
+}
 
 #ifdef __cplusplus
 }
