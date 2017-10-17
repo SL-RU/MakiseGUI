@@ -19,6 +19,7 @@ void makise_gui_init ( MHost* host )
     
 #if MAKISE_MUTEX
     m_mutex_create(&inp->mutex);
+    m_mutex_create(&host->mutex);
 #endif
 }
 
@@ -32,12 +33,18 @@ uint32_t makise_g_newid()
 
 uint8_t makise_g_host_call   (MHost *host, uint8_t type)
 {
-    return makise_g_cont_call((host->host), type);
+    MAKISE_MUTEX_REQUEST(&host->mutex);
+    uint8_t r = makise_g_cont_call((host->host), type);
+    MAKISE_MUTEX_RELEASE(&host->mutex);
+    return r;
 }
 
 MInputResultEnum makise_g_host_input  (MHost *host, MInputData d)
 {
-    return makise_g_cont_input((host->host), d);
+    MAKISE_MUTEX_REQUEST(&host->mutex);
+    uint8_t r = makise_g_cont_input((host->host), d);
+    MAKISE_MUTEX_RELEASE(&host->mutex);
+    return r;
 }
 
 MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)

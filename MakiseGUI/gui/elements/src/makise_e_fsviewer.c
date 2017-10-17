@@ -4,6 +4,7 @@
 static uint8_t draw   (MElement* b);
 static MFocusEnum focus(MElement* b,  MFocusEnum act);
 static MInputResultEnum input  (MElement* b, MInputData data);
+static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position
 
 static char *name = "MFSViewer";
 
@@ -332,7 +333,7 @@ return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
 uint32_t fsviewer_count_files ( char* path )
 {
     uint32_t count = 0;
-
+    
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
     DIR dir;
     static FILINFO fno;
@@ -385,7 +386,7 @@ uint32_t fsviewer_count_files ( char* path )
 
 
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS        
-void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
+static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 {
     char bu[5] = "";
     //do we need to show [..](go back)
@@ -473,7 +474,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     }    
 }
 #else //STDIO
-void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
+static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 {
     char bu[5] = "";
     //do we need to show [..](go back)
@@ -575,10 +576,14 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 
 void m_fsviewer_deselect(MFSViewer *l)
 {
+    MAKISE_MUTEX_REQUEST(&l->el.mutex);
     l->was_selected = 0;
+    MAKISE_MUTEX_RELEASE(&l->el.mutex);
 }
 
-void fsviewer_open( MFSViewer *l, char* path ) {
+void fsviewer_open( MFSViewer *l, char* path )
+{
+    MAKISE_MUTEX_REQUEST(&l->el.mutex);
     //set path
     l->path = path;
     //go to dir
@@ -596,5 +601,6 @@ void fsviewer_open( MFSViewer *l, char* path ) {
 
     //load first chunk
     m_fsviewer_loadchunk(l, 0);
+    MAKISE_MUTEX_RELEASE(&l->el.mutex);
 }
 #endif

@@ -163,7 +163,7 @@ void m_create_fsviewer( MFSViewer*                  b,
 
 void m_fsviewer_deselect(MFSViewer *l); //deselect all
 void m_fsviewer_refresh(MFSViewer *l); //set linked list as new data source.
-void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position
+//void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position
 
 void fsviewer_open(MFSViewer *l, char *path);
 
