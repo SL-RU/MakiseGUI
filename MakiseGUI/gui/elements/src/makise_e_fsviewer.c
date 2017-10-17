@@ -1,4 +1,5 @@
 #include "makise_e_fsviewer.h"
+#include "task.h"
 
 #if MAKISE_E_FSVIEWER > 0
 static uint8_t draw   (MElement* b);
@@ -116,7 +117,7 @@ static uint8_t draw ( MElement* b ) {
 	*c_th = 0;
     
 
-    //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
+    //MAKISE_DEBUG_OUTPUT("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
     _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
 
     uint32_t i = 0, start = 0, end = 0;
@@ -187,11 +188,11 @@ static uint8_t draw ( MElement* b ) {
         m_fsviewer_loadchunk(l, i);
     }
 
-    //printf("start %d end %d\n", start, end);
+    //MAKISE_DEBUG_OUTPUT("start %d end %d\n", start, end);
     //array
     for ( i = start; i < end; i++ ) {
         ci = &l->buffer[i - l->current_chunk_position];
-        //printf("draw %d %s\n", i, ci->name);
+        //MAKISE_DEBUG_OUTPUT("draw %d %s\n", i, ci->name);
         ci->id = i;
         c_th = (i == l->current_position) ? i_foc : i_nom;
 
@@ -300,7 +301,7 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 	    {
 		e->was_selected = 1;
 		e->selected_folder = e->current_folder;
-		//printf("fileviewer ok  onselection\n");
+		//MAKISE_DEBUG_OUTPUT("fileviewer ok  onselection\n");
 		if(strncmp(e->selected_file, it->name,
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS    
 			   13 ) != 13
@@ -343,12 +344,12 @@ uint32_t fsviewer_count_files ( char* path )
 	res = f_opendir(&dir, "");
     else
 	res = f_opendir(&dir, path);
-    //printf("opdir %d\n", res);
+    //MAKISE_DEBUG_OUTPUT("opdir %d\n", res);
     if (res == FR_OK) {
     res = f_readdir( &dir, NULL );
 	for (;;) {
 	    res = f_readdir(&dir, &fno);                   /* Read a directory item */
-	    printf("%d %d %s\n", count, res, fno.fname);
+	    MAKISE_DEBUG_OUTPUT("%d %d %s\n", count, res, fno.fname);
 	    
 	    if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
 	    count ++;
@@ -357,7 +358,7 @@ uint32_t fsviewer_count_files ( char* path )
     }
     else
     {
-	printf("opendir err %d\n", res);
+	MAKISE_DEBUG_OUTPUT("opendir err %d\n", res);
     }
 #else //STDIO
     DIR * dirp;
@@ -378,7 +379,7 @@ uint32_t fsviewer_count_files ( char* path )
 	    count++;
     }
     
-    //printf("file count: %d\n", count);
+    //MAKISE_DEBUG_OUTPUT("file count: %d\n", count);
     closedir(dirp);
 #endif    
     return count;
@@ -392,10 +393,10 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     //do we need to show [..](go back)
     uint8_t isroot = f_getcwd(bu, 5);
     isroot = (bu[0] == '/') && (bu[1] == 0);
-    //printf("root %s| %d\n", bu, isroot);
+    //MAKISE_DEBUG_OUTPUT("root %s| %d\n", bu, isroot);
     l->files_count = fsviewer_count_files(0);
 
-    printf("files coint: %d\n", l->files_count);
+    MAKISE_DEBUG_OUTPUT("files coint: %d\n", l->files_count);
     
     //calculate chunk's start position
     if ( required_id >= FM_BUFFERED / 2 ) {
@@ -412,7 +413,7 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     } else {
         l->current_chunk_position = 0;
     }
-    //printf("ch st: %d req %d\n", l->current_chunk_position, required_id);
+    //MAKISE_DEBUG_OUTPUT("ch st: %d req %d\n", l->current_chunk_position, required_id);
     FRESULT res;
     DIR dir;
     static FILINFO fno;
@@ -435,7 +436,7 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	l->current_folder = dir.obj.sclust; //set current dir
 	sel_dir = l->current_folder == l->selected_folder; //is current dir the selected
 	
-	printf("sclust %d\n", dir.obj.sclust);
+	MAKISE_DEBUG_OUTPUT("sclust %d\n", dir.obj.sclust);
         for (;;) {
 	    if(ci >= l->current_chunk_position)
 	    {
@@ -445,10 +446,10 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	    }
             res = f_readdir(&dir, &fno);                   /* Read a directory item */
             if (res != FR_OK || fno.fname[0] == 0) break;  /* Break on error or end of dir */
-	    printf("cl %d %s ", ci, fno.fname);
+	    MAKISE_DEBUG_OUTPUT("cl %d %s ", ci, fno.fname);
 	    if(ci >= l->current_chunk_position)
 	    {
-		printf("buf %d\n", bi);
+		MAKISE_DEBUG_OUTPUT("buf %d\n", bi);
 		//if(fno.lfname[0] == 0)
 		strcpy(l->buffer[bi].name, fno.fname);
 		strcpy(l->buffer[bi].fname, fno.altname);
@@ -460,7 +461,7 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		bi ++;
 	    }
 	    else
-		printf("\n");
+		MAKISE_DEBUG_OUTPUT("\n");
 	    ci ++;
 	    if(bi >= FM_BUFFERED)
 		break;
@@ -476,15 +477,16 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 #else //STDIO
 static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 {
+    taskENTER_CRITICAL();
     char bu[5] = "";
     //do we need to show [..](go back)
     getcwd(bu, 5);
     uint8_t isroot = (bu[0] == '/') && (bu[1] == 0);
-    //printf("root %s| %d\n", bu, isroot);
+    //MAKISE_DEBUG_OUTPUT("root %s| %d\n", bu, isroot);
 
     l->files_count = fsviewer_count_files(".") + !isroot;
 
-    //printf("files coint: %d\n", count);
+    //MAKISE_DEBUG_OUTPUT("files coint: %d\n", count);
     
     //calculate chunk's start position
     if(required_id >= FM_BUFFERED/2)
@@ -508,7 +510,7 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     {
 	l->current_chunk_position = 0;
     }
-    //printf("ch st: %d req %d\n", l->current_chunk_position, required_id);
+    //MAKISE_DEBUG_OUTPUT("ch st: %d req %d\n", l->current_chunk_position, required_id);
     //FRESULT res;
     DIR* dir;
     //static struct stat fno;
@@ -527,7 +529,7 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     
     dir = opendir(".");                       /* Open current directory */
     if (dir != 0) {	
-	//printf("sclust %d\n", dir.obj.sclust);
+	//MAKISE_DEBUG_OUTPUT("sclust %d\n", dir.obj.sclust);
         for (;;) {
 	    if(ci >= l->current_chunk_position)
 	    {
@@ -542,11 +544,11 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	       !(entry->d_name[0] == '.' && entry->d_name[1] == 0) &&
 	       !(entry->d_name[0] == '.' && entry->d_name[1] == '.' && entry->d_name[2] == 0))
 	    {
-		//printf("cl %d %s ", ci, fno.fname);
+		//MAKISE_DEBUG_OUTPUT("cl %d %s ", ci, fno.fname);
 		if(ci >= l->current_chunk_position)
 		{
 		    strcpy(l->buffer[bi].name, entry->d_name);
-		    //printf("file %d %s\n", ci, entry->d_name);
+		    //MAKISE_DEBUG_OUTPUT("file %d %s\n", ci, entry->d_name);
 
 		    l->buffer[bi].am_dir = entry->d_type == DT_DIR;
 
@@ -569,7 +571,8 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
     else
     {
 	MAKISE_ERROR_OUTPUT("ERROR while oppenning directory!\n\r");
-    }    
+    }
+    taskEXIT_CRITICAL();
 
 }
 #endif    
@@ -587,8 +590,10 @@ void fsviewer_open( MFSViewer *l, char* path )
     //set path
     l->path = path;
     //go to dir
-#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS    
+#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
+    taskENTER_CRITICAL();
     f_chdir(path);
+    taskEXIT_CRITICAL();
 #else //STDIO
     chdir(path);
 #endif    
