@@ -35,7 +35,9 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
 	return;
     }
     MElement *m = cont->last;
+    MAKISE_MUTEX_REQUEST(&m->mutex_cont);
     m->next = el;
+    MAKISE_MUTEX_RELEASE(&m->mutex_cont);
     el->prev = m;
     el->next = 0;
     cont->last = el;
@@ -56,6 +58,8 @@ void makise_g_cont_rem(MElement *el)
     }
     MContainer *c = el->parent;
 
+    MAKISE_MUTEX_REQUEST(&c->mutex);
+    
     if(c->focused == el) //if element was focused
 	c->focused = 0; //reset focus
     
@@ -86,6 +90,7 @@ void makise_g_cont_rem(MElement *el)
 	c->last = c->first = 0;
 	el->next = el->prev = 0;
     }
+    MAKISE_MUTEX_RELEASE(&c->mutex);
     MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 }
 void makise_g_cont_clear(MContainer *c)

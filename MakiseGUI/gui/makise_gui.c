@@ -54,8 +54,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     
     MAKISE_MUTEX_REQUEST(&el->mutex_cont);
     
-    MContainer *p;
-    if((p = el->parent) == 0)
+    MContainer *p = el->parent;
+    if(p == 0)
     {
 	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	return M_ZERO_POINTER;
@@ -94,16 +94,18 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 		return M_G_FOCUS_NOT_NEEDED;
 	    }
-	    
-	    if(e->parent != 0)
+
+	    p = e->parent;  //element's parent cintainer
+	    if(p != 0)
 	    {
+		MAKISE_MUTEX_REQUEST(&p->mutex);   
 		//if parent isn't null
-		if(e->parent->focused != e)
+		if(p->focused != e)
 		{
-		    makise_g_cont_focus_leave(e->parent);
+		    makise_g_cont_focus_leave(p);
 		}
 		//set new focused
-		e->parent->focused = e;
+		p->focused = e;
 		//send focus event
 		if(e->focus != 0)
 		{
@@ -114,6 +116,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
+			    MAKISE_MUTEX_RELEASE(&p->mutex);	    
 			    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
@@ -123,6 +126,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		
 		//get next element
 		e = e->parent->el;
+		MAKISE_MUTEX_RELEASE(&p->mutex);	    
 	    }
 	    else
 	    {
@@ -164,18 +168,21 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	{
 	    MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	    ep = e;
-	    if(e->parent != 0)
+	    p = e->parent; //element's parent cintainer
+	    if(p != 0)
 	    {
-		if(e->parent->focused == e)
+		MAKISE_MUTEX_REQUEST(&p->mutex);	    
+		if(p->focused == e)
 		{
 		    //if focused e
-		    e->parent->focused = 0;
+		    p->focused = 0;
 		    if(!was)
 		    {
 			r = e->focus(e, event);
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
+			    MAKISE_MUTEX_RELEASE(&p->mutex);
 			    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);   
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
@@ -183,7 +190,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		    else e->focus(e, event);
 		}
 		
-		e = e->parent->el;
+		e = p->el; 
+		MAKISE_MUTEX_RELEASE(&p->mutex);
 	    }
 	    else
 		break;
