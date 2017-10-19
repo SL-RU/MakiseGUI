@@ -101,15 +101,27 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
 
 void m_button_set_click   (MButton *b, void (*click   )(MButton* b))
 {
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
     b->click = click;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
 }
 void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data))
 {
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
     b->onkey = onkey;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
 }
 void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type))
 {
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
     b->onfocus = onfocus;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+}
+void m_button_set_text (MButton *b, char * c)
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    b->text = c;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
 }
 
 #ifdef __cplusplus
