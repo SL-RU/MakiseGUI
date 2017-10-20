@@ -5,7 +5,6 @@ void makise_g_cont_init(MContainer *c)
     c->first = 0;
     c->last = 0;
     c->position = 0;
-    c->gui = 0;
     c->focused = 0;
     c->el = 0;
 #if MAKISE_MUTEX
@@ -21,7 +20,6 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
     MAKISE_MUTEX_REQUEST(&cont->mutex);
     MAKISE_MUTEX_REQUEST(&el->mutex_cont);
     el->parent = cont;
-    el->gui = cont->gui;
     if(cont->first == 0) //empty conainer
     {
 	cont->first = el;
@@ -117,7 +115,6 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 
     if(index == 0 || cont->first == 0) //required index is 0 or if there is no elements in container
     {
-	el->gui = cont->gui;
 	el->parent = cont;
 	el->prev = 0;
 	if(cont->first == 0)
@@ -138,7 +135,6 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	i++;
 	if(i == index) //if it is requested position
 	{
-	    el->gui = cont->gui;
 	    el->parent = cont;
 	    el->next = e->next;
 	    el->prev = e;
@@ -159,7 +155,6 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	}
 	if(e->next == 0) //if element is last
 	{
-	    el->gui = cont->gui;
 	    el->parent = cont;
 	    cont->last = el;
 	    e->next = el;
@@ -270,7 +265,7 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
 
     MAKISE_MUTEX_REQUEST(&b->mutex);
     
-    uint32_t px = 0, py = 0,
+    int32_t px = 0, py = 0,
 	pw = b->position.width, ph = b->position.height;
 
     if(b->parent != 0 && b->parent->position != 0)
@@ -314,7 +309,7 @@ uint8_t makise_g_cont_call_common_predraw(MElement *b)
     MAKISE_MUTEX_RELEASE(&b->mutex);
     return M_OK;
 }
-uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
+uint8_t makise_g_cont_call   (MContainer *cont, MakiseGUI *gui, uint8_t type)
 {
     if(cont == 0)
 	return M_ZERO_POINTER;
@@ -325,13 +320,12 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
 	return M_ZERO_POINTER;
     }
 
-    if(cont->el != 0) //container itself
+    if(cont->el != 0 && cont->el->parent == 0) //container itself if it is root
     {
 	MAKISE_MUTEX_REQUEST(&cont->el->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(cont->el);
 	MAKISE_MUTEX_RELEASE(&cont->el->mutex);
-//	m_element_call(cont->el, type);
     }
     
     MElement *e = cont->first, *ep;
@@ -341,7 +335,7 @@ uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type)
 	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(e);
-	m_element_call(e, type);
+	m_element_call(e, gui, type);
 	ep = e;
 	e = e->next;
 	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
@@ -362,8 +356,8 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
     if(cont->focused != 0)
     {
 	MAKISE_MUTEX_REQUEST(&cont->focused->mutex_cont);
-	MInputResultEnum r
-	    = cont->focused->input(cont->focused, data);
+	MInputResultEnum r =
+	    m_element_input(cont->focused, data);
 	MAKISE_MUTEX_RELEASE(&cont->focused->mutex_cont);
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	return r;
@@ -374,22 +368,28 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
 }
 
 MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
-					 uint8_t next);
+					 uint8_t next,
+					 uint8_t first);
 MFocusEnum _makise_g_cont_focus_ord(MElement *e,
 				    uint8_t next,
 				    uint8_t first)
 {
     uint8_t f = 1; //if current element is parent - we need to try switch it
-    MElement *ep;
+    MElement *ep, *en;
     while (e != 0) {
 	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
+	ep = e;
+	en = next ? e->next : e->prev;
+	
 	if(e->enabled && e->focus_prior != 0)
 	{
 	    //element is enabled && it requires focus
 	    //if element is parent
-	    if(e->is_parent &&
-	       e->children != 0 &&
-	       _makise_g_cont_focus_nextprev(e->children, next)
+	    uint8_t is_parent = e->is_parent;
+	    MContainer *children = e->children;
+	    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
+	    if(is_parent && children != 0 &&
+	       _makise_g_cont_focus_nextprev(children, next, first)
 	       == M_G_FOCUS_OK)
 	    {
 		return M_G_FOCUS_OK;
@@ -408,12 +408,10 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
 	    }
 	    f = 0; //first element was tested
 	}
-	ep = e;
-	if(next)
-	    e = e->next;
 	else
-	    e = e->prev;
-	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
+	    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);	    
+	
+	e = en;
     }
     return M_G_FOCUS_NOT_NEEDED;
 }
@@ -423,16 +421,20 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
  *
  * @param cont container
  * @param next if == 0 then previous; if == 1 then next;
+ * @param first if == 0 then will be normal behavior; if == 1 then current element will be passed;
  * @return Focus result MFocusEnum
  */
 MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
-					 uint8_t next)
+					 uint8_t next, uint8_t first_t)
 {
     if(cont == 0)
 	return M_ZERO_POINTER;
     MAKISE_MUTEX_REQUEST(&cont->mutex);
     if(cont->first == 0)
+    {
+	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	return M_G_FOCUS_NOT_NEEDED;
+    }
     
     MElement *e = cont->first;
     uint8_t first = 1;
@@ -440,26 +442,40 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	e = cont->last;
     if(cont->focused != 0)
     {
-	e = cont->focused;
-	first = 0;
+	if(first_t)
+	{
+	    if(next && cont->focused == cont->last)
+	    {
+		e = cont->first;
+		first = 1;
+	    }
+	    else if(!next && cont->focused == cont->first)
+	    {
+		e = cont->last;
+		first = 1;
+	    }
+	}
+	else
+	{
+	    e = cont->focused;
+	    first = 0;
+	}
     }
 
+    MAKISE_MUTEX_RELEASE(&cont->mutex);
     //try to focus next element
     if(_makise_g_cont_focus_ord(e, next, first) == M_G_FOCUS_OK)
     {
-	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	return M_G_FOCUS_OK;
     }
-    
+
+    MAKISE_MUTEX_REQUEST(&cont->mutex);
     //if no more elements can switch focus
     if(cont->el == 0)
     {
 	//if we are root
-//	makise_g_focus(cont->focused, M_G_FOCUS_LEAVE);
-	if(next)
-	    e = cont->first;
-	else
-	    e = cont->last;
+	e = next ? cont->first : cont->last;
+	
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
 	//try again
 	return _makise_g_cont_focus_ord(e, next, 1);
@@ -469,11 +485,11 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 }
 MFocusEnum makise_g_cont_focus_next(MContainer *cont)
 {
-    return _makise_g_cont_focus_nextprev(cont, 1);
+    return _makise_g_cont_focus_nextprev(cont, 1, 0);
 }
 MFocusEnum makise_g_cont_focus_prev(MContainer *cont)
 {
-    return _makise_g_cont_focus_nextprev(cont, 0);
+    return _makise_g_cont_focus_nextprev(cont, 0, 0);
 }
 
 void makise_g_cont_focus_leave(MContainer *cont)
@@ -481,18 +497,29 @@ void makise_g_cont_focus_leave(MContainer *cont)
     if(cont == 0)
 	return;
     MAKISE_MUTEX_REQUEST(&cont->mutex);
+    MElement *focused = cont->focused;
     if(cont->focused == 0)
-	return;
-    
-    if(cont->focused->is_parent && cont->focused->children != 0)
     {
-	makise_g_cont_focus_leave(cont->focused->children);
+	MAKISE_MUTEX_RELEASE(&cont->mutex);
+	return;
     }
 
-    if(cont->focused->focus != 0)
-	cont->focused->focus(cont->focused, M_G_FOCUS_LEAVE);
-    cont->focused = 0;
+    uint8_t is_parent = focused->is_parent;
+    MContainer *children = focused->children;
+    MFocusEnum (*focus)(MElement* el, MFocusEnum act) = focused->focus;
+    MAKISE_MUTEX_RELEASE(&cont->mutex);
+
+    if(is_parent && children != 0)
+    {
+	makise_g_cont_focus_leave(children);
+    }
+
+    if(focus != 0)
+	focus(focused, M_G_FOCUS_LEAVE);
+
     
+    MAKISE_MUTEX_REQUEST(&cont->mutex);    
+    cont->focused = 0;
     MAKISE_MUTEX_RELEASE(&cont->mutex);
 }
 
@@ -507,19 +534,20 @@ MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y
 	return 0;
     }
     
+
     MElement *e = cont->last; //last - means upper in draw queue
     MElement *ep;
-
 
     while(e != 0)
     {
 	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	MAKISE_MUTEX_REQUEST(&e->mutex); //because we accessing position
-//	printf("check %d\n", e->id);
-	if(x >= e->position.real_x && x < e->position.real_x + e->position.width &&
-	   y >= e->position.real_y && y < e->position.real_y + e->position.height)
+
+	if( x >= e->position.real_x &&
+	    x < e->position.real_x + (int32_t)e->position.width &&
+	    y >= e->position.real_y &&
+	    y < e->position.real_y + (int32_t)e->position.height   )
 	{
-//	    printf("ok %d\n", e->id);
 	    //if point is in element's area
 	    if(e->is_parent == 1)
 	    {

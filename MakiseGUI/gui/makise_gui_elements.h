@@ -48,19 +48,17 @@ typedef struct _MPosition {
     uint32_t                height;
 
     // It will be calculated automatically
-    int32_t                 real_x;         // Position on the screen.
-    int32_t                 real_y;         // Position on the screen
+    int32_t                 real_x;  // Position on the screen. It will be calculated automatically
+    int32_t                 real_y;  // Position on the screen.It will be calculated automatically
 } MPosition;
 
 typedef struct _MElement {
-    MakiseGUI*              gui;            // Current gui.
-
     MPosition               position;       // Relative position of the element.
     
     void*                   data;
 
-    uint8_t                 ( *draw )       ( MElement* el );
-    uint8_t                 ( *predraw )    ( MElement* el );                       // Count real position for every element.
+    uint8_t                 ( *draw )       ( MElement* el, MakiseGUI *gui );
+    uint8_t                 ( *predraw )    ( MElement* el, MakiseGUI *gui ); // Count real position for every element
     uint8_t                 ( *update )     ( MElement* el );
     MInputResultEnum        ( *input )      ( MElement* el, MInputData data );
     MFocusEnum              ( *focus )      ( MElement* el, MFocusEnum act );
@@ -84,11 +82,29 @@ typedef struct _MElement {
 #endif    
 } MElement;
 
-void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
+/**
+ * Initialize MElement structure
+ *
+ * @param e Pointer to element themself
+ * @param name Human name of the element
+ * @param data pointer to structure with your data
+ * @param enabled is element enabled
+ * @param focus_prior focus prior
+ * @param position MPosition
+ * @param draw draw function
+ * @param predraw predraw function
+ * @param update update function
+ * @param input input function
+ * @param focus focus function
+ * @param is_parent 1 if element is container or parent, else 0
+ * @param children if is_parent==1 then MContainer, else 0
+ * @return 
+ */
+void m_element_create(MElement *e, char *name, void* data,
               uint8_t enabled, uint8_t focus_prior,
               MPosition position,
-              uint8_t    (*draw    )(MElement* el),
-              uint8_t    (*predraw )(MElement* el),
+              uint8_t    (*draw    )(MElement* el, MakiseGUI *gui),
+              uint8_t    (*predraw )(MElement* el, MakiseGUI *gui),
               uint8_t    (*update  )(MElement* el),
               MInputResultEnum (*input   )(MElement* el, MInputData data),
               MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
@@ -96,8 +112,9 @@ void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
               MContainer *children);
 
 
-uint8_t m_element_call(MElement* el, uint8_t type);
-uint8_t m_element_input(MElement* el, MInputData data);
+uint8_t m_element_call(MElement* el,  MakiseGUI *host, MElementCall type);
+MInputResultEnum m_element_input(MElement* el, MInputData data);
+MFocusEnum       m_element_focus(MElement* el, MFocusEnum act );    
 
 /**
  * Create MPosition from relative coordinates & size. Anchor - left up corner

@@ -1,5 +1,9 @@
 #include "makise_gui.h"
 
+#if MAKISE_MUTEX
+MAKISE_MUTEX_t _makise_new_id_mutex;
+#endif
+static uint32_t _makise_new_id = 0;
 
 void makise_gui_init ( MHost* host )
 {
@@ -20,30 +24,37 @@ void makise_gui_init ( MHost* host )
 #if MAKISE_MUTEX
     m_mutex_create(&inp->mutex);
     m_mutex_create(&host->mutex);
+    m_mutex_create(&_makise_new_id_mutex);
 #endif
 }
 
-
-uint32_t _makise_new_id = 0;
 uint32_t makise_g_newid()
 {
-    return _makise_new_id ++;
+    //MAKISE_MUTEX_REQUEST(_makise_new_id_mutex);
+    uint32_t id = _makise_new_id ++;
+    //MAKISE_MUTEX_RELEASE(_makise_new_id_mutex);
+
+    return id;
 }
 
 
-uint8_t makise_g_host_call   (MHost *host, uint8_t type)
+uint8_t makise_g_host_call   (MHost *host, MakiseGUI *gui, MElementCall type)
 {
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    uint8_t r = makise_g_cont_call((host->host), type);
+    MContainer *cont = host->host;
     MAKISE_MUTEX_RELEASE(&host->mutex);
+    
+    uint8_t r = makise_g_cont_call(cont, gui, type);
     return r;
 }
 
 MInputResultEnum makise_g_host_input  (MHost *host, MInputData d)
 {
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    uint8_t r = makise_g_cont_input((host->host), d);
+    MContainer *cont = host->host;
     MAKISE_MUTEX_RELEASE(&host->mutex);
+    
+    uint8_t r = makise_g_cont_input(cont, d);
     return r;
 }
 
@@ -71,11 +82,12 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     
     if(event & M_G_FOCUS_GET)
     {
-	MAKISE_DEBUG_OUTPUT("Focus %d\n", el->id);
+	MAKISE_DEBUG_OUTPUT("Focus get %d\n", el->id);
 	//if focus need be recieved
 	MElement *e = el,
-	    *ep; //element that was mutexed
-
+	    *ep, //element that was mutexed
+	    *en;
+	
 	MFocusEnum r = 0; //focus result of required element
 	uint8_t was = 0;
 
@@ -99,20 +111,24 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	    if(p != 0)
 	    {
 		MAKISE_MUTEX_REQUEST(&p->mutex);   
+		en = p->el;
 		//if parent isn't null
 		if(p->focused != e)
 		{
+		    MAKISE_MUTEX_RELEASE(&p->mutex);   
 		    makise_g_cont_focus_leave(p);
+		    MAKISE_MUTEX_REQUEST(&p->mutex);
 		}
 		//set new focused
 		p->focused = e;
+		MAKISE_MUTEX_RELEASE(&p->mutex);	    
 		//send focus event
 		if(e->focus != 0)
 		{
 		    if(!was)
 		    {
 			//we need to get result to return only from el
-			r = e->focus(e, event);
+			r = m_element_focus(e, event);
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
@@ -121,12 +137,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
-		    else e->focus(e, event);
-		}
-		
-		//get next element
-		e = e->parent->el;
-		MAKISE_MUTEX_RELEASE(&p->mutex);	    
+		    else m_element_focus(e, event);
+		}		
 	    }
 	    else
 	    {
@@ -134,7 +146,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		{
 		    if(!was)
 		    {
-			r = e->focus(e, event);
+			r = m_element_focus(e, event);
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
@@ -142,10 +154,14 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
-		    else e->focus(e, event);
+		    else m_element_focus(e, event);
 		}
+		MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
+		return r;
 	    }
 	    
+	    //get next element
+	    e = en;
 	    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 	}
 	return r;
@@ -154,15 +170,19 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
     {
 	MAKISE_DEBUG_OUTPUT("Focus leave %d\n", el->id);
 	MElement *e = el,
-	    *ep; //element that was mutexed
-
+	    *ep, //element that was mutexed
+	    *en;
+	
 	MFocusEnum r = 0;
 	uint8_t was = M_G_FOCUS_NOT_NEEDED;
+
+	MContainer *children = el->children;
+	
+	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	
 	if(el->is_parent)
-	    makise_g_cont_focus_leave(el->children);
+	    makise_g_cont_focus_leave(children);
 
-	MAKISE_MUTEX_RELEASE(&el->mutex_cont);
 	
 	while(e != 0)
 	{
@@ -178,7 +198,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		    p->focused = 0;
 		    if(!was)
 		    {
-			r = e->focus(e, event);
+			r = m_element_focus(e, event);
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
@@ -187,14 +207,17 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
-		    else e->focus(e, event);
+		    else m_element_focus(e, event);
 		}
 		
 		e = p->el; 
 		MAKISE_MUTEX_RELEASE(&p->mutex);
 	    }
 	    else
+	    {
+		MAKISE_MUTEX_RELEASE(&ep->mutex_cont);   
 		break;
+	    }
 	    MAKISE_MUTEX_RELEASE(&ep->mutex_cont);   
 	}
 	return r;
@@ -209,11 +232,12 @@ MFocusEnum makise_g_host_focus_next(MHost *host)
     if(host == 0)
 	return M_ZERO_POINTER;
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    if(host->host == 0)
+    MContainer *cont = host->host;
+    MAKISE_MUTEX_RELEASE(&host->mutex);
+    if(cont == 0)
 	return M_ZERO_POINTER;
     
-    MFocusEnum r = makise_g_cont_focus_next(host->host);
-    MAKISE_MUTEX_RELEASE(&host->mutex);
+    MFocusEnum r = makise_g_cont_focus_next(cont);
     return r;
 }
 MFocusEnum makise_g_host_focus_prev(MHost *host)
@@ -221,11 +245,12 @@ MFocusEnum makise_g_host_focus_prev(MHost *host)
     if(host == 0)
 	return M_ZERO_POINTER;
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    if(host->host == 0)
+    MContainer *cont = host->host;
+    MAKISE_MUTEX_RELEASE(&host->mutex);
+    if(cont == 0)
 	return M_ZERO_POINTER;
     
-    MFocusEnum r = makise_g_cont_focus_prev(host->host);
-    MAKISE_MUTEX_RELEASE(&host->mutex);
+    MFocusEnum r = makise_g_cont_focus_prev(cont);
     return r;
 }
 void _makise_g_print_tree(MContainer *c, int l)
@@ -267,8 +292,8 @@ void makise_g_print_tree(MHost *host)
     if(host == 0)
 	return;
     MAKISE_MUTEX_REQUEST(&host->mutex);
-
     MContainer *c = host->host;
-    _makise_g_print_tree(c, 0);
     MAKISE_MUTEX_RELEASE(&host->mutex);
+    
+    _makise_g_print_tree(c, 0);
 }

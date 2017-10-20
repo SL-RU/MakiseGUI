@@ -3,7 +3,7 @@
 #if ( MAKISE_E_SLIST > 0 )
 
 
-static uint8_t draw   (MElement* b);
+static uint8_t draw   (MElement* b, MakiseGUI *gui  );
 static MFocusEnum focus(MElement* b,  MFocusEnum act);
 static MInputResultEnum input  (MElement* b, MInputData data);
 
@@ -19,7 +19,7 @@ void m_create_slist( MSList*                b,
 		     MakiseStyle_SList*     style,
 		     MakiseStyle_SListItem* item_style) {
     MElement *e = &b->el;
-    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+    m_element_create(e, name, b,
 		     1, 1, pos,
 		     &draw,
 		     0,
@@ -54,21 +54,24 @@ void m_create_slist( MSList*                b,
 }
 
 //draw line frome the list
-static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th, uint32_t x, uint32_t y, uint32_t w, uint32_t eh ) {
+static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
+			MakiseStyleTheme_SList *c_th,
+			uint32_t x, uint32_t y,
+			uint32_t w, uint32_t eh ) {
 
-    makise_d_rect_filled( l->el.gui->buffer,
+    makise_d_rect_filled( gui->buffer,
 			  x, y, w, eh,
 			  c_th->border_c, c_th->bg_color);
     
     switch ( l->type ) {
     case MSList_Checkbox:
-	makise_d_rect(l->el.gui->buffer,
+	makise_d_rect(gui->buffer,
 		      x, y, eh, eh,
 		      c_th->font_col);
 
 	if ( ci->value ) {
 	    uint32_t d = eh > 21 ? 5 : 2;
-	    makise_d_rect_filled(l->el.gui->buffer,
+	    makise_d_rect_filled(gui->buffer,
 				 x + d, y + d, eh - d * 2, eh - d * 2,
 				 c_th->font_col, l->item_style->active.font_col);
 	}
@@ -78,22 +81,22 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th
 
     case MSList_RadioButton:
 	if ( eh < 21 ) {
-	    makise_d_circle( l->el.gui->buffer,
+	    makise_d_circle( gui->buffer,
 			     x + eh / 2,            y + eh / 2, eh / 2 - 1,
 			     c_th->font_col );
 	    if ( ci->value )
-		makise_d_circle_filled( l->el.gui->buffer,
+		makise_d_circle_filled( gui->buffer,
 					x + eh / 2,     y + eh / 2, eh / 2 - 3,
 					c_th->font_col,
 					l->item_style->active.font_col);
 	    x += eh + 1;
 	    w -= eh + 1;
 	} else {
-	    makise_d_circle( l->el.gui->buffer,
+	    makise_d_circle( gui->buffer,
 			     x + 10,    y + eh/2, 10,
 			     c_th->font_col );
 	    if(ci->value)
-		makise_d_circle_filled( l->el.gui->buffer,
+		makise_d_circle_filled( gui->buffer,
 					x + 10, y + eh/2, 7,
 					c_th->font_col,
 					l->item_style->active.font_col);
@@ -104,7 +107,7 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th
     default: break;
     }
 
-    makise_d_string_frame( l->el.gui->buffer,
+    makise_d_string_frame( gui->buffer,
 			   ci->text, MDTextAll,
 			   x + 2, y + 2,
 			   w - 4, eh,
@@ -113,7 +116,7 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseStyleTheme_SList *c_th
 			   c_th->font_col );
 }
 
-static uint8_t draw ( MElement* b ) {
+static uint8_t draw ( MElement* b, MakiseGUI *gui ) {
     MSList *l = (MSList*)b->data;
     MakiseStyleTheme_SList *th    = l->state ? &l->style->focused : &l->style->normal;
     MakiseStyleTheme_SList *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
@@ -122,7 +125,8 @@ static uint8_t draw ( MElement* b ) {
 	*c_th = 0;
     
     //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
-    _m_e_helper_draw_box_param( b->gui->buffer, &b->position, th->border_c, th->bg_color, th->double_border );
+    _m_e_helper_draw_box_param( gui->buffer, &b->position,
+				th->border_c, th->bg_color, th->double_border );
 
     uint32_t i = 0, start = 0, end = 0;
     int16_t y = b->position.real_y,
@@ -136,7 +140,7 @@ static uint8_t draw ( MElement* b ) {
 	len = 0;  //count of items
 
     if( l->text != 0 ) {
-	makise_d_string_frame( l->el.gui->buffer,
+	makise_d_string_frame( gui->buffer,
 			       l->text, MDTextAll,
 			       x + 2, y + 2,
 			       w - 4, eh,
@@ -147,7 +151,7 @@ static uint8_t draw ( MElement* b ) {
 	y += l->style->font->height + 4;
 	h -= l->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
 
-	makise_d_line( b->gui->buffer,
+	makise_d_line( gui->buffer,
 		       b->position.real_x, y,
 		       b->position.real_x + b->position.width,
 		       y,
@@ -205,7 +209,10 @@ static uint8_t draw ( MElement* b ) {
 	    c_th = (ci == l->selected) ? i_foc : i_nom;
 	    if ( ci == l->selected ) cuid = i;
 
-	    draw_item( ci, l, c_th, x, y, w, eh );
+	    draw_item( ci, l, gui,
+		       c_th,
+		       x, y, w, eh );
+	    
 	    y += eh - 1;
 	}
     } else {
@@ -219,7 +226,9 @@ static uint8_t draw ( MElement* b ) {
 	for ( i = start; i < end; i++ ) {
 	    c_th = (ci == l->selected) ? i_foc : i_nom;
 
-	    draw_item( ci, l, c_th, x, y, w, eh );
+	    draw_item( ci, l, gui,
+		       c_th,
+		       x, y, w, eh );
 
 	    y += eh - 1;
 	    ci = ci->next;
@@ -241,14 +250,14 @@ static uint8_t draw ( MElement* b ) {
     
     // Drawing scroll.
     if ( l->style->scroll_width != 0 ) {
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
 			      b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
 			      l->style->scroll_width + 1,
 			      l->el.position.height,
 			      th->border_c,
 			      l->style->scroll_bg_color );
 
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
 			      b->position.real_x + b->position.width - l->style->scroll_width - 1,
 			      y,               // BUG!
 			      l->style->scroll_width + 1,

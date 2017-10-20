@@ -31,7 +31,6 @@ typedef struct {
 typedef struct _MButton MButton;
 
 typedef struct _MButton {
-    MakiseGUI*          gui;
     MElement            el;
 
     char*               text;
@@ -50,16 +49,12 @@ typedef struct _MButton {
 void m_create_button( MButton*              b,
                       MContainer*           c,
                       MPosition             pos,
-                      char*                 text,
-                      void                  ( *click )    ( MButton* b ),
-                      uint8_t               ( *onkey )    ( MButton* b, MInputData data ),
-                      void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
-                      MakiseStyle_Button*    style );
+                      MakiseStyle_Button*   style );
 
+void m_button_set_text    (MButton *b, char *c);
 void m_button_set_click   (MButton *b, void (*click   )(MButton* b));
-void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data));
+void m_button_set_onkey   (MButton *b, uint8_t (*onkey)(MButton* b, MInputData data));
 void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type));
-void m_button_set_text   (MButton *b, char *c);
     
 #ifdef __cplusplus
 }

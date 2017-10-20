@@ -13,7 +13,6 @@ typedef struct _MContainer MContainer;
 
 typedef struct _MContainer
 {
-    MakiseGUI*      gui;
     MElement*       el; //element which is host for the container. Can be zero if it is MHost
     MPosition*      position; //container position
     MElement*       first; //pointer to the first element or 0 if container is empty
@@ -77,7 +76,7 @@ int32_t makise_g_cont_contains(MContainer * cont, MElement *el);
 int32_t makise_g_cont_index(MElement *el);
 
 
-uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type);
+uint8_t makise_g_cont_call   (MContainer *cont, MakiseGUI *gui, uint8_t type);
 MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data);
 MFocusEnum makise_g_cont_focus_next(MContainer *cont);
 MFocusEnum makise_g_cont_focus_prev(MContainer *cont);

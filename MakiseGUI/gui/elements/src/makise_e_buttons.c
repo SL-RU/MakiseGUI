@@ -1,63 +1,58 @@
 #include "makise_e_buttons.h"
 
-#if ( MAKISE_E_BUTTONS > 0 )
+#if MAKISE_E_BUTTONS > 0
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-static uint8_t 				draw   ( MElement* b );
-static MInputResultEnum 	input  ( MElement* b, MInputData data );
-static MFocusEnum 			focus  ( MElement* b, MFocusEnum act );
+static uint8_t                  draw   ( MElement* b, MakiseGUI *gui  );
+static MInputResultEnum         input  ( MElement* b, MInputData data );
+static MFocusEnum               focus  ( MElement* b, MFocusEnum act  );
 
 char name[] = "Button";
 
 void m_create_button( MButton*              b,
                       MContainer*           c,
                       MPosition             pos,
-                      char*                 text,
-                      void                  ( *click )    ( MButton* b ),
-                      uint8_t               ( *onkey )    ( MButton* b, MInputData data ),
-                      void                  ( *onfocus )  ( MButton* b, MFocusEnum type ),
-                      MakiseStyle_Button*    style ) {
-    b->text         = text;
+                      MakiseStyle_Button*    style )
+{
+    b->text         = 0;
 
-    b->click        = click;
-    b->onkey        = onkey;
-    b->onfocus      = onfocus;
+    b->click        = 0;
+    b->onkey        = 0;
+    b->onfocus      = 0;
     
     b->style        = style;
     
     MElement *e = &b->el;
-    m_element_create        ( e, ( c == 0 ) ? 0 : c->gui, name, b, 1, 1, pos, &draw, 0, 0, &input, &focus, 0, 0 );
+    m_element_create        ( e, name, b, 1, 1, pos, &draw, 0, 0, &input, &focus, 0, 0 );
     makise_g_cont_add       ( c, e );
     
     MAKISE_DEBUG_OUTPUT("Button %d created\n", e->id);
 }
 
-static uint8_t draw ( MElement* b ) {
+static uint8_t draw ( MElement* b, MakiseGUI *gui )
+{
     MakiseTheme_Button* th = 0;
     MButton *e      = b->data;
 
     switch ( e->state ) {
-        case 0:     th = &e->style->normal;                 break;
-        case 1:     th = &e->style->focused;                break;
-        default:    th = &e->style->active;     e->state--; break;
+        case 0:     th = &e->style->normal;              break;
+        case 1:     th = &e->style->focused;             break;
+        default:    th = &e->style->active;  e->state--; break;
     }
-
-    _m_e_helper_draw_box_param( b->gui->buffer, &b->position,
+    
+    _m_e_helper_draw_box_param( gui->buffer, &b->position,
                                 th->border_c, th->bg_color,th->double_border );
 
-    makise_d_string( b->gui->buffer,                                e->text, MDTextAll,
-                     b->position.real_x + b->position.width / 2,    b->position.real_y + b->position.height / 2,
+    makise_d_string( gui->buffer, e->text, MDTextAll,
+                     b->position.real_x + b->position.width / 2,
+		     b->position.real_y + b->position.height / 2,
                      MDTextPlacement_Center, e->style->font, th->font_col);
 
     //printf("Button %d dr\n", b->id);
     return M_OK;
 }
 
-static MInputResultEnum input  ( MElement* b, MInputData data ) {
-    //printf("but %d inp %d %d\n", b->id, data.key, data.event);
+static MInputResultEnum input  ( MElement* b, MInputData data )
+{
     MButton *e          = b->data;
     uint8_t res = 1;
     if(e->onkey != 0)
@@ -79,7 +74,8 @@ static MInputResultEnum input  ( MElement* b, MInputData data ) {
     return M_INPUT_NOT_HANDLED;
 }
 
-static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
+static MFocusEnum focus ( MElement* b, MFocusEnum act )
+{
     MButton *e =        b->data;
     if ( act & M_G_FOCUS_GET ) {
         if(e->state != 1 && e->onfocus != 0)
@@ -124,8 +120,5 @@ void m_button_set_text (MButton *b, char * c)
     MAKISE_MUTEX_RELEASE(&b->el.mutex);
 }
 
-#ifdef __cplusplus
-}
-#endif
 
 #endif

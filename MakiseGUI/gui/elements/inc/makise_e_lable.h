@@ -3,7 +3,7 @@
 
 #include "makise_config.h"
 
-#if ( MAKISE_E_LABLE > 0 )
+#if MAKISE_E_LABLE > 0
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +25,6 @@ typedef struct {
 // Simply draws required text.
 // It can be only in one line. And it won't be cutting and folding text.
 typedef struct {
-    MakiseGUI*          gui;
     MElement            el;
 
     char*               text;
@@ -36,8 +35,7 @@ typedef struct {
 void m_create_lable( MLable*             b,
                      MContainer*         c,
                      MPosition           pos,
-                     char*               text,
-                     MakiseStyle_Lable*   style );
+                     MakiseStyle_Lable*  style );
 
 void m_lable_set_text( MLable *b,
 		       char   *text);

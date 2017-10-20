@@ -27,7 +27,6 @@ typedef struct {
 
 //Canvas - simple container. It's placing elements simply by their position wherever it needed
 typedef struct {
-    MakiseGUI*              gui;
     MElement                el;
 
     MContainer              cont;

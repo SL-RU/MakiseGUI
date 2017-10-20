@@ -5,10 +5,12 @@
 extern "C" {
 #endif
 
-#define M_G_CALL_DRAW         1
-#define M_G_CALL_PREDRAW      2
-#define M_G_CALL_UPDATE       3
-
+typedef enum
+{
+    M_G_CALL_DRAW    = 1  ,
+    M_G_CALL_PREDRAW      ,
+    M_G_CALL_UPDATE       ,
+} MElementCall;
 
 typedef enum
 {
@@ -38,6 +40,7 @@ typedef struct _MHost MHost;
 //Root container for all elements
 typedef struct _MHost
 {
+    MakiseGUI *gui;
     MContainer *host;
     MInputHostData input;
 #if MAKISE_MUTEX
@@ -59,10 +62,31 @@ uint32_t makise_g_newid();
 MFocusEnum makise_g_focus(MElement *el, MFocusEnum event);
 
 
+/**
+ * Change focus to next element in the host's focus queue
+ *
+ * @param host host
+ * @return MFocusEnum
+ */
 MFocusEnum makise_g_host_focus_next(MHost *host);
+/**
+ * Change focus to previous element in the host's focus queue
+ *
+ * @param host host
+ * @return MFocusEnum
+ */
 MFocusEnum makise_g_host_focus_prev(MHost *host);
-uint8_t makise_g_host_call   (MHost *host, uint8_t type);
-MInputResultEnum makise_g_host_input  (MHost *host, MInputData data);
+    
+/**
+ * Call draw, predraw or update of all enabled elements in the host
+ *
+ * @param host host
+ * @param gui MakiseGUI with target buffer
+ * @param type MElementCall: M_G_CALL_PREDRAW, M_G_CALL_DRAW or M_G_CALL_UPDATE
+ * @return M_OK, M_ERROR
+ */
+uint8_t makise_g_host_call(MHost *host, MakiseGUI *gui, MElementCall type);
+MInputResultEnum makise_g_host_input(MHost *host, MInputData data);
 
 void makise_g_print_tree(MHost *host);
 

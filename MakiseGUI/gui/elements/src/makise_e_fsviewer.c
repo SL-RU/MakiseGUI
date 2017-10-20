@@ -2,7 +2,8 @@
 #include "task.h"
 
 #if MAKISE_E_FSVIEWER > 0
-static uint8_t draw   (MElement* b);
+
+static uint8_t draw   (MElement* b, MakiseGUI *gui  );
 static MFocusEnum focus(MElement* b,  MFocusEnum act);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position
@@ -12,14 +13,11 @@ static char *name = "MFSViewer";
 void m_create_fsviewer( MFSViewer*                  b,
                         MContainer*                 c,
                         MPosition                   pos,
-                        char*                       header,
-                        uint8_t                     ( *onselection )    ( MFSViewer* l, MFSViewer_Item* selected ),
-                        void                        ( *click )          ( MFSViewer* l, MFSViewer_Item* selected ),
                         MFSViewer_Type              type,
                         MakiseStyle_FSViewer*       style,
                         MakiseStyle_FSViewer_Item*  item_style ) {
     MElement *e = &b->el;
-    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+    m_element_create(e, name, b,
 		     1, 1, pos,
 		     &draw,
 		     0,
@@ -28,10 +26,10 @@ void m_create_fsviewer( MFSViewer*                  b,
 		     &focus,
 		     0, 0);
     
-    b->header = header;
+    b->header = 0;
     
-    b->onselection = onselection;
-    b->click = click;
+    b->onselection = 0;
+    b->click = 0;
 
     b->path = 0;
     
@@ -53,12 +51,12 @@ void m_create_fsviewer( MFSViewer*                  b,
 }
 
 //draw single item of the list
-static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
+static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 			 MakiseStyleTheme_FSViewer_Item *c_th,
 			 uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
 {
     //background
-    makise_d_rect_filled(l->el.gui->buffer,
+    makise_d_rect_filled(gui->buffer,
 			 x, y,  w, eh,
 			 c_th->border_c, c_th->bg_color);
     //selection
@@ -67,7 +65,7 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
 	if(l->was_selected && ci->id == l->selected_file_id
 	   && l->selected_folder == l->current_folder)
 	{
-	    makise_d_circle_filled(l->el.gui->buffer,
+	    makise_d_circle_filled(gui->buffer,
 				   x + eh / 2, y + eh / 2, eh / 2 - 3,
 				   c_th->icon_col, c_th->icon_col);
 	    x += eh + 1;
@@ -79,7 +77,7 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
     {
 	if(l->style->bitmap_folder == 0)
 	{
-	    makise_d_rect_filled(l->el.gui->buffer,
+	    makise_d_rect_filled(gui->buffer,
 				 x + 2, y + 2, eh - 4, eh - 4,
 				 c_th->icon_col, c_th->icon_col);
 	    x += eh + 1;
@@ -89,7 +87,7 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
 	{
         int yc = l->style->bitmap_folder->height_pixel / 2; //place icon in center
 	    yc = (eh / 2) - yc; 
-	    makise_d_bitmap(l->el.gui->buffer, x + 1, y + yc,
+	    makise_d_bitmap(gui->buffer, x + 1, y + yc,
 			    l->style->bitmap_folder, c_th->icon_col);
         x += l->style->bitmap_folder->width_pixel + 2;
         w -= l->style->bitmap_folder->width_pixel + 2;
@@ -98,7 +96,7 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
     }
 
     //text
-    makise_d_string_frame(l->el.gui->buffer, ci->name, MDTextAll,
+    makise_d_string_frame(gui->buffer, ci->name, MDTextAll,
 			  x + 1,
 			  y,
 			  w - 2, eh,
@@ -108,7 +106,8 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l,
 	    
 
 }
-static uint8_t draw ( MElement* b ) {
+static uint8_t draw ( MElement* b, MakiseGUI *gui )
+{
     MFSViewer *l = (MFSViewer*)b->data;
     MakiseStyleTheme *th = l->state ? &l->style->focused : &l->style->normal;
     MakiseStyleTheme_FSViewer_Item *i_foc =
@@ -118,7 +117,7 @@ static uint8_t draw ( MElement* b ) {
     
 
     //MAKISE_DEBUG_OUTPUT("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
-    _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
+    _m_e_helper_draw_box(gui->buffer, &b->position, th);
 
     uint32_t i = 0, start = 0, end = 0;
     int16_t y = b->position.real_y + 1,
@@ -135,7 +134,7 @@ static uint8_t draw ( MElement* b ) {
 
     //header
     if ( l->header != 0 ) {
-        makise_d_string( b->gui->buffer,
+        makise_d_string( gui->buffer,
                          l->header,
                          MDTextAll,
                          x, y,
@@ -146,7 +145,7 @@ static uint8_t draw ( MElement* b ) {
         y += l->style->font->height;
         h -= l->style->font->height;
 
-        makise_d_line( b->gui->buffer,
+        makise_d_line( gui->buffer,
                        b->position.real_x, y,
                        b->position.real_x + b->position.width, y,
                        th->border_c);
@@ -196,7 +195,7 @@ static uint8_t draw ( MElement* b ) {
         ci->id = i;
         c_th = (i == l->current_position) ? i_foc : i_nom;
 
-        draw_item(ci, l, c_th, x, y, w, eh);
+        draw_item(ci, l, gui, c_th, x, y, w, eh);
         y += eh + 1;
     }
     
@@ -217,14 +216,14 @@ static uint8_t draw ( MElement* b ) {
     
     // Drawing scroll.
     if ( l->style->scroll_width != 0 ) {
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
                           b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
                           l->style->scroll_width + 1,
                           l->el.position.height,
                           th->border_c,
                           l->style->scroll_bg_color );
 
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
                           b->position.real_x + b->position.width - l->style->scroll_width - 1,
                           y,
                           l->style->scroll_width + 1,
@@ -236,7 +235,8 @@ static uint8_t draw ( MElement* b ) {
     return M_OK;
 }
 
-static MFocusEnum focus (MElement* b,  MFocusEnum act) {
+static MFocusEnum focus (MElement* b,  MFocusEnum act)
+{
     //MFSViewer *e = ((MFSViewer*)b->data);
     if(act & M_G_FOCUS_GET)    {
         ((MFSViewer*)b->data)->state = 1;
@@ -309,9 +309,9 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 		   256 ) != 0
 #endif    
 		       
-				&& e->onselection != 0 &&
+				&& e->onselection != 0
 				//call onselection
-				e->onselection(e, it))
+				&& e->onselection(e, it))
 	    {
 		//strncpy(e->selected_file, it->fname, 13);
 		e->selected_file_id = it->id;

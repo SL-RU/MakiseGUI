@@ -6,12 +6,12 @@
 
 #include "makise_config.h"
 
-#if ( MAKISE_E_FSVIEWER > 0 )
+#if MAKISE_E_FSVIEWER > 0
 /*
 If MAKISE_E_FSVIEWER == 1 then it'll use STDIO for files
 If MAKISE_E_FSVIEWER == 2 then it'll use Chan's FATFS for files
 
-Compatible Chan FatFS version is >=R0.12 
+Compatible Chan FatFS version is >= R0.12 
  */
 
 #ifdef __cplusplus
@@ -20,9 +20,11 @@ extern "C" {
 
 #include "makise_e.h"
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
+//FATFS
 #include "ffconf.h"
 #include "ff.h"
 #else //STDIO
+//STDIO    
 #include <stdio.h>
 #include <dirent.h>
 #include <sys/types.h>
@@ -154,17 +156,65 @@ typedef struct _MFSViewer {
 void m_create_fsviewer( MFSViewer*                  b,
                         MContainer*                 c,
                         MPosition                   pos,
-                        char*                       header,
-                        uint8_t                     ( *onselection )    ( MFSViewer* l, MFSViewer_Item* selected ),
-                        void                        ( *click )          ( MFSViewer* l, MFSViewer_Item* selected ),
                         MFSViewer_Type              type,
                         MakiseStyle_FSViewer*       style,
                         MakiseStyle_FSViewer_Item*  item_style );
 
-void m_fsviewer_deselect(MFSViewer *l); //deselect all
-void m_fsviewer_refresh(MFSViewer *l); //set linked list as new data source.
-//void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id); //load chunk with required position
 
+/**
+ * Set header text
+ *
+ * @param MFSViewer MFSViewer
+ * @param text header text
+ * @return 
+ */    
+void m_fsviewer_set_header(MFSViewer *l, char* text);
+
+/**
+ * Set onselection event hadler. Onselection will be called on OK click on the file and be called before click. If onselection handler will return 1 then that file will be selected and call handler will be called, if 0 then nothing.
+ *
+ * @param MFSViewer MFSViewer
+ * @param onselection uint8_t onselection(MFSViewer* l, MFSViewer_Item* s); s - selected item
+ * @return 
+ */        
+void m_fsviewer_set_onselection(
+    MFSViewer *l,
+    uint8_t (*onselection)(MFSViewer* l, MFSViewer_Item* s));
+
+/**
+ * Set click event hadler. Click will be called on OK click on the file and if onselection handler will return 1.
+ *
+ * @param MFSViewer MFSViewer
+ * @param click uint8_t click(MFSViewer* l, MFSViewer_Item* s); s - selected item
+ * @return 
+ */
+void m_fsviewer_set_click(
+    MFSViewer *l,
+    void (*click)(MFSViewer* l, MFSViewer_Item* selected));
+
+/**
+ * Clear selection of all files
+ *
+ * @param MFSViewer MFSViewer
+ * @return 
+ */    
+void m_fsviewer_deselect(MFSViewer *l);
+
+/**
+ * Refresh file list if directory was changed
+ *
+ * @param MFSViewer MFSViewer
+ * @return 
+ */
+void m_fsviewer_refresh(MFSViewer *l); 
+
+/**
+ * Open required folder if FileSystemViewer
+ *
+ * @param MFSViewer MFSViewer
+ * @param path path to required directory
+ * @return 
+ */
 void fsviewer_open(MFSViewer *l, char *path);
 
 #ifdef __cplusplus

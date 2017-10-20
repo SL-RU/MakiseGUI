@@ -1,10 +1,10 @@
 #include "makise_gui_elements.h"
 
-void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
+void m_element_create(MElement *e, char *name, void* data,
 		      uint8_t enabled, uint8_t focus_prior,
 		      MPosition position,
-		      uint8_t    (*draw    )(MElement* el),
-		      uint8_t    (*predraw )(MElement* el),
+		      uint8_t    (*draw    )(MElement* el, MakiseGUI *gui),
+		      uint8_t    (*predraw )(MElement* el, MakiseGUI *gui),
 		      uint8_t    (*update  )(MElement* el),
 		      MInputResultEnum (*input   )(MElement* el, MInputData data),
 		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
@@ -12,8 +12,6 @@ void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
 		      MContainer *children)
 {
     e->id = makise_g_newid();
-    
-    e->gui                  = gui;
     e->name                 = name;
 
     e->data                 = data;
@@ -39,55 +37,68 @@ void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
 
 }
 
-uint8_t m_element_call(MElement* el, uint8_t type)
+uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
 {
     if(el == 0)
 	return M_ZERO_POINTER;
     
     MAKISE_MUTEX_REQUEST(&el->mutex);
-    uint8_t result;
+    uint8_t result = M_ERROR;
     
     if(type == M_G_CALL_DRAW && el->draw != 0)
     {
-	MakiseBufferBorderData d =makise_add_border(el->gui->buffer,
+	MakiseBufferBorderData d =makise_add_border(gui->buffer,
 						    (MakiseBufferBorder){
 							el->position.real_x,
 							    el->position.real_y,
 							    el->position.width,
 							    el->position.height,
 							    0, 0});
-	result = el->draw(el);
-	makise_rem_border(el->gui->buffer, d);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
-	return result;
+	result = el->draw(el, gui);
+	makise_rem_border(gui->buffer, d);
     }
     if(type == M_G_CALL_PREDRAW && el->predraw != 0)
     {
- 	result = el->predraw(el);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
-	return result;
+ 	result = el->predraw(el, gui);
     }
     if(type == M_G_CALL_UPDATE && el->update != 0)
     {
 	result = el->update(el);
-	MAKISE_MUTEX_RELEASE(&el->mutex);
-	return result;
     }
     MAKISE_MUTEX_RELEASE(&el->mutex);
-    return M_ERROR;
+    return result;
 }
 
-uint8_t m_element_input(MElement* el, MInputData data)
+MInputResultEnum m_element_input(MElement* el, MInputData data)
 {
     if(el == 0)
 	return M_ZERO_POINTER;
 
+    MInputResultEnum r = M_INPUT_NOT_HANDLED;
+    MAKISE_MUTEX_REQUEST(&el->mutex);
     if(el->input != 0)
     {
-	el->input(el, data);
+	r = el->input(el, data);
     }
+    MAKISE_MUTEX_RELEASE(&el->mutex);
     
-    return 0;
+    return r;
+}
+
+MFocusEnum m_element_focus(MElement* el, MFocusEnum act )
+{
+    if(el == 0)
+	return M_ZERO_POINTER;
+    
+    MFocusEnum r = M_G_FOCUS_NOT_NEEDED;
+    MAKISE_MUTEX_REQUEST(&el->mutex);
+    if(el->focus != 0)
+    {
+	r = el->focus(el, act);
+    }
+    MAKISE_MUTEX_RELEASE(&el->mutex);
+
+    return r;
 }
 
 MPosition mp_rel (int32_t x, int32_t y, uint32_t w, uint32_t h) {
