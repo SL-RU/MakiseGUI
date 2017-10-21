@@ -1,5 +1,4 @@
-$comment
-static const uint8_t B_${name}_data[] = {
+${comment}static const uint8_t B_${name}_data[] = {
     $data };
 const MakiseBitmap B_${name} = {
     .width = $width,

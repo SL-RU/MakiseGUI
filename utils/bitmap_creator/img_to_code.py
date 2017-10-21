@@ -39,7 +39,7 @@ comment = ""
 if args.comment is not None:
     comment = args.comment
     if comment != "":
-        comment = "\n// " + comment
+        comment = "// " + comment + "\n"
 
 s_pth = os.path.dirname(sys.argv[0])
 if args.header:
