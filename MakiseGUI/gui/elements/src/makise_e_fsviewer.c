@@ -85,12 +85,12 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 	}
 	else //icon
 	{
-        int yc = l->style->bitmap_folder->height_pixel / 2; //place icon in center
+        int yc = l->style->bitmap_folder->height / 2; //place icon in center
 	    yc = (eh / 2) - yc; 
 	    makise_d_bitmap(gui->buffer, x + 1, y + yc,
 			    l->style->bitmap_folder, c_th->icon_col);
-        x += l->style->bitmap_folder->width_pixel + 2;
-        w -= l->style->bitmap_folder->width_pixel + 2;
+        x += l->style->bitmap_folder->width + 2;
+        w -= l->style->bitmap_folder->width + 2;
 	}
 	
     }

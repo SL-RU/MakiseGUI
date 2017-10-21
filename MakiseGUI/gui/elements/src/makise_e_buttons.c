@@ -42,11 +42,53 @@ static uint8_t draw ( MElement* b, MakiseGUI *gui )
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
                                 th->border_c, th->bg_color,th->double_border );
 
-    makise_d_string( gui->buffer, e->text, MDTextAll,
-                     b->position.real_x + b->position.width / 2,
-		     b->position.real_y + b->position.height / 2,
-                     MDTextPlacement_Center, e->style->font, th->font_col);
+    uint32_t wt = makise_d_string_width(e->text, MDTextAll, e->style->font),
+	wb = 0, w = 0, sx = 3, bity = 0;
 
+    if(e->bitmap != 0)
+    {
+	wb += (wt ? e->style->bitmap_gap : 0)
+	    + e->bitmap->width ;
+	bity = (b->position.height - e->bitmap->height)/2;
+    }
+
+    w = wb + wt;
+
+    if(b->position.width >= w)
+    {
+	sx = (b->position.width - w) / 2;
+
+	if(e->text != 0)
+	    makise_d_string( gui->buffer, e->text, MDTextAll,
+			     b->position.real_x + b->position.width / 2 + wb/2,
+			     b->position.real_y + b->position.height / 2,
+			     MDTextPlacement_Center, e->style->font, th->font_col);
+	if(e->bitmap != 0)
+	    makise_d_bitmap( gui->buffer,
+			     b->position.real_x + sx,
+			     b->position.real_y + bity,
+			     e->bitmap, th->font_col );
+    }
+    else
+    {
+	sx = 3;
+
+	if(e->bitmap != 0)
+	    makise_d_bitmap( gui->buffer,
+			     b->position.real_x + sx,
+			     b->position.real_y + bity,
+			     e->bitmap, th->font_col );
+	
+	bity = (b->position.height - e->style->font->height)/2;
+
+	if(e->text != 0)
+	    makise_d_string( gui->buffer, e->text, MDTextAll,
+			     b->position.real_x + wb + sx,
+			     b->position.real_y + bity,
+			     MDTextPlacement_LeftUp, e->style->font, th->font_col);
+
+    }
+    
     //printf("Button %d dr\n", b->id);
     return M_OK;
 }
@@ -119,6 +161,12 @@ void m_button_set_text (MButton *b, char * c)
     b->text = c;
     MAKISE_MUTEX_RELEASE(&b->el.mutex);
 }
+void m_button_set_bitmap  (MButton *b, const MakiseBitmap *bm)
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    b->bitmap = bm;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
 
+}
 
 #endif

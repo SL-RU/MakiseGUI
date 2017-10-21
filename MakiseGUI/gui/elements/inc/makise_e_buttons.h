@@ -22,6 +22,9 @@ typedef struct {
 
 typedef struct {
     const MakiseFont* font;
+    
+    uint32_t bitmap_gap; //gap between text and bitmap if it exists
+    
     MakiseTheme_Button normal;
     MakiseTheme_Button focused;
     MakiseTheme_Button active;
@@ -34,7 +37,8 @@ typedef struct _MButton {
     MElement            el;
 
     char*               text;
-    MakiseStyle_Button*  style;
+    const MakiseBitmap* bitmap; 
+    MakiseStyle_Button* style;
 
     void                ( *click )      ( MButton* b );                         // When OK button clicked.
     uint8_t             ( *onkey )      ( MButton* b, MInputData data );        // Handle any key pressed on button.
@@ -52,6 +56,7 @@ void m_create_button( MButton*              b,
                       MakiseStyle_Button*   style );
 
 void m_button_set_text    (MButton *b, char *c);
+void m_button_set_bitmap  (MButton *b, const MakiseBitmap *bm);    
 void m_button_set_click   (MButton *b, void (*click   )(MButton* b));
 void m_button_set_onkey   (MButton *b, uint8_t (*onkey)(MButton* b, MInputData data));
 void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type));
