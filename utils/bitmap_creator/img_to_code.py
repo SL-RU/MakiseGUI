@@ -5,7 +5,9 @@ import os
 import sys
 
 temp = ""
-template_path = "bitmap.template"
+template_src_path = "bitmap.template"
+template_header_path = "bitmap_header.template"
+template_path = template_src_path
 
 parser = argparse.ArgumentParser(
     description='Create makise bitmap code from image.')
@@ -14,6 +16,8 @@ parser.add_argument('-b', '--binary', action='store_true',
 parser.add_argument('-c', '--comment', type=str, help='Add comment')
 parser.add_argument('-o', '--output', action='store_true',
                     help='Print acii image')
+parser.add_argument('-d', '--header', action='store_true',
+                    help='Output text to be added in header file.')
 parser.add_argument('-l', '--max-line-len', type=int, default=50,
                     help='Sets max line lendth. Default is 50')
 parser.add_argument('image',
@@ -38,7 +42,10 @@ if args.comment is not None:
         comment = "\n// " + comment
 
 s_pth = os.path.dirname(sys.argv[0])
-template_path = os.path.join(s_pth, template_path)
+if args.header:
+    template_path = os.path.join(s_pth, template_header_path)
+else:
+    template_path = os.path.join(s_pth, template_src_path)
 if not os.path.isfile(template_path):
     print("Font template not found. Check script directory.")
     parser.print_help()
@@ -85,7 +92,7 @@ def img_to_code(im):
     i = 0
     for b in bits:
         if i > max_ll:
-            s += "\n      "
+            s += "\n    "
             i = 0
         ss = ""
         if(output_hex):
