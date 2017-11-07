@@ -296,7 +296,7 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 					    e->current_chunk_position];
 	    if(it->am_dir)
 		//if directory
-		fsviewer_open(e, it->name);
+		_fsviewer_open(e, it->name);
 	    else
 	    {
 		e->was_selected = 1;
@@ -584,16 +584,13 @@ void m_fsviewer_deselect(MFSViewer *l)
     MAKISE_MUTEX_RELEASE(&l->el.mutex);
 }
 
-void fsviewer_open( MFSViewer *l, char* path )
+void _fsviewer_open( MFSViewer *l, char* path )
 {
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
     //set path
     l->path = path;
     //go to dir
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
-    taskENTER_CRITICAL();
     f_chdir(path);
-    taskEXIT_CRITICAL();
 #else //STDIO
     chdir(path);
 #endif    
@@ -605,7 +602,24 @@ void fsviewer_open( MFSViewer *l, char* path )
     l->current_folder = 0;
 
     //load first chunk
-    m_fsviewer_loadchunk(l, 0);
+    m_fsviewer_loadchunk(l, 0);   
+}
+
+void fsviewer_open(MFSViewer *l, char *path)
+{
+    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    _fsviewer_open(l, path);
     MAKISE_MUTEX_RELEASE(&l->el.mutex);
 }
+
+void m_fsviewer_set_onselection(
+    MFSViewer *l,
+    uint8_t (*onselection)(MFSViewer* l, MFSViewer_Item* s))
+{
+    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    l->onselection = onselection;
+    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+}
+
+
 #endif

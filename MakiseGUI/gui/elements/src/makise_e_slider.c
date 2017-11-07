@@ -1,29 +1,20 @@
 #include "makise_e_slider.h"
 
-#if ( MAKISE_E_SLIDER > 0 )
+#if MAKISE_E_SLIDER > 0
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-static uint8_t draw   (MElement* b);
+static uint8_t draw   (MElement* b, MakiseGUI *gui);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
 static char name[] = "Slider";
 void m_create_slider(MSlider* b, MContainer *c,
 		     MPosition pos,
-		     int32_t *value,
-		     int32_t value_max,
-		     int32_t value_min,
 		     MSlider_Type type,
-		     void    (*onchange   )(MSlider* b, int32_t val),
-		     void    (*onfocus )(MSlider* b, MFocusEnum type),
 		     MakiseStyle *style)
 {
     MElement *e = &b->el;
 
-    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+    m_element_create(e, name, b,
 		     1, 1, pos,
 		     &draw,
 		     0,
@@ -32,28 +23,10 @@ void m_create_slider(MSlider* b, MContainer *c,
 		     &focus,
 		     0, 0);
 
-    if(value_min > value_max)
-    {
-	b->value_max = value_min;
-	b->value_min = value_max;	
-    }
-    else
-    {
-	b->value_max = value_max;
-	b->value_min = value_min;	
-    }
-    b->value = value;
-    if(*b->value > b->value_max)
-	*b->value = b->value_max;
-    if(*b->value < b->value_min)
-	*b->value = b->value_min;
-
-    b->type = type;
-    
-    b->onchange = onchange;
-    b->onfocus = onfocus;
-    
+    b->type = type;    
     b->style = style;
+
+    b->value_p = &b->value;
     
     makise_g_cont_add(c, e);
 
@@ -62,11 +35,14 @@ void m_create_slider(MSlider* b, MContainer *c,
 #endif
 }
 
-static uint8_t draw   (MElement* b)
+static uint8_t draw   (MElement* b, MakiseGUI *gui)
 {
     MakiseStyleTheme *th = 0;
 
     MSlider *s = ((MSlider*)b->data);
+
+    /* if(s->value_p == 0) */
+    /* 	return M_OK; */
     
     if(((MSlider*)b->data)->state == 0)
 	th = &((MSlider*)b->data)->style->normal;
@@ -76,21 +52,21 @@ static uint8_t draw   (MElement* b)
     if(s->type == MSlider_Type_Read)
 	th = &((MSlider*)b->data)->style->focused;
     
-    _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
+    _m_e_helper_draw_box(gui->buffer, &b->position, th);
 
     if(_MSlider_is_horizontal(b))
     {
-	int32_t val = (*s->value - s->value_min) * (b->position.width - 5) /
+	int32_t val = (*(s->value_p) - s->value_min) * (b->position.width - 5) /
 	    (s->value_max - s->value_min);
 	//borders
-	makise_d_rect_filled(b->gui->buffer,
+	makise_d_rect_filled(gui->buffer,
 			     b->position.real_x,
 			     b->position.real_y,
 			     3,
 			     b->position.height,
 			     th->border_c,
 			     th->border_c);
-	makise_d_rect_filled(b->gui->buffer,
+	makise_d_rect_filled(gui->buffer,
 			     b->position.real_x + b->position.width - 3,
 			     b->position.real_y,
 			     3,
@@ -98,7 +74,7 @@ static uint8_t draw   (MElement* b)
 			     th->border_c,
 			     th->border_c);
 	//filled part
-	makise_d_rect_filled(b->gui->buffer,
+	makise_d_rect_filled(gui->buffer,
 			     b->position.real_x + 2,
 			     b->position.real_y + b->position.height/6,
 			     val,
@@ -106,7 +82,7 @@ static uint8_t draw   (MElement* b)
 			     th->font_col,
 			     th->font_col);
 	//empty part
-	makise_d_rect(b->gui->buffer,
+	makise_d_rect(gui->buffer,
 		      b->position.real_x + val + 3,
 		      b->position.real_y + b->position.height/6,
 		      b->position.width - val - 5,
@@ -114,7 +90,7 @@ static uint8_t draw   (MElement* b)
 		      th->font_col);
 	if(s->type == MSlider_Type_ReadWrite)
 	    //line
-	    makise_d_line(b->gui->buffer,
+	    makise_d_line(gui->buffer,
 			  b->position.real_x + val + 2,
 			  b->position.real_y,
 			  b->position.real_x + val + 2,
@@ -124,18 +100,18 @@ static uint8_t draw   (MElement* b)
     }
     else
     {
-	int32_t val = (*s->value - s->value_min) * (b->position.height - 5) /
+	int32_t val = (*s->value_p - s->value_min) * (b->position.height - 5) /
 	    (s->value_max - s->value_min);
 	val = b->position.height - val - 5;
 	//borders
-	makise_d_rect_filled(b->gui->buffer,
+	makise_d_rect_filled(gui->buffer,
 			     b->position.real_x,
 			     b->position.real_y,
 			     b->position.width,
 			     3,
 			     th->font_col,
 			     th->font_col);
-	makise_d_rect_filled(b->gui->buffer,
+	makise_d_rect_filled(gui->buffer,
 			     b->position.real_x,
 			     b->position.real_y + b->position.height - 3,
 			     b->position.width,
@@ -143,14 +119,14 @@ static uint8_t draw   (MElement* b)
 			     th->font_col,
 			     th->font_col);
 	//filled part
-	makise_d_rect(b->gui->buffer,
-			     b->position.real_x + b->position.width/6,
-			     b->position.real_y + 2,
-			     b->position.width*4/6,
-			     val,
-			     th->font_col);
+	makise_d_rect(gui->buffer,
+		      b->position.real_x + b->position.width/6,
+		      b->position.real_y + 2,
+		      b->position.width*4/6,
+		      val,
+		      th->font_col);
 	//empty part
-	makise_d_rect_filled(b->gui->buffer,
+	makise_d_rect_filled(gui->buffer,
 			     b->position.real_x + b->position.width/6,
 			     b->position.real_y + val + 3,
 			     b->position.width*4/6,
@@ -160,7 +136,7 @@ static uint8_t draw   (MElement* b)
 	
 	if(s->type == MSlider_Type_ReadWrite)
 	    //line
-	    makise_d_line(b->gui->buffer,
+	    makise_d_line(gui->buffer,
 			  b->position.real_x,
 			  b->position.real_y + val + 2,
 			  b->position.real_x + b->position.width - 1,
@@ -192,23 +168,23 @@ static MInputResultEnum input  (MElement* b, MInputData data)
     {
 	if(data.key == (_MSlider_is_horizontal(b) ? M_KEY_RIGHT : M_KEY_UP))
 	{
-	    if(*e->value + 1 > e->value_max)
-		*e->value = e->value_max;
+	    if(*e->value_p + 1 > e->value_max)
+		*e->value_p = e->value_max;
 	    else
-		(*e->value) ++;
+		(*e->value_p) ++;
 	    if(e->onchange != 0)
-		e->onchange(e, *e->value);
+		e->onchange(e, *e->value_p);
 
 	    return M_INPUT_HANDLED;
 	}
 	else if(data.key == (_MSlider_is_horizontal(b) ? M_KEY_LEFT : M_KEY_DOWN))
 	{
-	    if(*e->value - 1 < e->value_min)
-		*e->value = e->value_min;
+	    if(*e->value_p - 1 < e->value_min)
+		*e->value_p = e->value_min;
 	    else
-		(*e->value) --;
+		(*e->value_p) --;
 	    if(e->onchange != 0)
-		e->onchange(e, *e->value);
+		e->onchange(e, *e->value_p);
 	    
 	    return M_INPUT_HANDLED;
 	}
@@ -224,9 +200,9 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 	    v += e->value_min;
 	    if(v >= e->value_min && v <= e->value_max)
 	    {
-		*e->value = v;
+		*e->value_p = v;
 		if(e->onchange != 0)
-		    e->onchange(e, *e->value);
+		    e->onchange(e, *e->value_p);
 	    }
 	    return M_INPUT_HANDLED;
 	}
@@ -238,7 +214,7 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 	    v += e->value_min;
 	    if(v >= e->value_min && v <= e->value_max)
 	    {
-		*e->value = v;
+		*e->value_p = v;
 		if(e->onchange != 0)
 		    e->onchange(e, *e->value);
 	    }
@@ -277,8 +253,57 @@ static MFocusEnum focus  (MElement* b, MFocusEnum act)
     return M_G_FOCUS_NOT_NEEDED;
 }
 
-#ifdef __cplusplus
+void m_slider_set_range(MSlider* b, int32_t i, int32_t j)
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+
+    if(j > i)
+    {
+	b->value_max = j;
+	b->value_min = i;	
+    }
+    else
+    {
+	b->value_max = j;
+	b->value_min = i;
+    }
+    int32_t v = *b->value_p;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+
+    m_slider_set_value(b, v);
 }
-#endif
+void m_slider_set_value(MSlider* b, int32_t v)
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    
+    if(v > b->value_max)
+	*b->value_p = b->value_max;
+    else if(v < b->value_min)
+	*b->value_p = b->value_min;
+    else
+	*b->value_p = v;
+    
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+}
+int32_t m_slider_get_value(MSlider* b)
+{
+    int32_t v;
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    v = *b->value_p;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    return v;
+}
+void m_slider_set_onchange(MSlider* b, void (*onchange)(MSlider* b, int32_t val))
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    b->onchange = onchange;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+}
+void m_slider_set_onfocus (MSlider* b, void (*onfocus )(MSlider* b, MFocusEnum type))
+{
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    b->onfocus = onfocus;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+}
 
 #endif

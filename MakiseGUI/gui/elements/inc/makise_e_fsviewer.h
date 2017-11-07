@@ -216,6 +216,14 @@ void m_fsviewer_refresh(MFSViewer *l);
  * @return 
  */
 void fsviewer_open(MFSViewer *l, char *path);
+/**
+ * Open required folder if FileSystemViewer without mutexes
+ *
+ * @param MFSViewer MFSViewer
+ * @param path path to required directory
+ * @return 
+ */
+void _fsviewer_open(MFSViewer *l, char *path);
 
 #ifdef __cplusplus
 }
