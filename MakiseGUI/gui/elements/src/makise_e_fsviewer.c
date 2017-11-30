@@ -52,7 +52,7 @@ void m_create_fsviewer( MFSViewer*                  b,
 
 //draw single item of the list
 static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
-			 MakiseStyleTheme_FSViewer_Item *c_th,
+			 MakiseStyleTheme_FSViewer_Item *c_th, uint8_t selected,
 			 uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
 {
     //background
@@ -85,26 +85,52 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 	}
 	else //icon
 	{
-        int yc = l->style->bitmap_folder->height / 2; //place icon in center
+	    int yc = l->style->bitmap_folder->height / 2; //place icon in center
 	    yc = (eh / 2) - yc; 
 	    makise_d_bitmap(gui->buffer, x + 1, y + yc,
 			    l->style->bitmap_folder, c_th->icon_col);
-        x += l->style->bitmap_folder->width + 2;
-        w -= l->style->bitmap_folder->width + 2;
+	    x += l->style->bitmap_folder->width + 2;
+	    w -= l->style->bitmap_folder->width + 2;
 	}
 	
     }
+    //text scrolling
+    int32_t dx = 0, scrlx = ci->scroll_x / 100;
+    if(l->item_style->text_scroll_speed &&
+       ci->text_width > w - 2 &&
+       selected)
+    {
+	if(scrlx >= (int32_t)ci->text_width) {
+	    ci->scroll_x = 0;
+	    dx = 0;
+	}
+	else
+	{
+	    if(scrlx < (int32_t)w / 2)
+		dx = 0;
+	    else if(scrlx >= (int32_t)(ci->text_width - (w / 4)))
+		dx = -(ci->text_width - (w / 4)) + w / 2;
+	    else
+		dx = -scrlx + w / 2;
+	}
+	ci->scroll_x += l->item_style->text_scroll_speed;
+    }
+    else
+	ci->scroll_x = 0;
 
+    MakiseBufferBorderData border =
+	makise_add_border(gui->buffer,
+			  (MakiseBufferBorder){
+			      x, y, w, eh, 0, 0});
     //text
-    makise_d_string_frame(gui->buffer, ci->name, MDTextAll,
-			  x + 1,
-			  y,
-			  w - 2, eh,
-			  l->item_style->font,
-			  l->item_style->font_line_spacing,
-			  c_th->font_col);
+    makise_d_string(gui->buffer, ci->name, MDTextAll,
+		    x + 1 + dx,
+		    y,
+		    w - 2,
+		    l->item_style->font,
+		    c_th->font_col);
 	    
-
+    makise_rem_border(gui->buffer, border);
 }
 static uint8_t draw ( MElement* b, MakiseGUI *gui )
 {
@@ -195,7 +221,9 @@ static uint8_t draw ( MElement* b, MakiseGUI *gui )
         ci->id = i;
         c_th = (i == l->current_position) ? i_foc : i_nom;
 
-        draw_item(ci, l, gui, c_th, x, y, w, eh);
+        draw_item(ci, l, gui,
+		  c_th, (i == l->current_position),
+		  x, y, w, eh);
         y += eh + 1;
     }
     
@@ -429,6 +457,8 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	strcpy(l->buffer[0].fname, "..");
 	l->buffer[0].am_dir = 1;
 	l->files_count ++;
+	l->buffer[0].text_width = 2;
+	l->buffer[0].scroll_x = 0;
     }
     
     res = f_opendir(&dir, "");                       /* Open current directory */
@@ -453,6 +483,11 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		//if(fno.lfname[0] == 0)
 		strcpy(l->buffer[bi].name, fno.fname);
 		strcpy(l->buffer[bi].fname, fno.altname);
+		l->buffer[bi].text_width =
+		    makise_d_string_width(fno.fname, MDTextAll,
+					  l->item_style->font);
+		l->buffer[bi].scroll_x = 0;
+
 		//l->buffer[bi].sclust = 
 
 		l->buffer[bi].am_dir = fno.fattrib & AM_DIR;
@@ -460,8 +495,9 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		l->buffer[bi].id = ci;
 		bi ++;
 	    }
-	    else
+	    else {
 		MAKISE_DEBUG_OUTPUT("\n");
+	    }
 	    ci ++;
 	    if(bi >= FM_BUFFERED)
 		break;
@@ -549,6 +585,10 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		{
 		    strcpy(l->buffer[bi].name, entry->d_name);
 		    //MAKISE_DEBUG_OUTPUT("file %d %s\n", ci, entry->d_name);
+		    l->buffer[bi].text_width =
+			makise_d_string_width(entry->d_name, MDTextAll,
+					      b->item_style->font);
+		    l->buffer[bi].scroll_x = 0;
 
 		    l->buffer[bi].am_dir = entry->d_type == DT_DIR;
 

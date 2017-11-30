@@ -47,13 +47,13 @@ uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
     
     if(type == M_G_CALL_DRAW && el->draw != 0)
     {
-	MakiseBufferBorderData d =makise_add_border(gui->buffer,
-						    (MakiseBufferBorder){
-							el->position.real_x,
-							    el->position.real_y,
-							    el->position.width,
-							    el->position.height,
-							    0, 0});
+	MakiseBufferBorderData d = makise_add_border(gui->buffer,
+						     (MakiseBufferBorder){
+							 el->position.real_x,
+							     el->position.real_y,
+							     el->position.width,
+							     el->position.height,
+							     0, 0});
 	result = el->draw(el, gui);
 	makise_rem_border(gui->buffer, d);
     }

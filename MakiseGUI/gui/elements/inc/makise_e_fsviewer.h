@@ -61,6 +61,7 @@ typedef struct
     uint32_t                scroll_bg_color; //may be 0
     uint32_t                scroll_color;
 
+    
     MakiseStyleTheme        normal;
     MakiseStyleTheme        focused;
     MakiseStyleTheme        active;
@@ -68,8 +69,10 @@ typedef struct
 
 typedef struct
 {
-    const MakiseFont*       font;
-    uint32_t                font_line_spacing;
+    const MakiseFont*               font;
+    uint32_t                        font_line_spacing;
+
+    uint32_t                        text_scroll_speed;
 
     MakiseStyleTheme_FSViewer_Item  normal;
     MakiseStyleTheme_FSViewer_Item  focused;
@@ -91,19 +94,19 @@ typedef struct _MFSViewer MFSViewer;
 typedef struct _MFSViewer_Item
 {
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS    
-    char                        name[ FF_MAX_LFN + 2 ];         //text of item
-    char                        fname[13];                      //short file name
-    DWORD                       sclust;                         //start of clust
+    char                        name[ FF_MAX_LFN + 2 ];    // text of item
+    char                        fname[13];                 // short file name
+    DWORD                       sclust;                    // start of clust
 #else //STDIO
-    char                        name[256];                 //text of item
-    uint32_t                    inode;                 //start of clust
+    char                        name[256];                 // text of item
+    uint32_t                    inode;                     // start of clust
 #endif //END std or fat   
-    uint8_t                     am_dir;                         //is dir
-    uint32_t                    size;                           //file's size
-    //uint8_t selected;                                         //is selected
-    
-    MFSViewer_Item*             prev;
-    MFSViewer_Item*             next;
+    uint8_t                     am_dir;                    // is dir
+    uint32_t                    size;                      // file's size
+    //uint8_t selected;                                    // is selected
+
+    uint32_t                    scroll_x;
+    uint32_t                    text_width;    
 
     uint32_t id;       //custom id, if NOT is_array, else - position in the array(will be computed automatically by MMFSViewer).
 } MFSViewer_Item;

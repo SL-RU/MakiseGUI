@@ -6,8 +6,8 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t 
     uint32_t bitCounter, rawIndex, colIndex;
     const uint8_t * ptrByte;
 
-    if(b->border.ex + b->border.w < x ||
-       b->border.ey + b->border.h < y ||
+    if((int16_t)(b->border.ex + b->border.w) < x ||
+       (int16_t)(b->border.ey + b->border.h) < y ||
        x <= b->border.x - width ||
        y <= b->border.y - font->height)
 	return;
@@ -72,7 +72,7 @@ void makise_d_string(MakiseBuffer *b,
 	y -= font->height;
     }
     
-    uint32_t ch, xt = x, yt = y;
+    int32_t ch, xt = x, yt = y;
 
     if(y + font->height < b->border.y ||
        y > b->border.ey) //borders
@@ -98,7 +98,7 @@ void makise_d_string(MakiseBuffer *b,
 	_makise_draw_char(b, ch, xt, yt, font, c, width);
 	xt += width + font->space_char;
 
-	if(xt >= b->border.ex) //border
+	if(xt >= (int32_t)b->border.ex) // right border
 	    return;
     }
 }
@@ -300,9 +300,9 @@ char *     makise_d_string_get_line (
 //draw multiline text in the defined frame
 void makise_d_string_frame(MakiseBuffer *b, char *s, uint32_t len, int16_t x, int16_t y, uint16_t w, uint16_t h, const MakiseFont *font, uint16_t line_spacing, uint32_t c)
 {
-    uint32_t width, i = 0;
+    int32_t width, i = 0;
 
-    uint32_t ch, xt = x, yt = y;
+    int32_t ch, xt = x, yt = y;
 
     if(s == 0)
 	return;
