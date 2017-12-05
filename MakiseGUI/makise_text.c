@@ -298,7 +298,10 @@ char *     makise_d_string_get_line (
 }
 
 //draw multiline text in the defined frame
-void makise_d_string_frame(MakiseBuffer *b, char *s, uint32_t len, int16_t x, int16_t y, uint16_t w, uint16_t h, const MakiseFont *font, uint16_t line_spacing, uint32_t c)
+void makise_d_string_frame(MakiseBuffer *b,
+			   char *s, uint32_t len,
+			   int16_t x, int16_t y, uint16_t w, uint16_t h,
+			   const MakiseFont *font, uint16_t line_spacing, uint32_t c)
 {
     int32_t width, i = 0;
 
@@ -371,7 +374,7 @@ static const struct validUTF8Sequence
     {0x100000, 0x10FFFF, 4, {0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF}} 
 };
 
-uint32_t    makise_d_utf_char_id  ( char *s, uint32_t len, uint8_t *bts )
+uint32_t makise_d_utf_char_id(char *s, uint32_t len, uint8_t *bts)
 {
     if(len == 0)
     {
@@ -471,5 +474,88 @@ uint32_t    makise_d_utf_char_font  ( uint32_t c, const MakiseFont *font)
     }
     return UINT32_MAX;
 }
+
+
+uint32_t makise_d_utf_char_encode(uint32_t code, uint8_t *utf8)
+{
+    uint32_t tail = 0;
+    uint32_t i = 0;
+    static const uint8_t utf8comp[6] =	{
+	0x00, 0xC0, 0xE0, 0xF0, 0xF8, 0xFC
+    };
+
+    if (code > 0x7F)
+        while (code >> (5*tail + 6))
+            tail++;
+
+    utf8[i++] = (code >> (6*tail)) | utf8comp[tail];
+    while (tail--)
+        utf8[i++] = ((code >> (6*tail)) &
+		     0x3F) | 0x80; //mask
+
+    return i;
+}
+
+//#define getbe16(p) ((p[0] << 8) | p[1])
+
+
+uint32_t makise_d_utf16_string_decode(uint8_t *utf16,
+				      uint8_t *utf8, uint32_t count)
+{
+    uint32_t code, len = 0;
+
+    while (count > 0) {
+        /* Check for a surrogate pair */
+
+        code = utf16[0] << 0 | (utf16[1] << 8);
+	utf16 += 2;
+	count -= 2;
+        len += makise_d_utf_char_encode(code, utf8 + len);
+    }
+    return len;
+}
+
+/* /\* Recode a UTF-16 string with big-endian byte ordering to UTF-8 *\/ */
+/* unsigned char* utf16BEdecode(const unsigned char *utf16, unsigned char *utf8, */
+/*         int count) */
+/* { */
+/*     unsigned long code; */
+
+/*     while (count > 0) { */
+/*         if (*utf16 >= 0xD8 && *utf16 < 0xE0) { /\* Check for a surrogate pair *\/ */
+/*             code = 0x10000 + (((utf16[0] - 0xD8) << 18) | (utf16[1] << 10) */
+/*                     | ((utf16[2] - 0xDC) << 8) | utf16[3]); */
+/*             utf16 += 4; */
+/*             count -= 2; */
+/*         } else { */
+/*             code = getbe16(utf16); */
+/*             utf16 += 2; */
+/*             count -= 1; */
+/*         } */
+/*         utf8 = utf8encode(code, utf8); */
+/*     } */
+/*     return utf8; */
+/* } */
+
+/* #if 0 /\* currently unused *\/ */
+/* /\* Recode any UTF-16 string to UTF-8 *\/ */
+/* unsigned char* utf16decode(const unsigned char *utf16, unsigned char *utf8, */
+/*         unsigned int count) */
+/* { */
+/*     uAnsigned long code; */
+
+/*     code = *(utf16++) << 8; */
+/*     code |= *(utf16++); */
+
+/*     if (code == 0xFEFF) /\* Check for BOM *\/ */
+/*         return utf16BEdecode(utf16, utf8, count-1); */
+/*     else if (code == 0xFFFE) */
+/*         return utf16LEdecode(utf16, utf8, count-1); */
+/*     else { /\* ADDME: Should default be LE or BE? *\/ */
+/*         utf16 -= 2; */
+/*         return utf16BEdecode(utf16, utf8, count); */
+/*     } */
+/* } */
+/* #endif */
 
 #endif //unicode

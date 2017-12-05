@@ -324,7 +324,7 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 					    e->current_chunk_position];
 	    if(it->am_dir)
 		//if directory
-		_fsviewer_open(e, it->name);
+		_fsviewer_open(e, it->fname);
 	    else
 	    {
 		e->was_selected = 1;
@@ -359,7 +359,7 @@ return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
 }
 
 
-uint32_t fsviewer_count_files ( char* path )
+uint32_t fsviewer_count_files ( TCHAR* path )
 {
     uint32_t count = 0;
     
@@ -369,7 +369,7 @@ uint32_t fsviewer_count_files ( char* path )
     FRESULT res;
 
     if(path == 0)
-	res = f_opendir(&dir, "");
+	res = f_opendir(&dir, (TCHAR*)"");
     else
 	res = f_opendir(&dir, path);
     //MAKISE_DEBUG_OUTPUT("opdir %d\n", res);
@@ -417,12 +417,34 @@ uint32_t fsviewer_count_files ( char* path )
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS        
 static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 {
-    char bu[5] = "";
+    TCHAR bu[5] = {0};
     //do we need to show [..](go back)
     uint8_t isroot = f_getcwd(bu, 5);
     isroot = (bu[0] == '/') && (bu[1] == 0);
     //MAKISE_DEBUG_OUTPUT("root %s| %d\n", bu, isroot);
     l->files_count = fsviewer_count_files(0);
+    FRESULT res;
+    DIR dir;
+    static FILINFO fno;
+
+    uint32_t ci = !isroot, //file's ID
+	bi = 0; //id in the buffer
+    //uint8_t sel_dir = 0; //was current dir selected
+
+    //add go back items
+    if(l->current_chunk_position == 0 && !isroot)
+    {
+	strcpy(l->buffer[0].name, "..");
+#if FF_LFN_UNICODE && FF_USE_LFN	
+	memcpy(l->buffer[0].fname, (TCHAR[3]){'.', '.', 0}, 6);
+#else
+	strcpy((char*)l->buffer[0].fname, "..");
+#endif
+	l->buffer[0].am_dir = 1;
+	l->files_count ++;
+	l->buffer[0].text_width = 2;
+	l->buffer[0].scroll_x = 0;
+    }
 
     MAKISE_DEBUG_OUTPUT("files coint: %d\n", l->files_count);
     
@@ -442,29 +464,11 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
         l->current_chunk_position = 0;
     }
     //MAKISE_DEBUG_OUTPUT("ch st: %d req %d\n", l->current_chunk_position, required_id);
-    FRESULT res;
-    DIR dir;
-    static FILINFO fno;
-
-    uint32_t ci = !isroot, //file's ID
-	bi = 0; //id in the buffer
-    uint8_t sel_dir = 0; //was current dir selected
-
-    //add go back items
-    if(l->current_chunk_position == 0 && !isroot)
-    {
-	strcpy(l->buffer[0].name, "..");
-	strcpy(l->buffer[0].fname, "..");
-	l->buffer[0].am_dir = 1;
-	l->files_count ++;
-	l->buffer[0].text_width = 2;
-	l->buffer[0].scroll_x = 0;
-    }
     
-    res = f_opendir(&dir, "");                       /* Open current directory */
+    res = f_opendir(&dir, (TCHAR*)"");                       /* Open current directory */
     if (res == FR_OK) {
 	l->current_folder = dir.obj.sclust; //set current dir
-	sel_dir = l->current_folder == l->selected_folder; //is current dir the selected
+	//sel_dir = l->current_folder == l->selected_folder; //is current dir the selected
 	
 	MAKISE_DEBUG_OUTPUT("sclust %d\n", dir.obj.sclust);
         for (;;) {
@@ -481,10 +485,22 @@ static void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 	    {
 		MAKISE_DEBUG_OUTPUT("buf %d\n", bi);
 		//if(fno.lfname[0] == 0)
-		strcpy(l->buffer[bi].name, fno.fname);
-		strcpy(l->buffer[bi].fname, fno.altname);
+#if FF_LFN_UNICODE && FF_USE_LFN
+		makise_d_utf16_string_decode((uint8_t*)fno.fname, 
+		 			     (uint8_t*)l->buffer[bi].name, FF_MAX_LFN-1); 
+		//memcpy(l->buffer[bi].name, fno.fname, 256);
+		memcpy(l->buffer[bi].fname, fno.altname, sizeof(TCHAR)*13);
+#elif FF_USE_LFN
+		// Usual LFN name
+		memcpy(l->buffer[bi].name, fno.fname, 256);
+		memcpy(l->buffer[bi].fname, fno.altname, sizeof(TCHAR)*13);
+
+#else
+		//Without LFN
+		strncpy(l->buffer[bi].name, fno.fname, 13);
+#endif
 		l->buffer[bi].text_width =
-		    makise_d_string_width(fno.fname, MDTextAll,
+		    makise_d_string_width(l->buffer[bi].name, MDTextAll,
 					  l->item_style->font);
 		l->buffer[bi].scroll_x = 0;
 

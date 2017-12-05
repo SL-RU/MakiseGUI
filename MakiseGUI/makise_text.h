@@ -78,11 +78,10 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
  * @param font 
  * @return count of text lines
  */
-uint32_t    makise_d_string_get_line_count (
-                                     char *s,
-                                     uint32_t len,
-                                     uint16_t w,
-                                     const MakiseFont *font );
+uint32_t makise_d_string_get_line_count(char *s,
+					uint32_t len,
+					uint16_t w,
+					const MakiseFont *font );
     
 /**
  * Returns pointer to the n's line. It calculates returns, wraps and etc.
@@ -94,20 +93,19 @@ uint32_t    makise_d_string_get_line_count (
  * @param font font
  * @return pointer tobeginning og n's line
  */
-char *     makise_d_string_get_line (
-                                     char *s,
-                                     uint32_t len,
-				     uint32_t n,
-                                     uint16_t w,
-                                     const MakiseFont *font );
+char * makise_d_string_get_line(char *s,
+				uint32_t len,
+				uint32_t n,
+				uint16_t w,
+				const MakiseFont *font);
 
     
 // Get height text for user width window.
-uint32_t makise_d_string_height_get ( char*             s,
-                                      uint32_t          len,
-                                      uint16_t          width_window,
-                                      const MakiseFont* font,
-                                      uint32_t          font_line_spacing );
+uint32_t makise_d_string_height_get(char*             s,
+				    uint32_t          len,
+				    uint16_t          width_window,
+				    const MakiseFont* font,
+				    uint32_t          font_line_spacing);
 
 
 #if MAKISE_UNICODE    
@@ -119,7 +117,7 @@ uint32_t makise_d_string_height_get ( char*             s,
  * @param bts bytes per char
  * @return 0 if is error. Else - unicode index of char
  */
-    uint32_t    makise_d_utf_char_id  ( char *s, uint32_t len, uint8_t *bts );
+    uint32_t makise_d_utf_char_id(char *s, uint32_t len, uint8_t *bts);
     
 /**
  * Get index of utf-8 character in the font table
@@ -128,7 +126,10 @@ uint32_t makise_d_string_height_get ( char*             s,
  * @param font font
  * @return -1 if is error. Else - index of char in the table
  */
-    uint32_t    makise_d_utf_char_font  ( uint32_t c, const MakiseFont *font);
+    uint32_t makise_d_utf_char_font(uint32_t c, const MakiseFont *font);
+
+    uint32_t makise_d_utf16_string_decode(uint8_t *utf16,
+					  uint8_t *utf8, uint32_t count);
 #endif //unicode
 
 #ifdef __cplusplus
