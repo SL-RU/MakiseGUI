@@ -120,10 +120,13 @@ typedef struct _MFSViewer {
     MElement el;
 
     char *header; //header. if ==0, then it won't show
+#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
+    TCHAR *path;  //current folder's path
+#else
     char *path;   //current folder's path
-
+#endif
+    
     MFSViewer_Item buffer[FM_BUFFERED]; //buffer for the linked list
-
 
     //for displaying great amount of files in folder. Caching
     uint32_t displayed_count; //how many lines are on the screen
@@ -222,7 +225,13 @@ void m_fsviewer_refresh(MFSViewer *l);
  * @param path path to required directory
  * @return 
  */
-void fsviewer_open(MFSViewer *l, char *path);
+void fsviewer_open(MFSViewer *l,
+#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
+		   TCHAR *path
+#else
+		   char *path
+#endif
+    );
 /**
  * Open required folder if FileSystemViewer without mutexes
  *
@@ -230,7 +239,13 @@ void fsviewer_open(MFSViewer *l, char *path);
  * @param path path to required directory
  * @return 
  */
-void _fsviewer_open(MFSViewer *l, char *path);
+void _fsviewer_open(MFSViewer *l,
+#if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
+		   TCHAR *path
+#else
+		   char *path
+#endif
+);
 
 #ifdef __cplusplus
 }

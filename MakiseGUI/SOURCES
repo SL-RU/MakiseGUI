@@ -11,6 +11,8 @@ gui/elements/makise_e.c
 gui/elements/src/makise_e_buttons.c
 gui/elements/src/makise_e_canvas.c
 gui/elements/src/makise_e_fsviewer.c
+gui/elements/src/makise_e_fsviewer_fatfs.c
+gui/elements/src/makise_e_fsviewer_stdio.c
 gui/elements/src/makise_e_lable.c
 gui/elements/src/makise_e_message_window.c
 gui/elements/src/makise_e_progress_bar.c
