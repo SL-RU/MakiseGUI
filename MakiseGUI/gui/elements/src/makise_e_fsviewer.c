@@ -329,41 +329,36 @@ static MInputResultEnum input  (MElement* b, MInputData data)
 		char trackname[13];
 		for (int i = 0; i < 13; i++) {
 		    trackname[i] = (char)(it->fname[i]);
-		    printf("%d\n", it->fname[i]);
 		}
-		    
-		printf("fold %s\n", trackname);
 		_fsviewer_open(e, it->fname);
 	    }
 	    else
 	    {
 		e->was_selected = 1;
 		e->selected_folder = e->current_folder;
-		//MAKISE_DEBUG_OUTPUT("fileviewer ok  onselection\n");
+		
 		if(strncmp(e->selected_file, it->name,
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS    
 			   13 ) != 13
 #else //STDIO
-		   256 ) != 0
-#endif    
-		       
-				&& e->onselection != 0
-				//call onselection
-				&& e->onselection(e, it))
-	    {
-		//strncpy(e->selected_file, it->fname, 13);
-		e->selected_file_id = it->id;
-		if(e->click != 0)
-		{
-		    e->click(e, it);
+		   256 != 0
+#endif
+		   && e->onselection != 0
+		   //call onselection
+		   && e->onselection(e, it))
+		{		
+		    e->selected_file_id = it->id;
+		    if(e->click != 0)
+		    {
+			e->click(e, it);
+		    }
 		}
 	    }
+	    handled = 1;
 	}
-	handled = 1;
-    }
 	
-}
+    }
     
-return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
+    return handled ? M_INPUT_HANDLED : M_INPUT_NOT_HANDLED;
 }
 #endif
