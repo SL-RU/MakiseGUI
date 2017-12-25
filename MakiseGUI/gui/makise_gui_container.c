@@ -96,7 +96,9 @@ void makise_g_cont_clear(MContainer *c)
     MAKISE_MUTEX_REQUEST(&c->mutex);
     MElement *e = c->first;
     while (e != 0) {
+	MAKISE_MUTEX_RELEASE(&c->mutex);
 	makise_g_cont_rem(e);
+	MAKISE_MUTEX_REQUEST(&c->mutex);
 	e = c->first;
     }
     MAKISE_MUTEX_RELEASE(&c->mutex);
@@ -246,8 +248,8 @@ int32_t makise_g_cont_index(MElement *el)
 	    MAKISE_MUTEX_RELEASE(&el->parent->mutex);
 	    return i;
 	}
-	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	ep = e;
+	MAKISE_MUTEX_REQUEST(&ep->mutex_cont);
 	e = e->next;
 	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
 	
@@ -325,18 +327,18 @@ uint8_t makise_g_cont_call   (MContainer *cont, MakiseGUI *gui, uint8_t type)
 	MAKISE_MUTEX_REQUEST(&cont->el->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(cont->el);
-	MAKISE_MUTEX_RELEASE(&cont->el->mutex);
+	MAKISE_MUTEX_RELEASE(&cont->el->mutex_cont);
     }
     
     MElement *e = cont->first, *ep;
 
     while(e != 0)
     {
-	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
+	ep = e;
+	MAKISE_MUTEX_REQUEST(&ep->mutex_cont);
 	if(type == M_G_CALL_PREDRAW)
 	    makise_g_cont_call_common_predraw(e);
 	m_element_call(e, gui, type);
-	ep = e;
 	e = e->next;
 	MAKISE_MUTEX_RELEASE(&ep->mutex_cont);
     }
@@ -355,11 +357,12 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
     
     if(cont->focused != 0)
     {
-	MAKISE_MUTEX_REQUEST(&cont->focused->mutex_cont);
-	MInputResultEnum r =
-	    m_element_input(cont->focused, data);
-	MAKISE_MUTEX_RELEASE(&cont->focused->mutex_cont);
+	MElement *el = cont->focused;
+	//MAKISE_MUTEX_REQUEST(&cont->focused->mutex_cont);
 	MAKISE_MUTEX_RELEASE(&cont->mutex);
+	MInputResultEnum r =
+	    m_element_input(el, data);
+	//MAKISE_MUTEX_RELEASE(&cont->focused->mutex_cont);
 	return r;
     }
 
@@ -377,8 +380,8 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
     uint8_t f = 1; //if current element is parent - we need to try switch it
     MElement *ep, *en;
     while (e != 0) {
-	MAKISE_MUTEX_REQUEST(&e->mutex_cont);
 	ep = e;
+	MAKISE_MUTEX_REQUEST(&ep->mutex_cont);
 	en = next ? e->next : e->prev;
 	
 	if(e->enabled && e->focus_prior != 0)

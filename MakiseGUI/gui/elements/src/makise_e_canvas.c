@@ -66,10 +66,14 @@ static uint8_t predraw (MElement* b, MakiseGUI *gui)
 static MInputResultEnum input (MElement* b, MInputData data)
 {
     MCanvas*            c  = b->data;
+    MContainer *co = &c->cont;
     if(c->cont.focused == 0)
-	makise_g_cont_focus_next(&(c->cont));
+    {
+	//makise_g_cont_focus_next(co);
+	//TODO: FIX MUTEX HERE
+    }
     if(c->cont.focused != 0)
-	return makise_g_cont_input(&c->cont, data);
+	return makise_g_cont_input(co, data);
     
     return M_INPUT_NOT_HANDLED;
 }
