@@ -9,6 +9,8 @@
 #include "makise_text.h"
 #include "fonts.h"
 
+#ifdef FONTS_DEFAULT6X10
+
 const uint8_t Default6x10_table [] =
 {
     0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, // 
@@ -212,5 +214,7 @@ const MakiseFont F_Default6x10 = {
 #endif
     0
 };
+
+#endif
 
 #endif
