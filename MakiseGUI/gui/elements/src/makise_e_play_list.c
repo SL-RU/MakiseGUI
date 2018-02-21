@@ -1,6 +1,6 @@
 #include "makise_config.h"
 
-#if ( MAKISE_E_SLIST > 0 )
+#if ( MAKISE_E_PLAYLIST > 0 )
 
 #ifdef __cplusplus
 extern "C" {

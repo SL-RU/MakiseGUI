@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-static uint8_t draw   (MElement* b);
+    static uint8_t draw   (MElement* b, MakiseGUI *gui);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
@@ -19,7 +19,7 @@ void m_create_text_field(MTextField* b, MContainer *c,
 			 MakiseStyle_TextField *style)
 {
     MElement *e = &b->el;
-    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+    m_element_create(e, name, b,
 		     1, 1, pos,
 		     &draw,
 		     0,
@@ -41,13 +41,13 @@ void m_create_text_field(MTextField* b, MContainer *c,
     MAKISE_DEBUG_OUTPUT("Text field %d created\n", e->id);
 }
 
-uint8_t draw ( MElement* b ) {
+uint8_t draw ( MElement* b, MakiseGUI *gui ) {
     MTextField *t = (MTextField*)b->data;
     MakiseStyleTheme *th = &t->state ?
 	&t->style->normal :
 	&t->style->focused;
     
-    _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
+    _m_e_helper_draw_box(gui->buffer, &b->position, th);
 
     if(t->total_lines == UINT32_MAX)
 	//if total line count wasn't calculated yet
@@ -64,7 +64,7 @@ uint8_t draw ( MElement* b ) {
 	b->position.width - 4,
 	t->style->font);
     
-    makise_d_string_frame(b->gui->buffer,
+    makise_d_string_frame(gui->buffer,
 			  c,
 			  t->len == MDTextAll ? MDTextAll : t->len - (c - t->text),
 			  b->position.real_x + 2,// + b->position.width / 2,
@@ -96,7 +96,7 @@ uint8_t draw ( MElement* b ) {
 	y += b->position.real_y + 1;
 
     
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
 			      b->position.real_x + b->position.width
 			      - t->style->scroll_width - 1,
 			      b->position.real_y,
@@ -105,7 +105,7 @@ uint8_t draw ( MElement* b ) {
 			      th->border_c,
 			      t->style->scroll_bg_color );
 
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
 			      b->position.real_x + b->position.width - t->style->scroll_width - 1,
 			      y,               // BUG!
 			      t->style->scroll_width + 1,
