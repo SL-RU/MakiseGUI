@@ -1,5 +1,5 @@
 #ifndef _MAKISE_H_G_Input
-#define _MAKISE_H_G_Input 1
+#define _MAKISE_H_G_Input
 
 #ifdef __cplusplus
 extern "C" {

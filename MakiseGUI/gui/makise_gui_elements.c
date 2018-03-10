@@ -29,12 +29,6 @@ void m_element_create(MElement *e, char *name, void* data,
     e->next                 = 0;
     e->prev                 = 0;
     e->parent               = 0;
-    
-#if MAKISE_MUTEX
-    m_mutex_create(&e->mutex);
-    m_mutex_create(&e->mutex_cont);
-#endif
-
 }
 
 uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
@@ -42,7 +36,6 @@ uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
     if(el == 0)
 	return M_ZERO_POINTER;
     
-    MAKISE_MUTEX_REQUEST(&el->mutex);
     uint8_t result = M_ERROR;
     
     if(type == M_G_CALL_DRAW && el->draw != 0)
@@ -65,7 +58,6 @@ uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
     {
 	result = el->update(el);
     }
-    MAKISE_MUTEX_RELEASE(&el->mutex);
     return result;
 }
 
@@ -75,12 +67,10 @@ MInputResultEnum m_element_input(MElement* el, MInputData data)
 	return M_ZERO_POINTER;
 
     MInputResultEnum r = M_INPUT_NOT_HANDLED;
-    MAKISE_MUTEX_REQUEST(&el->mutex);
     if(el->input != 0)
     {
 	r = el->input(el, data);
     }
-    MAKISE_MUTEX_RELEASE(&el->mutex);
     
     return r;
 }
@@ -91,12 +81,10 @@ MFocusEnum m_element_focus(MElement* el, MFocusEnum act )
 	return M_ZERO_POINTER;
     
     MFocusEnum r = M_G_FOCUS_NOT_NEEDED;
-    MAKISE_MUTEX_REQUEST(&el->mutex);
     if(el->focus != 0)
     {
 	r = el->focus(el, act);
     }
-    MAKISE_MUTEX_RELEASE(&el->mutex);
 
     return r;
 }

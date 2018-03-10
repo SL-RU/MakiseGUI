@@ -10,9 +10,11 @@ typedef struct _MakiseGUI MakiseGUI;
 typedef struct _MakiseBuffer MakiseBuffer;
 typedef struct _MakiseDriver MakiseDriver;
 
-#define M_OK            1
-#define M_ERROR         2
-#define M_ZERO_POINTER  3
+typedef enum {
+    M_OK          ,
+    M_ERROR       ,
+    M_ZERO_POINTER,
+} MResult;
 
 #include <stdlib.h>
 #include <stdint.h>

@@ -34,8 +34,9 @@ typedef struct _MHost MHost;
 #include "makise.h"
 #include "makise_style.h"
 #include "makise_gui_input.h"
-#include "makise_gui_container.h"
+#include "makise_gui_events.h"
 #include "makise_gui_elements.h"
+#include "makise_gui_container.h"
 
 //Root container for all elements
 typedef struct _MHost
@@ -43,6 +44,7 @@ typedef struct _MHost
     MakiseGUI *gui;
     MContainer *host;
     MInputHostData input;
+    MEM_Host mem;
 #if MAKISE_MUTEX
     MAKISE_MUTEX_t mutex;
 #endif    

@@ -74,12 +74,6 @@ typedef struct _MElement {
     uint32_t      id;             // Unique id.
     char*         name;
     
-
-
-#if MAKISE_MUTEX
-    MAKISE_MUTEX_t mutex_cont; //mutex for is_parent, children, prev, next, enabled, focus prior, name, id & parent
-    MAKISE_MUTEX_t mutex;      //mutex for everything else
-#endif    
 } MElement;
 
 /**

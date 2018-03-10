@@ -1,5 +1,5 @@
 #ifndef _MAKISE_H_G_CONTAINER
-#define _MAKISE_H_G_CONTAINER 1
+#define _MAKISE_H_G_CONTAINER
 
 #ifdef __cplusplus
 extern "C" {
@@ -7,10 +7,9 @@ extern "C" {
 
 typedef struct _MContainer MContainer;
 
-
-#include "makise_gui.h"
 #include "makise_gui_elements.h"
-
+#include "makise_gui.h"
+    
 typedef struct _MContainer
 {
     MElement*       el; //element which is host for the container. Can be zero if it is MHost
@@ -18,9 +17,6 @@ typedef struct _MContainer
     MElement*       first; //pointer to the first element or 0 if container is empty
     MElement*       last; //pointer to the last element
     MElement*       focused; //pointer to the focused element. Element must be in the container
-#if MAKISE_MUTEX
-    MAKISE_MUTEX_t mutex;
-#endif    
 //    void (*on_add)(MElement* el);
 } MContainer;
 
