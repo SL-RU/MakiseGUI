@@ -103,7 +103,8 @@ typedef struct _MakiseDriver
 
 typedef struct _MakiseGUI
 {
-    MakiseBuffer* buffer;
+    MakiseBuffer *buffer; //to have backwards compatability
+    MakiseBuffer _buffer;
     MakiseDriver* driver;
     void (*draw)(MakiseGUI* gui);
     void (*predraw)(MakiseGUI* gui);

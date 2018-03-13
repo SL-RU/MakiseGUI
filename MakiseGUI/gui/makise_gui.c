@@ -10,25 +10,60 @@ void makise_gui_init ( MHost* host )
     if ( host == NULL )
         return;
 
-    mem_init(host);
-    
-    MInputHostData *inp = &host->input;
+    // init gui host
+    makise_g_cont_init(&host->host);
+    host->host.host = host;
+    // init event manager
+    mem_init(host); 
 
+    //init input manager
+    MInputHostData *inp = &host->input;
     inp->cur_buf = 0;
     inp->buf_index[0] = 0;
     inp->buf_index[1] = 0;
     inp->result_handler = 0;
 
+    //init cursor input if enabled
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     inp->cursor_session = 0;
     inp->last = (MInputCursorEvent){0};
 #endif
-    
+
+    //init mutexes
 #if MAKISE_MUTEX
     m_mutex_create(&inp->mutex);
     m_mutex_create(&host->mutex);
     m_mutex_create(&_makise_new_id_mutex);
 #endif
+}
+
+void makise_gui_autoinit(MHost *host,
+		     MakiseGUI *gui,
+		     MakiseDriver *driver,
+		     uint32_t* (*get_buffer)(uint32_t size),
+		     MInputData(*inp_handler)(MInputData d,
+					      MInputResultEnum res),
+		     void (*draw)(MakiseGUI* gui),
+		     void (*predraw)(MakiseGUI* gui),
+		     void (*update)(MakiseGUI* gui))
+{
+    makise_gui_init(host); //init gui host
+    
+    host->input.result_handler = inp_handler; //set input handler
+    //set host container position and size
+    host->host_size = mp_rel(0, 0,
+			     driver->lcd_width,
+			     driver->lcd_height);
+    host->host_size.real_x = 0;
+    host->host_size.real_y = 0;
+    host->host.position = &host->host_size;
+
+    uint32_t sz = makise_init(gui, driver, &gui->_buffer);
+    gui->buffer->buffer = get_buffer(sz);
+
+    gui->predraw = predraw;
+    gui->draw = draw;
+    gui->update = update;
 }
 
 uint32_t makise_g_newid()
@@ -44,7 +79,7 @@ uint32_t makise_g_newid()
 uint8_t makise_g_host_call   (MHost *host, MakiseGUI *gui, MElementCall type)
 {
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    MContainer *cont = host->host;
+    MContainer *cont = &host->host;
     MAKISE_MUTEX_RELEASE(&host->mutex);
     
     uint8_t r = makise_g_cont_call(cont, gui, type);
@@ -54,7 +89,7 @@ uint8_t makise_g_host_call   (MHost *host, MakiseGUI *gui, MElementCall type)
 MInputResultEnum makise_g_host_input  (MHost *host, MInputData d)
 {
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    MContainer *cont = host->host;
+    MContainer *cont = &host->host;
     MAKISE_MUTEX_RELEASE(&host->mutex);
     
     uint8_t r = makise_g_cont_input(cont, d);
@@ -187,7 +222,7 @@ MFocusEnum makise_g_host_focus_next(MHost *host)
 {
     if(host == 0)
 	return M_ZERO_POINTER;
-    MContainer *cont = host->host;
+    MContainer *cont = &host->host;
     if(cont == 0)
 	return M_ZERO_POINTER;
     
@@ -198,7 +233,7 @@ MFocusEnum makise_g_host_focus_prev(MHost *host)
 {
     if(host == 0)
 	return M_ZERO_POINTER;
-    MContainer *cont = host->host;
+    MContainer *cont = &host->host;
     if(cont == 0)
 	return M_ZERO_POINTER;
     
@@ -240,6 +275,6 @@ void makise_g_print_tree(MHost *host)
 {
     if(host == 0)
 	return;
-    MContainer *c = host->host;    
+    MContainer *c = &host->host;    
     _makise_g_print_tree(c, 0);
 }

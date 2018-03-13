@@ -2,7 +2,7 @@
 
 #if MAKISE_E_LABLE > 0
 
-static uint8_t draw   ( MElement* b, MakiseGUI *gui );
+static MResult draw   ( MElement* b, MakiseGUI *gui );
 
 static char name[] = "Lable";
 
@@ -20,6 +20,7 @@ void m_create_lable( MLable*             b,
 		     0,
 		     0,
 		     0,
+		     0,
 		     0, 0);
     
     b->text = 0;
@@ -33,7 +34,7 @@ void m_create_lable( MLable*             b,
     MAKISE_DEBUG_OUTPUT("Lable %d created\n", e->id);
 }
 
-static uint8_t draw ( MElement* b, MakiseGUI *gui )
+static MResult draw ( MElement* b, MakiseGUI *gui )
 {
     MLable *e = b->data;
     

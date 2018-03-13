@@ -6,20 +6,28 @@ extern "C" {
 #endif
 
 typedef struct _MContainer MContainer;
-
-#include "makise_gui_elements.h"
-#include "makise_gui.h"
+typedef struct _MElement MElement;
+typedef struct _MHost MHost;
+typedef struct _MPosition MPosition;
     
 typedef struct _MContainer
 {
-    MElement*       el; //element which is host for the container. Can be zero if it is MHost
-    MPosition*      position; //container position
-    MElement*       first; //pointer to the first element or 0 if container is empty
-    MElement*       last; //pointer to the last element
+    MElement*       el;      //element which is host for the container. Can be zero if it is MHost
+    MPosition*      position;//container position
+    MElement*       first;   //pointer to the first element or 0 if container is empty
+    MElement*       last;    //pointer to the last element
     MElement*       focused; //pointer to the focused element. Element must be in the container
-//    void (*on_add)(MElement* el);
+    MHost*          host;    // MHost, if exists.
 } MContainer;
 
+#include "makise_gui.h"
+    
+/**
+ * init container's structure
+ *
+ * @param cont container
+ * @return 
+ */
 void makise_g_cont_init(MContainer *c);
 /**
  * add element to new container

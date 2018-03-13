@@ -68,7 +68,7 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
     if((!h->input.cursor_session & 0b01) && //if session not begun
        (d->event == M_INPUT_PRESSING))
     {
-	MElement *e = makise_g_cont_element_on_point(h->host,
+	MElement *e = makise_g_cont_element_on_point(&h->host,
 						     d->cursor.x, d->cursor.y);
 	if(e != 0) //if element found
 	{
@@ -97,7 +97,7 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
     {
 	if((!h->input.cursor_session & 0b01)) //if session not begun
 	{
-	    MElement *e = makise_g_cont_element_on_point(h->host,
+	    MElement *e = makise_g_cont_element_on_point(&h->host,
 							 d->cursor.x, d->cursor.y);
 	    if(e != 0) //if element found
 	    {

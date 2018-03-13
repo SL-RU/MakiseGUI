@@ -7,6 +7,7 @@ void makise_g_cont_init(MContainer *c)
     c->position = 0;
     c->focused = 0;
     c->el = 0;
+    c->host = 0;
 }
 
 void makise_g_cont_add(MContainer * cont, MElement *el)
@@ -14,6 +15,9 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
     if(cont == 0 || el == 0)
 	return;
     el->parent = cont;
+    el->host = cont->host;
+    if(el->is_parent)
+	el->children->host = cont->host;
     if(cont->first == 0) //empty conainer
     {
 	cont->first = el;

@@ -3,8 +3,8 @@
 #if MAKISE_E_CANVAS > 0
 
 
-static uint8_t draw   (MElement* b, MakiseGUI *gui);
-static uint8_t predraw(MElement* b, MakiseGUI *gui);
+static MResult draw   (MElement* b, MakiseGUI *gui);
+static MResult predraw(MElement* b, MakiseGUI *gui);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
@@ -21,7 +21,7 @@ void m_create_canvas( MCanvas*            b,
 		     pos,
 		     &draw,
 		     &predraw,
-		     0,
+		     0, 0,
 		     &input,
 		     &focus,
 		     1, &b->cont);
@@ -40,7 +40,7 @@ void m_create_canvas( MCanvas*            b,
 }
 
 
-static uint8_t draw (MElement* b, MakiseGUI *gui)
+static MResult draw (MElement* b, MakiseGUI *gui)
 {
     MakiseStyleTheme_Canvas*     th = 0;
     MCanvas*                    c  = b->data;
@@ -56,7 +56,7 @@ static uint8_t draw (MElement* b, MakiseGUI *gui)
     return makise_g_cont_call(&c->cont, gui, M_G_CALL_DRAW);
 }
 
-static uint8_t predraw (MElement* b, MakiseGUI *gui)
+static MResult predraw (MElement* b, MakiseGUI *gui)
 {
     MCanvas*            c  = b->data;
     

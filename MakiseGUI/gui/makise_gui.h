@@ -34,24 +34,47 @@ typedef struct _MHost MHost;
 #include "makise.h"
 #include "makise_style.h"
 #include "makise_gui_input.h"
-#include "makise_gui_events.h"
-#include "makise_gui_elements.h"
 #include "makise_gui_container.h"
+#include "makise_gui_elements.h"
+#include "makise_gui_events.h"
 
 //Root container for all elements
 typedef struct _MHost
 {
     MakiseGUI *gui;
-    MContainer *host;
+    MContainer host;
+    MPosition host_size;
     MInputHostData input;
     MEM_Host mem;
 #if MAKISE_MUTEX
     MAKISE_MUTEX_t mutex;
 #endif    
-
 } MHost;
 
+/**
+ * Only inits MHost structure. To init gui use makise_gui_autoinit()
+ *
+ * @param MHost MHost
+ * @return 
+ */
 void makise_gui_init(MHost *host);
+/**
+ * 
+ *
+ * @param 
+ * @param 
+ * @return 
+ */    
+void makise_gui_autoinit(MHost *host,
+		     MakiseGUI *gui,
+		     MakiseDriver *driver,
+		     uint32_t* (*get_buffer)(uint32_t size),
+		     MInputData (*inp_handler)(MInputData d,
+					       MInputResultEnum res),
+		     void (*draw)(MakiseGUI* gui),
+		     void (*predraw)(MakiseGUI* gui),
+		     void (*update)(MakiseGUI* gui)		     
+    );
 
 uint32_t makise_g_newid();
 /**

@@ -2,9 +2,11 @@
 
 #if MAKISE_E_BUTTONS > 0
 
-static uint8_t                  draw   ( MElement* b, MakiseGUI *gui  );
-static MInputResultEnum         input  ( MElement* b, MInputData data );
-static MFocusEnum               focus  ( MElement* b, MFocusEnum act  );
+static MResult                  draw   (MElement* b, MakiseGUI *gui);
+static MInputResultEnum         input  (MElement* b, MInputData data);
+static MFocusEnum               focus  (MElement* b, MFocusEnum act);
+static MResult              exec_event (MElement* el, MEM_Event * ev);
+
 
 char name[] = "Button";
 
@@ -22,13 +24,20 @@ void m_create_button( MButton*              b,
     b->style        = style;
     
     MElement *e = &b->el;
-    m_element_create        ( e, name, b, 1, 1, pos, &draw, 0, 0, &input, &focus, 0, 0 );
+    m_element_create
+	(e, name, b,
+	 1, 1,
+	 pos, &draw,
+	 0, 0,
+	 &exec_event,
+	 &input, &focus,
+	 0, 0);
     makise_g_cont_add       ( c, e );
     
     MAKISE_DEBUG_OUTPUT("Button %d created\n", e->id);
 }
 
-static uint8_t draw ( MElement* b, MakiseGUI *gui )
+static MResult draw ( MElement* b, MakiseGUI *gui )
 {
     MakiseTheme_Button* th = 0;
     MButton *e      = b->data;
@@ -137,8 +146,23 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act )
     return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT ) ? M_G_FOCUS_NOT_NEEDED : M_G_FOCUS_OK;
 }
 
-void m_button_set_click   (MButton *b, void (*click   )(MButton* b))
+static MResult exec_event(MElement* el, MEM_Event * ev)
 {
+    //MButton *e = el->data;
+    return M_OK;   
+}
+
+void m_button_set_click(MButton *b, void (*click)(MButton* b))
+{
+    /* MEM_Event eve = { */
+    /* 	.type = MEMType_Position, */
+    /* 	.target = &b->el, */
+    /* 	.value = &click, */
+    /* 	.value_len = 4, */
+    /* 	.field = &b->click */
+    /* }; */
+    /* mem_add_event(b->el.host, eve); */
+
     MAKISE_MUTEX_REQUEST(&b->el.mutex);
     b->click = click;
     MAKISE_MUTEX_RELEASE(&b->el.mutex);

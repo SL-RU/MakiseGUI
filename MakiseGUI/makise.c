@@ -8,11 +8,15 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     
     buffer->height = driver->lcd_height;
     buffer->width = driver->lcd_width;
-    buffer->border = (MakiseBufferBorder){0, 0, driver->lcd_width,
-					  driver->lcd_height,
-					  driver->lcd_width,
-					  driver->lcd_height}; //allowed region
-                                                               //for new drawings
+    //allowed region for new drawings
+    buffer->border = (MakiseBufferBorder)
+	{ .x = 0,
+	  .y = 0,
+	  .w = driver->lcd_width,
+	  .h = driver->lcd_height,
+	  .ex = driver->lcd_width,
+	  .ey = driver->lcd_height };
+    
     driver->gui = gui;
     buffer->gui = gui;
     

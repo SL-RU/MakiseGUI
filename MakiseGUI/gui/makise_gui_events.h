@@ -27,18 +27,22 @@ Queue  - queue of added events.
     
 // Types of targets
 typedef enum {
-    MEMType_Element,   //change element properties
-    MEMType_Container, //change parents, children etc
-    MEMType_Position,  //change MElement's position
+    MEMType_Element,    //change element properties
+    MEMType_ElementSet, //set element property
+    MEMType_Container,  //change parents, children etc
+    MEMType_Position,   //change MElement's position
 } MEM_TargetType;
 
+typedef struct _MEM_Event MEM_Event;    
 // Structure with single event's data     
-typedef struct {
-    MEM_TargetType type;  // type of the targer
-    void * target;       // element, container or etc
-    uint32_t field;      // id of the field
-    void * value;        // new value(structure or etc)
-    size_t value_len;    // sizeof value
+typedef struct _MEM_Event {
+    MEM_TargetType type ; // type of the targer
+    void * target       ; // element, container or etc
+    void * field        ; // pointer to the field
+    uint32_t action     ; // id of the action
+    void * value        ; // new value(structure or etc)
+    size_t value_len    ; // sizeof value
+    void (*callback)(MEM_Event *ev);
 } MEM_Event;
 
 // structure in MHost with event's buffer and etc
