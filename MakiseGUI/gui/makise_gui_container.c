@@ -10,14 +10,35 @@ void makise_g_cont_init(MContainer *c)
     c->host = 0;
 }
 
+/**
+ * Updates host in all children's containers and MElements
+ *
+ * @param container container
+ * @param host host
+ * @return 
+ */
+void _makise_g_cont_update_host(MContainer * cont, MHost *host)
+{
+    cont->host = host;
+    
+    MElement *e = cont->first;
+    while (e != 0) {
+	e->host = host;
+	if(e->is_parent) {
+	    _makise_g_cont_update_host(e->children, host);
+	}
+	e = e->next;
+    }
+}
 void makise_g_cont_add(MContainer * cont, MElement *el)
 {
     if(cont == 0 || el == 0)
 	return;
     el->parent = cont;
     el->host = cont->host;
-    if(el->is_parent)
-	el->children->host = cont->host;
+    if(el->is_parent) {
+	_makise_g_cont_update_host(el->children, cont->host);
+    }
     if(cont->first == 0) //empty conainer
     {
 	cont->first = el;
@@ -25,7 +46,6 @@ void makise_g_cont_add(MContainer * cont, MElement *el)
 	cont->focused = 0;
 	el->next = 0;
 	el->prev = 0;
-
 	return;
     }
     MElement *m = cont->last;
@@ -76,6 +96,11 @@ void makise_g_cont_rem(MElement *el)
 	c->last = c->first = 0;
 	el->next = el->prev = 0;
     }
+    el->host = 0;
+    if(el->is_parent) {
+	_makise_g_cont_update_host(el->children, 0);
+    }
+
 }
 void makise_g_cont_clear(MContainer *c)
 {
@@ -90,7 +115,7 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
     if(cont == 0 || el == 0)
 	return -1;
 
-    makise_g_cont_rem(el); //remove element from previous parent
+    makise_g_cont_rem(el); //remove element from it's previous parent
     
     uint32_t i = 0;
 
@@ -102,9 +127,16 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	{
 	    cont->last = el;
 	}
+	//set queue
 	el->next = cont->first;
 	cont->first->prev = el;
 	cont->first = el;
+	//update host
+	el->host = cont->host;
+	if(el->is_parent) {
+	    _makise_g_cont_update_host(el->children, cont->host);
+	}
+
 	return 0;
     }
     
@@ -128,6 +160,13 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 		//e->next = el;
 	    }
 	    e->next = el;
+	    //update host
+	    el->host = cont->host;
+	    if(el->is_parent) {
+		_makise_g_cont_update_host(el->children,
+					   cont->host);
+	    }
+	    
 	    return i;
 	}
 	if(e->next == 0) //if element is last
@@ -137,6 +176,12 @@ int32_t makise_g_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 	    e->next = el;
 	    el->next = 0;
 	    el->prev = e;
+	    //update host
+	    el->host = cont->host;
+	    if(el->is_parent) {
+		_makise_g_cont_update_host(el->children, cont->host);
+	    }
+
 	    return i;
 	}
 	e = e->next;
