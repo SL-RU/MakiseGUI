@@ -27,10 +27,10 @@ Queue  - queue of added events.
     
 // Types of targets
 typedef enum {
-    MEMType_Element,    //change element properties
+    MEMType_Element   , //change element properties
     MEMType_ElementSet, //set element property
-    MEMType_Container,  //change parents, children etc
-    MEMType_Position,   //change MElement's position
+    MEMType_MI        , //interface to core functions: change parents, children etc
+    MEMType_Position  , //change MElement's position
 } MEM_TargetType;
 
 typedef struct _MEM_Event MEM_Event;    

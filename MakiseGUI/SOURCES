@@ -4,9 +4,10 @@ makise_primitives.c
 makise_text.c
 makise_bitmap.c
 gui/makise_gui.c
-gui/makise_gui_container.c
-gui/makise_gui_elements.c
 gui/makise_gui_input.c
+gui/makise_gui_elements.c
+gui/makise_gui_container.c
+gui/makise_gui_interface.c
 gui/elements/makise_e.c
 gui/elements/src/makise_e_buttons.c
 gui/elements/src/makise_e_canvas.c

@@ -154,18 +154,18 @@ static MResult exec_event(MElement* el, MEM_Event * ev)
 
 void m_button_set_click(MButton *b, void (*click)(MButton* b))
 {
-    /* MEM_Event eve = { */
-    /* 	.type = MEMType_Position, */
-    /* 	.target = &b->el, */
-    /* 	.value = &click, */
-    /* 	.value_len = 4, */
-    /* 	.field = &b->click */
-    /* }; */
-    /* mem_add_event(b->el.host, eve); */
+    MEM_Event eve = {
+	.type = MEMType_ElementSet,
+	.target = &b->el,
+	.value = click,
+	.value_len = sizeof(void *),
+	.field = &b->click
+    };
+    mem_add_event(b->el.host, eve);
 
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
-    b->click = click;
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    /* MAKISE_MUTEX_REQUEST(&b->el.mutex); */
+    /* b->click = click; */
+    /* MAKISE_MUTEX_RELEASE(&b->el.mutex); */
 }
 void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data))
 {

@@ -44,6 +44,12 @@ void makise_g_cont_add(MContainer * cont, MElement *el);
  * @return 
  */
 void makise_g_cont_rem(MElement *el);
+/**
+ * Remove all children from container
+ *
+ * @param cont container
+ * @return 
+ */    
 void makise_g_cont_clear(MContainer *cont);
 /**
  * insert element in exact place of container children's list
@@ -96,14 +102,4 @@ MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y
 #ifdef __cplusplus
 }
 #endif
-
 #endif
-
-
-
-
-
-
-
-
-

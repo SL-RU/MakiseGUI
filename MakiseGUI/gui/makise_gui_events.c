@@ -55,11 +55,11 @@ void mem_execute(MHost *host, MEM_Event *ev)
     }
     case MEMType_ElementSet: {
 	//MElement *el = (MElement*)(ev->target);
-	memcpy(ev->field, ev->value, ev->value_len);
+	memcpy(ev->field, &ev->value, ev->value_len);
 	break;
     }
 
-    case MEMType_Container: {
+    case MEMType_MI: {
 	//MContainer *c = (MContainer*)(ev->target);
 	
 	break;
