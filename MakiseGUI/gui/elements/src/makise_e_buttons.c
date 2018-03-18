@@ -5,7 +5,6 @@
 static MResult                  draw   (MElement* b, MakiseGUI *gui);
 static MInputResultEnum         input  (MElement* b, MInputData data);
 static MFocusEnum               focus  (MElement* b, MFocusEnum act);
-static MResult              exec_event (MElement* el, MEM_Event * ev);
 
 
 char name[] = "Button";
@@ -29,7 +28,6 @@ void m_create_button( MButton*              b,
 	 1, 1,
 	 pos, &draw,
 	 0, 0,
-	 &exec_event,
 	 &input, &focus,
 	 0, 0);
     makise_g_cont_add       ( c, e );
@@ -146,26 +144,11 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act )
     return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT ) ? M_G_FOCUS_NOT_NEEDED : M_G_FOCUS_OK;
 }
 
-static MResult exec_event(MElement* el, MEM_Event * ev)
-{
-    //MButton *e = el->data;
-    return M_OK;   
-}
-
 void m_button_set_click(MButton *b, void (*click)(MButton* b))
 {
-    MEM_Event eve = {
-	.type = MEMType_ElementSet,
-	.target = &b->el,
-	.value = click,
-	.value_len = sizeof(void *),
-	.field = &b->click
-    };
-    mem_add_event(b->el.host, eve);
-
-    /* MAKISE_MUTEX_REQUEST(&b->el.mutex); */
-    /* b->click = click; */
-    /* MAKISE_MUTEX_RELEASE(&b->el.mutex); */
+    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    b->click = click;
+    MAKISE_MUTEX_RELEASE(&b->el.mutex);
 }
 void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data))
 {
@@ -190,7 +173,6 @@ void m_button_set_bitmap  (MButton *b, const MakiseBitmap *bm)
     MAKISE_MUTEX_REQUEST(&b->el.mutex);
     b->bitmap = bm;
     MAKISE_MUTEX_RELEASE(&b->el.mutex);
-
 }
 
 #endif

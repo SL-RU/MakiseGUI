@@ -6,7 +6,6 @@ void m_element_create(MElement *e, char *name, void* data,
 		      MResult    (*draw      )(MElement* el, MakiseGUI *gui),
 		      MResult    (*predraw   )(MElement* el, MakiseGUI *gui),
 		      MResult    (*update    )(MElement* el),
-		      MResult    (*exec_event)(MElement* el, MEM_Event *ev),
 		      MInputResultEnum (*input   )(MElement* el, MInputData data),
 		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
 		      uint8_t  is_parent,
@@ -22,7 +21,6 @@ void m_element_create(MElement *e, char *name, void* data,
     e->draw                 = draw;
     e->predraw              = predraw;
     e->update               = update;
-    e->exec_event           = exec_event;
     e->input                = input;
     e->focus                = focus;
     e->is_parent            = is_parent;

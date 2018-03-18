@@ -51,8 +51,6 @@ typedef struct _MPosition {
 } MPosition;
 
 #include "makise_gui.h"
-#include "makise_gui_events.h"
-//#include "makise_gui_container.h"
 
 typedef struct _MElement {
     MPosition               position;       // Relative position of the element.
@@ -62,11 +60,9 @@ typedef struct _MElement {
     MResult          (*draw      ) (MElement* el, MakiseGUI *gui);
     MResult          (*predraw   ) (MElement* el, MakiseGUI *gui); // Count real position for every element
     MResult          (*update    ) (MElement* el );
-    MResult          (*exec_event) (MElement* el, MEM_Event * ev);
     MInputResultEnum (*input     ) (MElement* el, MInputData data);
     MFocusEnum       (*focus     ) (MElement* el, MFocusEnum act);
     
-
     uint8_t       is_parent;      // Is element parent(contains other elements.
     MContainer*   children;       // Only if element is parent.
     MElement*     prev;           // Previous if exists.
@@ -104,13 +100,14 @@ void m_element_create(MElement *e, char *name, void* data,
               MResult    (*draw    )(MElement* el, MakiseGUI *gui),
               MResult    (*predraw )(MElement* el, MakiseGUI *gui),
               MResult    (*update  )(MElement* el),
-	      MResult    (*exec_event )(MElement* el, MEM_Event *ev),
 	      MInputResultEnum (*input)(MElement* el, MInputData data),
               MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
               uint8_t  is_parent,
               MContainer *children);
 
-
+MResult m_element_mutex_request(MElement* el);
+MResult m_element_mutex_release(MElement* el);
+    
 uint8_t m_element_call(MElement* el,  MakiseGUI *host, MElementCall type);
 MInputResultEnum m_element_input(MElement* el, MInputData data);
 MFocusEnum       m_element_focus(MElement* el, MFocusEnum act );    

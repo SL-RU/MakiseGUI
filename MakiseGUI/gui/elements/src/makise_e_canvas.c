@@ -21,7 +21,7 @@ void m_create_canvas( MCanvas*            b,
 		     pos,
 		     &draw,
 		     &predraw,
-		     0, 0,
+		     0,
 		     &input,
 		     &focus,
 		     1, &b->cont);

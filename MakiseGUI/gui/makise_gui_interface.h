@@ -8,26 +8,6 @@
 
 #include "makise_gui.h"
 
-typedef enum {
-    MEM_IA_ADD        ,
-    MEM_IA_REM        ,
-    MEM_IA_CLEAR      ,
-    MEM_IA_INSERT     ,
-    MEM_IA_REPLACE    ,
-    MEM_IA_FOCUS      ,
-    MEM_IA_FOCUS_NEXT ,
-    MEM_IA_FOXUS_PREV ,
-} MEM_INTERFACE_ACTION;
-
-typedef struct _MEM_INTERFACE_DATA {
-    MEM_INTERFACE_ACTION action;
-    MHost                *host ;
-    MContainer           *cont ;
-    MElement             *e1   ;
-    MElement             *e2   ;
-} MEM_INTERFACE_DATA;
-
-
 /**
  * add element to new container
  *
@@ -89,8 +69,6 @@ MFocusEnum mi_focus_next(MHost *host);
  * @return MFocusEnum
  */
 MFocusEnum mi_focus_prev(MHost *host);
-
-void mi_execute(MEM_Event event);
 
 #ifdef __cplusplus
 //}

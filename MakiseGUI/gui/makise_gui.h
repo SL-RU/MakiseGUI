@@ -36,7 +36,6 @@ typedef struct _MHost MHost;
 #include "makise_gui_input.h"
 #include "makise_gui_container.h"
 #include "makise_gui_elements.h"
-#include "makise_gui_events.h"
 
 //Root container for all elements
 typedef struct _MHost
@@ -45,7 +44,6 @@ typedef struct _MHost
     MContainer host;
     MPosition host_size;
     MInputHostData input;
-    MEM_Host mem;
 #if MAKISE_MUTEX
     MAKISE_MUTEX_t mutex;
 #endif    

@@ -13,8 +13,6 @@ void makise_gui_init ( MHost* host )
     // init gui host
     makise_g_cont_init(&host->host);
     host->host.host = host;
-    // init event manager
-    mem_init(host); 
 
     //init input manager
     MInputHostData *inp = &host->input;

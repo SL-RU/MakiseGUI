@@ -20,7 +20,6 @@ void m_create_lable( MLable*             b,
 		     0,
 		     0,
 		     0,
-		     0,
 		     0, 0);
     
     b->text = 0;
