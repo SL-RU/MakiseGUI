@@ -2,7 +2,7 @@
 #define _MAKISE_H_G_CONTAINER
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 typedef struct _MContainer MContainer;
@@ -99,7 +99,23 @@ MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
 void makise_g_cont_focus_leave(MContainer *cont);
 MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y);
 
+/**
+ * lock container's mutex
+ *
+ * @param cont conainer
+ * @return 
+ */
+void makise_g_cont_lock(MContainer *cont);
+/**
+ * unlock container's mutex
+ *
+ * @param cont container
+ * @return 
+ */
+void makise_g_cont_unlock(MContainer *cont);
+
+
 #ifdef __cplusplus
-}
+//}
 #endif
 #endif

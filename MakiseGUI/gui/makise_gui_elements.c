@@ -31,6 +31,17 @@ void m_element_create(MElement *e, char *name, void* data,
     e->parent               = 0;
 }
 
+MResult m_element_mutex_request(MElement* el)
+{
+    MAKISE_MUTEX_REQUEST(el->mutex);
+    return M_OK;
+}
+MResult m_element_mutex_release(MElement* el)
+{
+    MAKISE_MUTEX_RELEASE(el->mutex);
+    return M_OK;
+}
+
 uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
 {
     if(el == 0)

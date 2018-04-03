@@ -523,3 +523,17 @@ MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y
     }
     return 0;
 }
+
+void makise_g_cont_lock(MContainer *cont)
+{
+    if(cont == 0 || cont->host == 0)
+	return;
+    MAKISE_MUTEX_REQUEST(cont->host->mutex);
+}
+void makise_g_cont_unlock(MContainer *cont)
+{
+    if(cont == 0 || cont->host == 0)
+	return;
+    MAKISE_MUTEX_RELEASE(cont->host->mutex);
+
+}

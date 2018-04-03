@@ -2,7 +2,7 @@
 #define _MAKISE_H_INTERFACE
 
 #ifdef __cplusplus
-//extern "C" {
+extern "C" {
 #endif
 
 
@@ -71,6 +71,6 @@ MFocusEnum mi_focus_next(MHost *host);
 MFocusEnum mi_focus_prev(MHost *host);
 
 #ifdef __cplusplus
-//}
+}
 #endif
 #endif

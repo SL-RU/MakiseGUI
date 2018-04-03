@@ -76,34 +76,33 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
 void m_lable_set_text( MLable *b,
 		       char   *text)
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
-
+    m_element_mutex_request(&b->el);
+    
     b->text = text;
     b->text_width = makise_d_string_width(text, MDTextAll, b->style->font);
     b->scroll_x = 0;
     
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
 }
 
 char* m_lable_get_text( MLable *b )
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    m_element_mutex_request(&b->el);
 
     char *t = b->text;
     
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
-    
+    m_element_mutex_release(&b->el);
     return t;
 }
 
 void m_lable_enable_scroll( MLable *b, uint8_t enable )
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
-
+    m_element_mutex_request(&b->el);
+    
     b->scroll_enable = enable;
     b->scroll_x = 0;
     
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
 }
 
 #endif

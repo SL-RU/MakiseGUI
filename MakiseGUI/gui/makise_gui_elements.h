@@ -104,8 +104,19 @@ void m_element_create(MElement *e, char *name, void* data,
               MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
               uint8_t  is_parent,
               MContainer *children);
-
+/**
+ * Lock element's mutex
+ *
+ * @param el element
+ * @return result
+ */
 MResult m_element_mutex_request(MElement* el);
+/**
+ * Unlock element's mutex
+ *
+ * @param el element
+ * @return result
+ */
 MResult m_element_mutex_release(MElement* el);
     
 uint8_t m_element_call(MElement* el,  MakiseGUI *host, MElementCall type);
