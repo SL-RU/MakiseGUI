@@ -31,7 +31,7 @@ void makise_gui_init ( MHost* host )
 #if MAKISE_MUTEX
     m_mutex_create(&inp->mutex);
     m_mutex_create(&host->mutex);
-    m_mutex_create(&_makise_new_id_mutex);
+    //m_mutex_create(&_makise_new_id_mutex);
 #endif
 }
 

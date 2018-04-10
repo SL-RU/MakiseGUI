@@ -255,7 +255,7 @@ static MFocusEnum focus  (MElement* b, MFocusEnum act)
 
 void m_slider_set_range(MSlider* b, int32_t i, int32_t j)
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    m_element_mutex_request(&b->el);
 
     if(j > i)
     {
@@ -268,13 +268,13 @@ void m_slider_set_range(MSlider* b, int32_t i, int32_t j)
 	b->value_min = i;
     }
     int32_t v = *b->value_p;
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
 
     m_slider_set_value(b, v);
 }
 void m_slider_set_value(MSlider* b, int32_t v)
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    m_element_mutex_request(&b->el);
     
     if(v > b->value_max)
 	*b->value_p = b->value_max;
@@ -283,27 +283,27 @@ void m_slider_set_value(MSlider* b, int32_t v)
     else
 	*b->value_p = v;
     
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
 }
 int32_t m_slider_get_value(MSlider* b)
 {
     int32_t v;
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    m_element_mutex_request(&b->el);
     v = *b->value_p;
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
     return v;
 }
 void m_slider_set_onchange(MSlider* b, void (*onchange)(MSlider* b, int32_t val))
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    m_element_mutex_request(&b->el);
     b->onchange = onchange;
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
 }
 void m_slider_set_onfocus (MSlider* b, void (*onfocus )(MSlider* b, MFocusEnum type))
 {
-    MAKISE_MUTEX_REQUEST(&b->el.mutex);
+    m_element_mutex_request(&b->el);
     b->onfocus = onfocus;
-    MAKISE_MUTEX_RELEASE(&b->el.mutex);
+    m_element_mutex_release(&b->el);
 }
 
 #endif

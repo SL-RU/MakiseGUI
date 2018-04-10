@@ -29,16 +29,21 @@ void m_element_create(MElement *e, char *name, void* data,
     e->next                 = 0;
     e->prev                 = 0;
     e->parent               = 0;
+    e->host                 = 0;
 }
 
 MResult m_element_mutex_request(MElement* el)
 {
-    MAKISE_MUTEX_REQUEST(el->mutex);
+    if(el == 0 || el->host == 0)
+	return M_ERROR;
+    MAKISE_MUTEX_REQUEST(&el->host->mutex);
     return M_OK;
 }
 MResult m_element_mutex_release(MElement* el)
 {
-    MAKISE_MUTEX_RELEASE(el->mutex);
+    if(el == 0 || el->host == 0)
+	return M_ERROR;
+    MAKISE_MUTEX_RELEASE(&el->host->mutex);
     return M_OK;
 }
 

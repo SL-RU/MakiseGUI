@@ -578,7 +578,7 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
 void m_slist_add( MSList *l, MSList_Item *item ) {
     if ( l == 0 || item == 0)
 	return;
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     if ( l->is_array )  return;
     if ( l->items == 0 )  {                             //add first item
 	item->prev      = 0;
@@ -597,27 +597,27 @@ void m_slist_add( MSList *l, MSList_Item *item ) {
     item->next  = 0;
     item->prev  = it;
     l->len ++;
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 void m_slist_clear ( MSList *l ){
     if ( l == 0)
 	return;
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     l->selected = 0;
     l->is_array = 0;
     l->items = 0;
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 void m_slist_remove ( MSList *l, MSList_Item *item ) {
     if ( l == 0 || item == 0)
 	return;
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     
     if ( l->items == 0 )
     {
-	MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	m_element_mutex_release(&l->el);
 	return;
     }
 
@@ -626,7 +626,7 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	    l->items = 0;
 	    l->len = 0;
 	    l->selected = 0;
-	    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	    m_element_mutex_release(&l->el);
 	    return;
 	}
 	l->items        = l->items->next;
@@ -635,14 +635,14 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	item->prev      = 0;
 	l->selected     = l->items;
 	l->len--;
-	MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	m_element_mutex_release(&l->el);
 	return;
     }
 
     if( item->next == 0 ) {           //if last element
 	if( item->prev == 0 )
 	{
-	    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	    m_element_mutex_release(&l->el);
 	    return; //WTF
 	}
 	l->len --;
@@ -650,13 +650,13 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	    l->selected = item->prev;
 	item->prev->next = 0;
 	item->prev = 0;
-	MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	m_element_mutex_release(&l->el);
 	return;
     }
 
     if ( item->prev == 0 )
     {
-	MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	m_element_mutex_release(&l->el);
 	return;  //WTF???
     }
 
@@ -668,13 +668,13 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
     item->prev = 0;
     item->next = 0;
     l->len --;
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
     if ( l == 0 || array == 0)
 	return;
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     l->items = array;
     l->len = len;
     l->selected = array;
@@ -691,20 +691,20 @@ void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
 
 	lst = &array[i];
     }
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 void m_slist_set_list ( MSList *l, MSList_Item *first ) {
     if ( l == 0 )
 	return;
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     l->items = first;
     l->selected = first;
     l->is_array = 0;
     l->len = (first != 0);
     if(first == 0)
     {
-	MAKISE_MUTEX_RELEASE(&l->el.mutex);
+	m_element_mutex_release(&l->el);
 	return;
     }
 
@@ -713,7 +713,7 @@ void m_slist_set_list ( MSList *l, MSList_Item *first ) {
 	l->len ++;
 	lst = lst->next;
     }
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 #endif

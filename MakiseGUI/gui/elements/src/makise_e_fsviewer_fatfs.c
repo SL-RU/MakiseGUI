@@ -152,9 +152,9 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 
 void m_fsviewer_deselect(MFSViewer *l)
 {
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     l->was_selected = 0;
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 void _fsviewer_open( MFSViewer *l, TCHAR* path )
@@ -176,17 +176,17 @@ void _fsviewer_open( MFSViewer *l, TCHAR* path )
 
 void fsviewer_open(MFSViewer *l, TCHAR *path)
 {
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     _fsviewer_open(l, path);
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 
 void m_fsviewer_set_onselection(
     MFSViewer *l,
     uint8_t (*onselection)(MFSViewer* l, MFSViewer_Item* s))
 {
-    MAKISE_MUTEX_REQUEST(&l->el.mutex);
+    m_element_mutex_request(&l->el);
     l->onselection = onselection;
-    MAKISE_MUTEX_RELEASE(&l->el.mutex);
+    m_element_mutex_release(&l->el);
 }
 #endif

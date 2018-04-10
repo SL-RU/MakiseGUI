@@ -34,10 +34,10 @@ uint8_t m_mutex_delete (MAKISE_MUTEX_t *sobj)
 uint8_t m_mutex_request_grant (MAKISE_MUTEX_t *sobj)
 {
     /* Win32 */
-    //return (int)(WaitForSingleObject(*sobj, FF_FS_TIMEOUT) == WAIT_OBJECT_0);
+    //return (int)(WaitForSingleObject(*sobj, MAKISE_MUTEX_TIMEOUT) == WAIT_OBJECT_0);
 
     /* FreeRTOS */
-    return (int)(xSemaphoreTake(*sobj, FF_FS_TIMEOUT) == pdTRUE);
+    return (int)(xSemaphoreTake(*sobj, MAKISE_MUTEX_TIMEOUT) == pdTRUE);
 }
 //Release Grant to Access some object
 uint8_t m_mutex_release_grant (MAKISE_MUTEX_t *sobj)
