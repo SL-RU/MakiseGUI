@@ -41,6 +41,17 @@ void m_create_canvas( MCanvas*              b,
                       MPosition             pos,
                       MakiseStyle_Canvas*   style );
 
+
+/**
+ * Set container focus behavior. If isolated then focus won't go to parent's container, else will
+ *
+ * @param b container
+ * @param isolated MContainer_Isolated or MContainer_NotIsolated
+ * @return 
+ */
+void m_canvas_set_isolated(MCanvas* b,
+			   MContainerIsolated_t isolated);
+
 #ifdef __cplusplus
 }
 #endif

@@ -108,5 +108,12 @@ static MFocusEnum focus (MElement* b, MFocusEnum act)
     }   
 }
 
+void m_canvas_set_isolated(MCanvas* b,
+			   MContainerIsolated_t isolated) {
+    M_E_MUTEX_REQUEST(b);
+    b->el.children->isolated = isolated;
+    M_E_MUTEX_RELEASE(b);
+}
+
 #endif
 

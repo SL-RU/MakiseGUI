@@ -8,6 +8,7 @@ void makise_g_cont_init(MContainer *c)
     c->focused = 0;
     c->el = 0;
     c->host = 0;
+    c->isolated = MContainer_NotIsolated;
 }
 
 /**
@@ -366,6 +367,7 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
 	    uint8_t is_parent = e->is_parent;
 	    MContainer *children = e->children;
 	    if(is_parent && children != 0 &&
+	       //children->isolated != MContainer_Isolated && //if isolated - we don't focus
 	       _makise_g_cont_focus_nextprev(children, next, first)
 	       == M_G_FOCUS_OK)
 	    {
@@ -435,6 +437,7 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 	}
     }
 
+    uint8_t cont_isolated = cont->isolated == MContainer_Isolated;
     //try to focus next element
     if(_makise_g_cont_focus_ord(e, next, first) == M_G_FOCUS_OK)
     {
@@ -442,15 +445,18 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
     }
 
     //if no more elements can switch focus
-    if(cont->el == 0)
+    if(cont->el == 0 || cont_isolated)
     {
 	//if we are root
 	e = next ? cont->first : cont->last;
-	
+
+	MFocusEnum r = _makise_g_cont_focus_ord(e, next, 1);
 	//try again
-	return _makise_g_cont_focus_ord(e, next, 1);
+	return cont_isolated ? M_G_FOCUS_OK :
+	    r;
     }
-    return M_G_FOCUS_NOT_NEEDED;
+    return cont_isolated ? M_G_FOCUS_OK :
+	M_G_FOCUS_NOT_NEEDED;
 }
 MFocusEnum makise_g_cont_focus_next(MContainer *cont)
 {

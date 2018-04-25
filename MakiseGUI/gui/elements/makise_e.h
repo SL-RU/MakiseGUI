@@ -9,6 +9,9 @@ extern "C" {
 #include "makise_gui_elements.h"
 #include "makise_gui_container.h"
 
+#define M_E_MUTEX_REQUEST(e) m_element_mutex_request(&(e)->el);
+#define M_E_MUTEX_RELEASE(e) m_element_mutex_release(&(e)->el);    
+    
 #include "fonts.h"
 #include "makise_e_buttons.h"
 #include "makise_e_canvas.h"

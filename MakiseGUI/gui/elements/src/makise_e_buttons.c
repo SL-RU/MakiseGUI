@@ -146,33 +146,33 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act )
 
 void m_button_set_click(MButton *b, void (*click)(MButton* b))
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
     b->click = click;
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
 }
 void m_button_set_onkey(MButton *b, uint8_t (*onkey)(MButton* b, MInputData data))
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
     b->onkey = onkey;
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
 }
 void m_button_set_onfocus (MButton *b, void (*onfocus )(MButton* b, MFocusEnum type))
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
     b->onfocus = onfocus;
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
 }
 void m_button_set_text (MButton *b, char * c)
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
     b->text = c;
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
 }
 void m_button_set_bitmap  (MButton *b, const MakiseBitmap *bm)
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
+    M_E_MUTEX_RELEASE(b);
     b->bitmap = bm;
-    m_element_mutex_release(&b->el);
 }
 
 #endif

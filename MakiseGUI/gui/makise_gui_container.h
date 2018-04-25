@@ -9,14 +9,22 @@ typedef struct _MContainer MContainer;
 typedef struct _MElement MElement;
 typedef struct _MHost MHost;
 typedef struct _MPosition MPosition;
+
+typedef enum {  
+    MContainer_Isolated,   // focus will not go to parent
+    MContainer_NotIsolated // focus will go to parent container
+} MContainerIsolated_t;
     
 typedef struct _MContainer
 {
-    MElement*       el;      //element which is host for the container. Can be zero if it is MHost
-    MPosition*      position;//container position
-    MElement*       first;   //pointer to the first element or 0 if container is empty
-    MElement*       last;    //pointer to the last element
-    MElement*       focused; //pointer to the focused element. Element must be in the container
+    MElement*       el;      // element which is host for the container. Can be zero if it is MHost
+    MPosition*      position;// container position
+    MElement*       first;   // pointer to the first element or 0 if container is empty
+    MElement*       last;    // pointer to the last element
+    MElement*       focused; // pointer to the focused element. Element must be in the container
+
+    MContainerIsolated_t isolated; // defines focus behavior. If isolated then focus won't go to parents, else - will
+    
     MHost*          host;    // MHost, if exists.
 } MContainer;
 
