@@ -1,7 +1,7 @@
 #include "makise_gui_elements.h"
 
 void m_element_create(MElement *e, char *name, void* data,
-		      uint8_t enabled, uint8_t focus_prior,
+		      uint8_t enabled, MFocusPriorEnum focus_prior,
 		      MPosition position,
 		      MResult    (*draw      )(MElement* el, MakiseGUI *gui),
 		      MResult    (*predraw   )(MElement* el, MakiseGUI *gui),

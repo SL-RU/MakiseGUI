@@ -25,7 +25,7 @@ void m_create_button( MButton*              b,
     MElement *e = &b->el;
     m_element_create
 	(e, name, b,
-	 1, 1,
+	 1, MFocusPrior_Focusble,
 	 pos, &draw,
 	 0, 0,
 	 &input, &focus,
@@ -100,12 +100,12 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     return M_OK;
 }
 
-static MInputResultEnum input  ( MElement* b, MInputData data )
+static uint8_t input  ( MElement* b, MInputData data )
 {
     MButton *e          = b->data;
-    uint8_t res = 1;
+    uint8_t res = M_INPUT_NOT_HANDLED;
     if(e->onkey != 0)
-    res = e->onkey(e, data);
+	res = e->onkey(e, data);
     
 
     if ( ( data.key == M_KEY_OK

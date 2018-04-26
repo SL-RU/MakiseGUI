@@ -19,7 +19,7 @@ void m_create_fsviewer( MFSViewer*                  b,
                         MakiseStyle_FSViewer_Item*  item_style ) {
     MElement *e = &b->el;
     m_element_create(e, name, b,
-		     1, 1, pos,
+		     1, MFocusPrior_Focusble, pos,
 		     &draw,
 		     0,
 		     0,

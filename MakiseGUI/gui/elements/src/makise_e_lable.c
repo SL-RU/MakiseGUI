@@ -14,7 +14,7 @@ void m_create_lable( MLable*             b,
     MElement *e = &b->el;
 
     m_element_create(e, name, b,
-		     1, 1, pos,
+		     1, MFocusPrior_Focusble, pos,
 		     &draw,
 		     0,
 		     0,

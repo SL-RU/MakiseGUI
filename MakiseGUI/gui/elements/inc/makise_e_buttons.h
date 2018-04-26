@@ -40,11 +40,11 @@ typedef struct _MButton {
     const MakiseBitmap* bitmap; 
     MakiseStyle_Button* style;
 
-    void                ( *click )      ( MButton* b );                         // When OK button clicked.
-    uint8_t             ( *onkey )      ( MButton* b, MInputData data );        // Handle any key pressed on button.
-                                                                                // Return 1 if you want click method be executed if was click event.
-                                                                                // 0 if not and send NOT_HANDLED.
-                                                                                // 2 if not and send HANDLED result.
+    void                ( *click )      ( MButton* b );                  // When OK button clicked.
+    uint8_t             ( *onkey )      ( MButton* b, MInputData data ); // Handle any key pressed on button.
+                        // Return 1 if you want click method be executed if was click event.                      //        0 if not and send NOT_HANDLED.
+                        //        2 if not and send HANDLED result.
+
     void                ( *onfocus )    ( MButton* b, MFocusEnum type );        // type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
 
     uint8_t state;

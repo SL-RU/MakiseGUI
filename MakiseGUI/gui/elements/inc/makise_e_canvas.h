@@ -28,10 +28,10 @@ typedef struct {
 //Canvas - simple container. It's placing elements simply by their position wherever it needed
 typedef struct {
     MElement                el;
-
     MContainer              cont;
-
     MakiseStyle_Canvas*     style;
+
+    MElement *last_focused;
 
     uint8_t                 state;
 } MCanvas;

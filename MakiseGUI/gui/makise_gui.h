@@ -12,21 +12,30 @@ typedef enum
     M_G_CALL_UPDATE       ,
 } MElementCall;
 
+#define MFocusEnum_NEXTPREV_MASK 0b00010000
+#define MFocusEnum_NEXT_MASK     0b00100000
+#define MFocusEnum_PREV_MASK     0b01000000
+#define MFocusEnum_GET_MASK      0b00000100     
+#define MFocusEnum_LEAVE_MASK    0b00001000         
 typedef enum
 {
-    M_G_FOCUS_NO         = 0        ,
-    M_G_FOCUS_OK         = 0b000001 ,
-    M_G_FOCUS_NOT_NEEDED = 0b000010 ,
-    M_G_FOCUS_ERROR      = 0b1000000,
+    M_G_FOCUS_ERROR      = 0          ,
+    M_G_FOCUS_OK         = 0b00000001 ,
+    M_G_FOCUS_NOT_NEEDED = 0b00000010 ,
+    M_G_FOCUS_NO         = 0b00000011 ,
     
-    M_G_FOCUS_LEAVE      = 0b000100 ,
-    M_G_FOCUS_GET        = 0b001000 ,
+    M_G_FOCUS_LEAVE      = MFocusEnum_LEAVE_MASK ,
+    M_G_FOCUS_GET        = MFocusEnum_GET_MASK   ,
     
-    M_G_FOCUS_NEXT       = 0b010000 ,
-    M_G_FOCUS_PREV       = 0b100000 ,
+    M_G_FOCUS_NEXT       = MFocusEnum_NEXT_MASK | MFocusEnum_NEXTPREV_MASK,
+    M_G_FOCUS_PREV       = MFocusEnum_PREV_MASK | MFocusEnum_NEXTPREV_MASK,
     
-    M_G_FOCUS_GET_PREV   = 0b101000 , //called after GET if focus was switched using focus_prev() function
-    M_G_FOCUS_GET_NEXT   = 0b011000 , //called after GET if focus was switched using focus_next() function   
+    M_G_FOCUS_GET_PREV   = MFocusEnum_PREV_MASK
+                         | MFocusEnum_NEXTPREV_MASK 
+                         | MFocusEnum_GET_MASK , // called after GET if focus was switched using focus_prev() function
+    M_G_FOCUS_GET_NEXT   = MFocusEnum_NEXT_MASK
+                         | MFocusEnum_NEXTPREV_MASK 
+                         | MFocusEnum_GET_MASK , //called after GET if focus was switched using focus_next() function
 } MFocusEnum;
 
 typedef struct _MHost MHost;

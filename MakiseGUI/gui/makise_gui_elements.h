@@ -33,6 +33,12 @@ typedef enum {
     MPositionStretch_Down,              // No stretch. anchor is down.
 } MPositionStretchVert;
 
+typedef enum {
+    MFocusPrior_NotFocusble,            // Focus doesn't required
+    MFocusPrior_Focusble,               // Focus is required
+    MFocusPrior_FocusbleIsolated,       // Focus is required but only directly by M_G_FOCUS_GET, not _NEXT or _PREV.
+} MFocusPriorEnum;
+
 typedef struct _MPosition {
     MPositionStretchHor     horisontal;
     MPositionStretchVert    vertical;
@@ -63,16 +69,16 @@ typedef struct _MElement {
     MInputResultEnum (*input     ) (MElement* el, MInputData data);
     MFocusEnum       (*focus     ) (MElement* el, MFocusEnum act);
     
-    uint8_t       is_parent;      // Is element parent(contains other elements.
-    MContainer*   children;       // Only if element is parent.
-    MElement*     prev;           // Previous if exists.
-    MElement*     next;           // Next element if exists.
-    MContainer*   parent;         // Parent element, if exists.
-    MHost*        host;           // MHost, if exists.
-    uint8_t       enabled;        // If enabled - methods will be executed.
-    uint8_t       focus_prior;    // Relative position in focus queu. 0 means focus doesn't required.
-    uint32_t      id;             // Unique id.
-    char*         name;
+    uint8_t          is_parent;      // Is element parent(contains other elements.
+    MContainer*      children;       // Only if element is parent.
+    MElement*        prev;           // Previous if exists.
+    MElement*        next;           // Next element if exists.
+    MContainer*      parent;         // Parent element, if exists.
+    MHost*           host;           // MHost, if exists.
+    uint8_t          enabled;        // If enabled - methods will be executed.
+    MFocusPriorEnum  focus_prior;    // Defines focus behavior
+    uint32_t         id;             // Unique id.
+    char*            name;
     
 } MElement;
 
@@ -95,15 +101,15 @@ typedef struct _MElement {
  * @return 
  */
 void m_element_create(MElement *e, char *name, void* data,
-              uint8_t enabled, uint8_t focus_prior,
-              MPosition position,
-              MResult    (*draw    )(MElement* el, MakiseGUI *gui),
-              MResult    (*predraw )(MElement* el, MakiseGUI *gui),
-              MResult    (*update  )(MElement* el),
-	      MInputResultEnum (*input)(MElement* el, MInputData data),
-              MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
-              uint8_t  is_parent,
-              MContainer *children);
+		      uint8_t enabled, MFocusPriorEnum focus_prior,
+		      MPosition position,
+		      MResult    (*draw    )(MElement* el, MakiseGUI *gui),
+		      MResult    (*predraw )(MElement* el, MakiseGUI *gui),
+		      MResult    (*update  )(MElement* el),
+		      MInputResultEnum (*input)(MElement* el, MInputData data),
+		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
+		      uint8_t  is_parent,
+		      MContainer *children);
 /**
  * Lock element's mutex
  *

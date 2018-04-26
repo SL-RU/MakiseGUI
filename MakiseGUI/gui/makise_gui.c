@@ -97,15 +97,27 @@ MInputResultEnum makise_g_host_input  (MHost *host, MInputData d)
 MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 {
     if(el == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     
     MContainer *p = el->parent;
     if(p == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     
-    if(el->focus_prior == 0 || el->focus == 0 || el->enabled == 0)
-	//if element isn't focusable
+    if(el->focus_prior == MFocusPrior_NotFocusble     // not focusable
+       || (el->focus_prior == MFocusPrior_FocusbleIsolated  // is focusable but isolated
+	   && event & MFocusEnum_NEXTPREV_MASK)             // and event is _NEXT or _PREV
+       || el->focus == 0 || el->enabled == 0)
+	// then element isn't focusable
 	return M_G_FOCUS_NOT_NEEDED;
+
+    //focus last focused child if it exist
+    if(event == M_G_FOCUS_GET &&
+       el->is_parent && el->children != 0 &&
+       el->children->focused != 0) {
+	MFocusEnum r = makise_g_focus(el->children->focused, M_G_FOCUS_GET);
+	if(r == M_G_FOCUS_OK)
+	    return M_G_FOCUS_OK;
+    }
     
     if(event & M_G_FOCUS_GET)
     {
@@ -122,7 +134,9 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 	{
 	    if(e->enabled == 0
 	       || e->focus == 0
-	       || e->focus_prior == 0)
+//	       || (el->focus_prior == MFocusPrior_FocusbleIsolated
+//		   && event & MFocusEnum_NEXTPREV_MASK)
+		|| el->focus_prior == MFocusPrior_NotFocusble)
 		return M_G_FOCUS_NOT_NEEDED;
 	    
 	    p = e->parent;  //element's parent cintainer
@@ -156,7 +170,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		    if(!was)
 		    {
 			r = m_element_focus(e, event);
-			was = 1;
+			//was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
 			{
 			    return M_G_FOCUS_NOT_NEEDED;
@@ -219,10 +233,10 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 MFocusEnum makise_g_host_focus_next(MHost *host)
 {
     if(host == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     MContainer *cont = &host->host;
     if(cont == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     
     MFocusEnum r = makise_g_cont_focus_next(cont);
     return r;
@@ -230,10 +244,10 @@ MFocusEnum makise_g_host_focus_next(MHost *host)
 MFocusEnum makise_g_host_focus_prev(MHost *host)
 {
     if(host == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     MContainer *cont = &host->host;
     if(cont == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     
     MFocusEnum r = makise_g_cont_focus_prev(cont);
     return r;
@@ -253,15 +267,21 @@ void _makise_g_print_tree(MContainer *c, int l)
 	    t[i*2 + 2] = ' ';
 	}
     }
-    if(l > 0)
-    {
-	t[l*2 - 1] = '|';
-	t[l*2    ] = '-';
-    }
     if(l == 0)
 	t[0] = '=';
     while (e != 0)
     {
+	if(l > 0)
+	{
+	    t[l*2 - 1] = '|';
+
+	    if(e == c->focused)
+		t[l*2    ] = '*';
+	    else if(c->focused == 0)
+		t[l*2    ] = '-';
+	    else 
+		t[l*2    ] = '_';
+	}
 	MAKISE_DEBUG_OUTPUT("%s %s\tid=%d\n", t, e->name, e->id);
 	if(e->is_parent && e->children != 0)
 	    _makise_g_print_tree(e->children, l+1);
@@ -273,6 +293,7 @@ void makise_g_print_tree(MHost *host)
 {
     if(host == 0)
 	return;
+    printf("tree:\n");
     MContainer *c = &host->host;    
     _makise_g_print_tree(c, 0);
 }

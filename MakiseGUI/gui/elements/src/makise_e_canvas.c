@@ -17,7 +17,7 @@ void m_create_canvas( MCanvas*            b,
     MElement *e = &b->el;
 
     m_element_create(e, name, b,
-		     1, 1,
+		     1, MFocusPrior_Focusble,
 		     pos,
 		     &draw,
 		     &predraw,
@@ -33,6 +33,8 @@ void m_create_canvas( MCanvas*            b,
     
     b->cont.el          = e;
     b->cont.position    = &e->position;
+
+    b->last_focused = 0;
 
     makise_g_cont_add(c, e);
     
@@ -84,6 +86,11 @@ static MFocusEnum focus (MElement* b, MFocusEnum act)
     switch (act) {
         case M_G_FOCUS_GET:
             c->state = 1;
+	    makise_g_focus(c->last_focused, M_G_FOCUS_GET);
+	    if(c->el.id == 4) {
+		printf("canvas get %d\n", c->last_focused == 0 ?
+		       -1 : c->last_focused->id);
+	    }
             return M_G_FOCUS_OK;
 
         case M_G_FOCUS_GET_NEXT:
@@ -94,6 +101,11 @@ static MFocusEnum focus (MElement* b, MFocusEnum act)
 
         case M_G_FOCUS_LEAVE:
             c->state = 0;
+	    c->last_focused = c->cont.focused;
+	    if(c->el.id == 4) {
+		printf("canvas leave %d\n", c->cont.focused == 0 ?
+		       -1 : c->cont.focused);
+	    }
             c->cont.focused = 0;
             return M_G_FOCUS_OK;
 
@@ -112,6 +124,8 @@ void m_canvas_set_isolated(MCanvas* b,
 			   MContainerIsolated_t isolated) {
     M_E_MUTEX_REQUEST(b);
     b->el.children->isolated = isolated;
+    b->el.focus_prior = isolated == MContainer_Isolated ?
+	MFocusPrior_FocusbleIsolated : MFocusPrior_Focusble;
     M_E_MUTEX_RELEASE(b);
 }
 

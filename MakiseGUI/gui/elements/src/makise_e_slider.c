@@ -15,7 +15,7 @@ void m_create_slider(MSlider* b, MContainer *c,
     MElement *e = &b->el;
 
     m_element_create(e, name, b,
-		     1, 1, pos,
+		     1, MFocusPrior_Focusble, pos,
 		     &draw,
 		     0,
 		     0,
@@ -46,7 +46,7 @@ static uint8_t draw   (MElement* b, MakiseGUI *gui)
     
     if(((MSlider*)b->data)->state == 0)
 	th = &((MSlider*)b->data)->style->normal;
-    else if(((MSlider*)b->data)->state == 1)
+    else //if(((MSlider*)b->data)->state == 1)
 	th = &((MSlider*)b->data)->style->focused;
 
     if(s->type == MSlider_Type_Read)

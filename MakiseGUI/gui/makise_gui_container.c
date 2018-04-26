@@ -360,7 +360,8 @@ MFocusEnum _makise_g_cont_focus_ord(MElement *e,
     while (e != 0) {
 	en = next ? e->next : e->prev;
 	
-	if(e->enabled && e->focus_prior != 0)
+	if(e->enabled &&
+	   e->focus_prior != MFocusPrior_NotFocusble)
 	{
 	    //element is enabled && it requires focus
 	    //if element is parent
