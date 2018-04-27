@@ -32,7 +32,6 @@ typedef struct {
     uint32_t                scroll_bg_color; //may be 0
     uint32_t                scroll_color;
 
-    
     MakiseStyleTheme_SList  normal;
     MakiseStyleTheme_SList  focused;
     MakiseStyleTheme_SList  active;
@@ -41,6 +40,9 @@ typedef struct {
 typedef struct {
     const MakiseFont*       font;
     uint32_t                font_line_spacing;
+    
+    //text scroll
+    uint32_t                text_scroll_speed;
     
     MakiseStyleTheme_SList  normal;
     MakiseStyleTheme_SList  focused;
@@ -81,6 +83,9 @@ typedef struct _MSList {
     uint32_t                len;            // matters only if is_array
 
     MSList_Item*            selected;
+
+    uint32_t                text_scroll_x;
+    uint32_t                text_scroll_width;
 
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     uint8_t                 started;        // was pressing already started

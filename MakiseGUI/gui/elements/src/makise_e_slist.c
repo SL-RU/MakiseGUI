@@ -20,7 +20,8 @@ void m_create_slist( MSList*                b,
 		     MakiseStyle_SListItem* item_style) {
     MElement *e = &b->el;
     m_element_create(e, name, b,
-		     1, 1, pos,
+		     1, MFocusPrior_Focusble,
+		     pos,
 		     &draw,
 		     0,
 		     0,
@@ -51,6 +52,15 @@ void m_create_slist( MSList*                b,
     makise_g_cont_add(c, e);
 
     MAKISE_DEBUG_OUTPUT( "SList %d created\n", e->id );
+}
+
+static void setup_text_scroll(MSList *l)
+{
+    //text scroll setup
+    l->text_scroll_x = 0;
+    l->text_scroll_width =
+	makise_d_string_width(l->selected->text, MDTextAll,
+			      l->item_style->font);
 }
 
 //draw line frome the list
@@ -107,13 +117,41 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
     default: break;
     }
 
-    makise_d_string_frame( gui->buffer,
-			   ci->text, MDTextAll,
-			   x + 2, y + 2,
-			   w - 4, eh,
-			   l->item_style->font,
-			   l->item_style->font_line_spacing,
-			   c_th->font_col );
+    int32_t dx = 0, scrlx = l->text_scroll_x / 100;
+    if(l->item_style->text_scroll_speed &&
+       l->text_scroll_width > w - 2 &&
+       l->selected == ci)
+    {
+	if(scrlx >= (int32_t)l->text_scroll_width) {
+	    l->text_scroll_x = 0;
+	    dx = 0;
+	}
+	else
+	{
+	    if(scrlx < (int32_t)w / 2)
+		dx = 0;
+	    else if(scrlx >= (int32_t)(l->text_scroll_width - (w / 4)))
+		dx = -(l->text_scroll_width - (w / 4)) + w / 2;
+	    else
+		dx = -scrlx + w / 2;
+	}
+	l->text_scroll_x += l->item_style->text_scroll_speed;
+	//printf("scrl %d %d %d\n", dx, l->text_scroll_x, l->text_scroll_width);
+    }
+
+    MakiseBufferBorderData border =
+	makise_add_border(gui->buffer,
+			  (MakiseBufferBorder){
+			      x, y, w, eh, 0, 0});
+
+    makise_d_string(gui->buffer, ci->text, MDTextAll,
+		    x + 2 + dx,
+		    y + 2,
+		    w - 4,
+		    l->item_style->font,
+		    c_th->font_col);
+    
+    makise_rem_border(gui->buffer, border);
 }
 
 static uint8_t draw ( MElement* b, MakiseGUI *gui ) {
@@ -274,9 +312,9 @@ static MFocusEnum focus ( MElement* b, MFocusEnum act ) {
     if ( act & M_G_FOCUS_GET )     e->state = 1;
     if ( act == M_G_FOCUS_LEAVE )  e->state = 0;
 
-    return ( act == M_G_FOCUS_PREV || act == M_G_FOCUS_NEXT )
-	? M_G_FOCUS_NOT_NEEDED
-	: M_G_FOCUS_OK;
+    return ( act & M_G_FOCUS_GET ) || ( act & M_G_FOCUS_LEAVE )
+	? M_G_FOCUS_OK
+	: M_G_FOCUS_NOT_NEEDED;
 }
 
 static void input_item ( MSList *e, MSList_Item *it ) {
@@ -449,6 +487,8 @@ static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
 
 		if ( it != l->selected ) {
 		    //send selected event before
+
+		    setup_text_scroll(l);
 		    if ( l->onselection != 0 )
 			l->onselection(l, l->selected);
 		}
@@ -468,6 +508,8 @@ static MInputResultEnum input_cursor ( MElement* b, MInputData data ) {
 
 		if( l->selected != it ) {
 		    l->selected = it;
+		    
+		    setup_text_scroll(l);
 		    //send selected event before
 		    if ( l->onselection != 0 )
 			l->onselection(l, l->selected);
@@ -561,6 +603,7 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
 	default: break;
 	}
 
+	setup_text_scroll(e);
 	// Send selected event before
 	if ( e->onselection != 0 && last_item != e->selected )
 	    e->onselection(e, e->selected);
@@ -578,14 +621,19 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
 void m_slist_add( MSList *l, MSList_Item *item ) {
     if ( l == 0 || item == 0)
 	return;
+    M_E_MUTEX_REQUEST(l);
     m_element_mutex_request(&l->el);
-    if ( l->is_array )  return;
+    if ( l->is_array ) {
+	M_E_MUTEX_RELEASE(l);
+	return;
+    }
     if ( l->items == 0 )  {                             //add first item
 	item->prev      = 0;
 	item->next      = 0;
 	l->items        = item;
 	l->len          = 1;
 	l->selected     = item;
+	M_E_MUTEX_RELEASE(l);
 	return;
     }
     MSList_Item *it = l->items;
@@ -597,27 +645,27 @@ void m_slist_add( MSList *l, MSList_Item *item ) {
     item->next  = 0;
     item->prev  = it;
     l->len ++;
-    m_element_mutex_release(&l->el);
+    M_E_MUTEX_RELEASE(l);
 }
 
 void m_slist_clear ( MSList *l ){
     if ( l == 0)
 	return;
-    m_element_mutex_request(&l->el);
+    M_E_MUTEX_REQUEST(l);
     l->selected = 0;
     l->is_array = 0;
     l->items = 0;
-    m_element_mutex_release(&l->el);
+    M_E_MUTEX_RELEASE(l);
 }
 
 void m_slist_remove ( MSList *l, MSList_Item *item ) {
     if ( l == 0 || item == 0)
 	return;
-    m_element_mutex_request(&l->el);
+    M_E_MUTEX_REQUEST(l);
     
     if ( l->items == 0 )
     {
-	m_element_mutex_release(&l->el);
+	M_E_MUTEX_RELEASE(l);
 	return;
     }
 
@@ -626,7 +674,7 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	    l->items = 0;
 	    l->len = 0;
 	    l->selected = 0;
-	    m_element_mutex_release(&l->el);
+	    M_E_MUTEX_RELEASE(l);
 	    return;
 	}
 	l->items        = l->items->next;
@@ -635,14 +683,14 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	item->prev      = 0;
 	l->selected     = l->items;
 	l->len--;
-	m_element_mutex_release(&l->el);
+	M_E_MUTEX_RELEASE(l);
 	return;
     }
 
     if( item->next == 0 ) {           //if last element
 	if( item->prev == 0 )
 	{
-	    m_element_mutex_release(&l->el);
+	    M_E_MUTEX_RELEASE(l);
 	    return; //WTF
 	}
 	l->len --;
@@ -650,13 +698,13 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
 	    l->selected = item->prev;
 	item->prev->next = 0;
 	item->prev = 0;
-	m_element_mutex_release(&l->el);
+	M_E_MUTEX_RELEASE(l);
 	return;
     }
 
     if ( item->prev == 0 )
     {
-	m_element_mutex_release(&l->el);
+	M_E_MUTEX_RELEASE(l);
 	return;  //WTF???
     }
 
@@ -668,13 +716,13 @@ void m_slist_remove ( MSList *l, MSList_Item *item ) {
     item->prev = 0;
     item->next = 0;
     l->len --;
-    m_element_mutex_release(&l->el);
+    M_E_MUTEX_RELEASE(l);
 }
 
 void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
     if ( l == 0 || array == 0)
 	return;
-    m_element_mutex_request(&l->el);
+    M_E_MUTEX_REQUEST(l);
     l->items = array;
     l->len = len;
     l->selected = array;
@@ -691,20 +739,20 @@ void m_slist_set_array ( MSList *l, MSList_Item *array, uint32_t len ) {
 
 	lst = &array[i];
     }
-    m_element_mutex_release(&l->el);
+    M_E_MUTEX_RELEASE(l);
 }
 
 void m_slist_set_list ( MSList *l, MSList_Item *first ) {
     if ( l == 0 )
 	return;
-    m_element_mutex_request(&l->el);
+    M_E_MUTEX_REQUEST(l);
     l->items = first;
     l->selected = first;
     l->is_array = 0;
     l->len = (first != 0);
     if(first == 0)
     {
-	m_element_mutex_release(&l->el);
+	M_E_MUTEX_RELEASE(l);
 	return;
     }
 
@@ -713,7 +761,7 @@ void m_slist_set_list ( MSList *l, MSList_Item *first ) {
 	l->len ++;
 	lst = lst->next;
     }
-    m_element_mutex_release(&l->el);
+    M_E_MUTEX_RELEASE(l);
 }
 
 #endif

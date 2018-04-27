@@ -46,6 +46,8 @@ typedef struct _MHost MHost;
 #include "makise_gui_container.h"
 #include "makise_gui_elements.h"
 
+#include "makise_gui_interface.h"    
+    
 //Root container for all elements
 typedef struct _MHost
 {

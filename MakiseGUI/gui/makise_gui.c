@@ -194,8 +194,6 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 
 	MContainer *children = el->children;
 	
-	if(el->is_parent)
-	    makise_g_cont_focus_leave(children);
 
 	
 	while(e != 0)
@@ -214,7 +212,9 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			r = m_element_focus(e, event);
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
-			{				
+			{
+			    if(el->is_parent)
+				makise_g_cont_focus_leave(children);
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
@@ -223,6 +223,8 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		e = en;
 	    } else break;
 	}
+	if(el->is_parent)
+	    makise_g_cont_focus_leave(children);
 	
 	return r;
     }
@@ -293,7 +295,9 @@ void makise_g_print_tree(MHost *host)
 {
     if(host == 0)
 	return;
+    MAKISE_MUTEX_REQUEST(&host->mutex);
     printf("tree:\n");
     MContainer *c = &host->host;    
     _makise_g_print_tree(c, 0);
+    MAKISE_MUTEX_RELEASE(&host->mutex);
 }
