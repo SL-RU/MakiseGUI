@@ -86,10 +86,13 @@ static MFocusEnum focus (MElement* b, MFocusEnum act)
     switch (act) {
         case M_G_FOCUS_GET:
             c->state = 1;
-	    makise_g_focus(c->last_focused, M_G_FOCUS_GET);
-	    if(c->el.id == 4) {
-		printf("canvas get %d\n", c->last_focused == 0 ?
-		       -1 : c->last_focused->id);
+
+	    //restore last focused
+	    if(c->cont.focused == 0) {
+		//if no new elements was focused - try restore previous element
+		//   if it still in the container
+		if(makise_g_cont_contains(&c->cont, c->last_focused) != -1)
+		    makise_g_focus(c->last_focused, M_G_FOCUS_GET);
 	    }
             return M_G_FOCUS_OK;
 
@@ -101,12 +104,11 @@ static MFocusEnum focus (MElement* b, MFocusEnum act)
 
         case M_G_FOCUS_LEAVE:
             c->state = 0;
+
+	    //remember focused element to restore later
 	    c->last_focused = c->cont.focused;
-	    if(c->el.id == 4) {
-		printf("canvas leave %d\n", c->cont.focused == 0 ?
-		       -1 : c->cont.focused);
-	    }
-            c->cont.focused = 0;
+
+	    c->cont.focused = 0;
             return M_G_FOCUS_OK;
 
         case M_G_FOCUS_NEXT:

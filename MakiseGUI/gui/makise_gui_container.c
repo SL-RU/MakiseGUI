@@ -482,14 +482,17 @@ void makise_g_cont_focus_leave(MContainer *cont)
     MContainer *children = focused->children;
     MFocusEnum (*focus)(MElement* el, MFocusEnum act) = focused->focus;
 
+    //send leave event
+    if(focus != 0)
+	focus(focused, M_G_FOCUS_LEAVE);
+
+    //drop focus in children
     if(is_parent && children != 0)
     {
 	makise_g_cont_focus_leave(children);
     }
 
-    if(focus != 0)
-	focus(focused, M_G_FOCUS_LEAVE);
-
+    //drop focused child
     cont->focused = 0;
 }
 

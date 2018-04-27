@@ -99,7 +99,7 @@ MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data);
 MFocusEnum makise_g_cont_focus_next(MContainer *cont);
 MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
 /**
- * Send leave event to all children elements recursevely
+ * Send leave event to all children elements recursevely and drop focused
  *
  * @param cont 
  * @return 

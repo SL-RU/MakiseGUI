@@ -194,7 +194,6 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 
 	MContainer *children = el->children;
 	
-	
 	if(el->is_parent)
 	    makise_g_cont_focus_leave(children);
 
@@ -215,7 +214,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 			r = m_element_focus(e, event);
 			was = 1;
 			if(r == M_G_FOCUS_NOT_NEEDED)
-			{
+			{				
 			    return M_G_FOCUS_NOT_NEEDED;
 			}
 		    }
@@ -224,6 +223,7 @@ MFocusEnum makise_g_focus  (MElement *el, MFocusEnum event)
 		e = en;
 	    } else break;
 	}
+	
 	return r;
     }
     
