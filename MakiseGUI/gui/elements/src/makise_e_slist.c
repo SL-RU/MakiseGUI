@@ -37,11 +37,11 @@ void m_create_slist( MSList*				b,
 	b->click				= click;
 
 	b->items				= 0;
-	b->is_array			 = 0;
+	b->is_array				= 0;
 	b->len					= 0;
-	b->selected			 = 0;
+	b->selected				= 0;
 
-	b->type				 = type;
+	b->type					= type;
 
 #if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
 	b->started				= 0;
@@ -670,6 +670,10 @@ void m_slist_set_list ( MSList *l, MSList_Item *first ) {
 		l->len ++;
 		lst = lst->next;
 	}
+}
+
+void m_slist_set_text_string ( MSList *l, const char* text ) {
+	l->text	=	text;
 }
 
 #ifdef __cplusplus

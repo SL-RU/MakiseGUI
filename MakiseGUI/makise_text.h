@@ -61,7 +61,7 @@ uint32_t    makise_d_string_width  ( char* s,
 
 // Draw multiline text in the defined frame.
 void        makise_d_string_frame  ( MakiseBuffer *b,
-                                     char *s,
+                                     const char *s,
                                      uint32_t len,
                                      int16_t x, int16_t y,
                                      uint16_t w, uint16_t h,
@@ -119,7 +119,7 @@ uint32_t makise_d_string_height_get ( char*             s,
  * @param bts bytes per char
  * @return 0 if is error. Else - unicode index of char
  */
-    uint32_t    makise_d_utf_char_id  ( char *s, uint32_t len, uint8_t *bts );
+    uint32_t    makise_d_utf_char_id  ( const char *s, uint32_t len, uint8_t *bts );
     
 /**
  * Get index of utf-8 character in the font table
