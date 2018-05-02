@@ -10,7 +10,7 @@ static uint8_t draw ( MElement* b );
 void m_create_message_window (	MMessageWindow*						b,
 								MContainer*							c,
 								MPosition							pos,
-								char*								s,
+								const char*							const s,
 								const MakiseStyle_SMessageWindow* 	style	) {
 
 	b->style = style;

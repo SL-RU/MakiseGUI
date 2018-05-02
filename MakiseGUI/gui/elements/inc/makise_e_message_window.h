@@ -27,14 +27,14 @@ typedef struct {
 typedef struct {
 	MakiseGUI*								gui;
 	MElement								el;
-	char*						 			s;
+	const char*						 		s;
 	const MakiseStyle_SMessageWindow*		style;
 } MMessageWindow;
 
-void m_create_message_window ( MMessageWindow*						b,
+void m_create_message_window (	MMessageWindow*						b,
 								MContainer*							c,
 								MPosition							pos,
-								char*								s,
+								const char*							const s,
 								const MakiseStyle_SMessageWindow*	style );
 
 
