@@ -20,7 +20,8 @@ void m_play_list_init_item_array ( MPlayList_Item *array, uint32_t len ) {
     MPlayList_Item *lst = NULL;
 
     for ( uint32_t i = 0; i < len; i++ ) {
-        array[i].stait = 0;
+        array[i].play_state = 0;
+        array[i].selected_state = 0;
         array[i].prev = lst;
         array[i].next = ( ( i + 1 ) < len ) ? &array[ i + 1 ] : NULL;
         array[i].id = i;
@@ -70,11 +71,12 @@ void m_create_play_list ( MPlayList*                obj_struct,
     obj_struct->item_array_len         /= ( obj_struct->eh - 1 );
 
 
-    obj_struct->item_array              = user_func->create_array_item( obj_struct->item_array_len );
+    obj_struct->item_array                  = user_func->create_array_item( obj_struct->item_array_len );
     m_play_list_init_item_array( obj_struct->item_array, obj_struct->item_array_len );
-    obj_struct->selected                = obj_struct->item_array;
-    obj_struct->selected ->stait        = 2;         // Выбранный трек.
-    obj_struct->focus_file_number       = 0;
+    obj_struct->selected                    = obj_struct->item_array;
+    obj_struct->selected->selected_state    = 1;
+    obj_struct->focus_file_number           = 0;
+    obj_struct->play_file_number            = -1;       // No play track.
 
 #if ( MAKISE_GUI_INPUT_POINTER_ENABLE == 1 )
     obj_struct->started                 = 0;
@@ -113,10 +115,10 @@ static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_P
                           c_th->border_c, c_th->bg_color);
 
     uint32_t time_width;
-    time_width = makise_d_string_width( pl_i->time, MDTextAll, obj->item_style->font );
+    time_width = makise_d_string_width( pl_i->time_string, MDTextAll, obj->item_style->font );
 
     makise_d_string_frame( obj->e.gui->buffer,                                                  // Draw time string.
-                           pl_i->time, MDTextAll,
+                           pl_i->time_string, MDTextAll,
                            w - time_width - 1, y + 2,
                            time_width, eh,
                            obj->item_style->font,
@@ -124,7 +126,7 @@ static void draw_item ( MPlayList *obj, MPlayList_Item *pl_i, MakiseStyleTheme_P
                            c_th->font_col );
 
     makise_d_string_frame( obj->e.gui->buffer,
-                           pl_i->name, MDTextAll,
+                           pl_i->name_string, MDTextAll,
                            x + 2, y + 2,
                            w - 4 - time_width, eh,
                            obj->item_style->font,
@@ -223,10 +225,12 @@ static uint8_t draw ( MElement* b ) {
     header_text_draw( obj, &x, &y, &obj->eh, &h );                   // Draw header.
 
     for ( uint32_t i = 0; i < obj->item_array_len; i++ ) {
-        switch ( obj->item_array[ i ].stait ) {
-        case 2: st = &obj->item_style->selected; break;
-        case 1: st = &obj->item_style->play;     break;
-        case 0: st = &obj->item_style->normal;   break;
+        if ( obj->item_array[ i ].selected_state == 1 ) {
+            st = &obj->item_style->selected;
+        } else if ( obj->item_array[ i ].play_state == 1 ) {
+            st = &obj->item_style->play;
+        } else {
+            st = &obj->item_style->normal;
         }
 
         draw_item( obj, &obj->item_array[ i ], st, x, y, w, obj->eh );
@@ -245,12 +249,34 @@ static uint8_t draw ( MElement* b ) {
 
     if ( obj->style->scroll_width == 0 ) return M_OK;
 
-    uint32_t y_scroll       = obj->e.position.real_y + obj->style->font->height + 4;
-    uint32_t field_height   = obj->e.position.height - obj->style->font->height - 4;
+    uint32_t y_scroll = obj->e.position.real_y;
+
+    if ( obj->header_text != NULL ) {
+        y_scroll += obj->style->font->height + 4;
+    }
+
+    uint32_t field_height   = obj->e.position.height;
     uint32_t scroll_height  = ( field_height - 2 ) / obj->file_count_of_dir;                // 2 line for line frame.
-    drawing_scroll( obj, field_height, y_scroll, y_scroll + (scroll_height + 1 )* obj->selected->real_number_track + 1, scroll_height );
+    drawing_scroll( obj, field_height, y_scroll, y_scroll + scroll_height * obj->selected->real_number_track + 1, scroll_height );
 
     return M_OK;
+}
+
+static void update_play_state ( MPlayList *obj ) {
+    for ( uint32_t i = 0; i < obj->item_array_len; i++ ) {
+        if ( obj->item_array[ i ].real_number_track == obj->play_file_number ) {
+            obj->item_array[ i ].play_state = 1;
+        } else {
+            obj->item_array[ i ].play_state = 0;                                        // Clear old pos track play.
+        }
+    }
+}
+
+void m_click_play_list ( MPlayList* b, MInputKeyEnum key ) {
+    MInputData  in_data;
+    in_data.key         = key;
+    in_data.event       = M_INPUT_CLICK;
+    input( &b->e, in_data );
 }
 
 static MInputResultEnum input ( MElement* b, MInputData data ) {
@@ -260,74 +286,98 @@ static MInputResultEnum input ( MElement* b, MInputData data ) {
     case M_KEY_DOWN:
         // Move the scroll in the visible part of the screen.
         if ( obj->selected->id < obj->item_array_len - 1 ) {
-            obj->selected->stait = 0;
+            obj->selected->selected_state = 0;
             obj->selected = obj->selected->next;
-            obj->selected->stait = 2;
-            return M_INPUT_HANDLED;
+            obj->selected->selected_state = 1;
+
+            update_play_state( obj );
+            return M_INPUT_NOT_HANDLED;
         }
 
         // Shift the elements up. The upper one is lost.
         if ( obj->selected->real_number_track < obj->file_count_of_dir - 1 ) {
-            char* b_char_name = obj->item_array[ 0 ].name;
-            char* b_char_time = obj->item_array[ 0 ].time;
+            char* b_char_name = obj->item_array[ 0 ].name_string;
+            char* b_char_time = obj->item_array[ 0 ].time_string;
+            uint32_t time_sec   = obj->item_array[ 0 ].time_sec;
 
             for ( uint32_t p_l = 1; p_l < obj->item_array_len; p_l++ ) {
-                obj->item_array[ p_l - 1 ].name                 = obj->item_array[ p_l ].name;
-                obj->item_array[ p_l - 1 ].time                 = obj->item_array[ p_l ].time;
-                obj->item_array[ p_l - 1 ].real_number_track    = obj->item_array[ p_l ].real_number_track;
+                obj->item_array[ p_l - 1 ].name_string                 = obj->item_array[ p_l ].name_string;
+                obj->item_array[ p_l - 1 ].time_string                 = obj->item_array[ p_l ].time_string;
+                obj->item_array[ p_l - 1 ].real_number_track           = obj->item_array[ p_l ].real_number_track;
+                obj->item_array[ p_l - 1 ].time_sec                    = obj->item_array[ p_l ].time_sec;
             }
 
-            obj->item_array[ obj->item_array_len - 1 ].name = b_char_name;
-            obj->item_array[ obj->item_array_len - 1 ].time = b_char_time;
+            obj->item_array[ obj->item_array_len - 1 ].name_string = b_char_name;
+            obj->item_array[ obj->item_array_len - 1 ].time_string = b_char_time;
+            obj->item_array[ obj->item_array_len - 1 ].time_sec    = time_sec;
 
             obj->f_array->get_item_name_and_time( &obj->item_array[ obj->item_array_len - 1 ], obj->selected->real_number_track + 1 );
             obj->item_array[ obj->item_array_len - 1 ].real_number_track = obj->selected->real_number_track + 1;
 
-            return M_INPUT_HANDLED;
+            update_play_state( obj );
+            return M_INPUT_NOT_HANDLED;
         }
 
         // Go to the beginning.
-        obj->selected->stait = 0;
+        obj->selected->selected_state = 0;
         array_reset_to_start( obj );
         obj->selected = obj->item_array;
-        obj->selected->stait = 2;
+        obj->selected->selected_state = 1;
 
-        return M_INPUT_HANDLED;
+        update_play_state( obj );
+        return M_INPUT_NOT_HANDLED;
 
     case M_KEY_UP:
         if ( obj->selected != obj->item_array ) {
-            obj->selected->stait = 0;
+            obj->selected->selected_state = 0;
             obj->selected = obj->selected->prev;
-            obj->selected->stait = 2;
-            return M_INPUT_HANDLED;
+            obj->selected->selected_state = 1;
+
+            update_play_state( obj );
+            return M_INPUT_NOT_HANDLED;
         }
 
         if ( obj->selected->real_number_track != 0 ) {
-            char* b_char_name = obj->item_array[ obj->item_array_len - 1 ].name;
-            char* b_char_time = obj->item_array[ obj->item_array_len - 1 ].time;
+            char* b_char_name = obj->item_array[ obj->item_array_len - 1 ].name_string;
+            char* b_char_time = obj->item_array[ obj->item_array_len - 1 ].time_string;
+            uint32_t time_sec = obj->item_array[ obj->item_array_len - 1 ].time_sec;
 
             for ( uint32_t p_l = obj->item_array_len - 1; p_l > 0; p_l-- ) {
-                obj->item_array[ p_l ].name                 = obj->item_array[ p_l - 1 ].name;
-                obj->item_array[ p_l ].time                 = obj->item_array[ p_l - 1 ].time;
+                obj->item_array[ p_l ].name_string                 = obj->item_array[ p_l - 1 ].name_string;
+                obj->item_array[ p_l ].time_string                 = obj->item_array[ p_l - 1 ].time_string;
                 obj->item_array[ p_l ].real_number_track    = obj->item_array[ p_l - 1 ].real_number_track;
             }
 
-            obj->item_array[ 0 ].name = b_char_name;
-            obj->item_array[ 0 ].time = b_char_time;
+            obj->item_array[ 0 ].name_string = b_char_name;
+            obj->item_array[ 0 ].time_string = b_char_time;
+            obj->item_array[ 0 ].time_sec    = time_sec;
 
             obj->f_array->get_item_name_and_time( &obj->item_array[ 0 ], obj->selected->real_number_track - 1 );
             obj->item_array[ 0 ].real_number_track = obj->selected->real_number_track - 1;
 
-            return M_INPUT_HANDLED;
+            update_play_state( obj );
+            return M_INPUT_NOT_HANDLED;
         }
 
         // Go to the ending.
-        obj->selected->stait = 0;
+        obj->selected->selected_state = 0;
         array_reset_to_end( obj );
         obj->selected = &obj->item_array[ obj->item_array_len - 1 ];
-        obj->selected->stait = 2;
-        return M_INPUT_HANDLED;
+        obj->selected->selected_state = 1;
+
+        update_play_state( obj );
+        return M_INPUT_NOT_HANDLED;
+
+    case M_KEY_OK:
+        // Func return play state track.
+        // 0 - track play. 1 - error or stop.
+        if ( obj->f_array->item_click( obj->selected ) == 0 ) {        // Success.
+            obj->play_file_number = obj->selected->real_number_track;
+        }
+        update_play_state( obj );
+        return M_INPUT_NOT_HANDLED;
     }
+
     return M_INPUT_NOT_HANDLED;
 }
 

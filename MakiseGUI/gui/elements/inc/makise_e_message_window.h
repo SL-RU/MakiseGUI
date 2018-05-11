@@ -13,29 +13,29 @@ extern "C" {
 
 // This structure is populated by the user.
 typedef struct {
-    const MakiseFont*       const font;
-    const uint32_t                font_line_spacing;
+	const MakiseFont*		const font;
+	const uint32_t				font_line_spacing;
 
-    const uint32_t                bg_color;
-    const uint32_t                font_col;
-    const uint32_t                border_color;
+	const uint32_t				bg_color;
+	const uint32_t				font_col;
+	const uint32_t				border_color;
 } MakiseStyle_SMessageWindow;
 
 
 // Structure for internal use.
 // May not be filled 0.
 typedef struct {
-    MakiseGUI*                      gui;
-    MElement                        el;
-    char*                           s;
-    MakiseStyle_SMessageWindow*     style;
+	MakiseGUI*								gui;
+	MElement								el;
+	const char*						 		s;
+	const MakiseStyle_SMessageWindow*		style;
 } MMessageWindow;
 
-void m_create_message_window ( MMessageWindow*              b,
-                               MContainer*                  c,
-                               MPosition                    pos,
-                               char*                        s,
-                               MakiseStyle_SMessageWindow*  style );
+void m_create_message_window (	MMessageWindow*						b,
+								MContainer*							c,
+								MPosition							pos,
+								const char*							const s,
+								const MakiseStyle_SMessageWindow*	style );
 
 
 #ifdef __cplusplus

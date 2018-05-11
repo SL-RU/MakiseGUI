@@ -50,15 +50,16 @@ typedef struct {
 // [ 2 + 1 + 2 + 1 + 2 + 1 ]
 typedef struct _MPlayList_Item MPlayList_Item;
 typedef struct _MPlayList_Item{
-    char*                       name;                           // 255 char + 1 zero (256 char string).
-    char*                       time;                           // Max: 99:99:59\0. HH:MM:SS\0 (9 char string).
-                                                                // Example: 1:20:0\0 1:14:2\0 1:08\0
+    char*                       name_string;                    // 255 char + 1 zero (256 char string).
+    char*                       time_string;                    // Max: 99:99:59\0. HH:MM:SS\0 (9 char string).
+                                                                // Example: 1:20:0\0 1:14:2\0 1:08\0.
+    uint32_t                    time_sec;
     uint32_t                    real_number_track;              // The track number in your list. 0..MAX_UINT32_T.
     MPlayList_Item*             prev;
     MPlayList_Item*             next;
 
-    // 0 - normal, 1 - play, 2 - selected.
-    uint8_t                     stait;
+    uint8_t                     play_state;                     // 1 - treck selected how play. 0 - no.
+    uint8_t                     selected_state;                 // 1 - treck selected how selected. 0 - no.
     uint32_t                    id;
 } MPlayList_Item;
 
@@ -66,7 +67,7 @@ typedef struct _MPlayList MPlayList;
 typedef struct {
     MPlayList_Item* ( *create_array_item )          ( uint32_t len );
     void            ( *item_selected )              ( MPlayList_Item* selected_item );
-    void            ( *get_item_click )             ( MPlayList_Item* selected_item );
+    uint8_t         ( *item_click )                 ( MPlayList_Item* click_item );
     void            ( *get_item_name_and_time )     ( MPlayList_Item* selected_item, uint32_t treck_number );
     uint32_t        ( *get_file_count_of_dir)       ( char* dir );
 } MPlayList_CallbackFunc;
@@ -95,6 +96,7 @@ typedef struct _MPlayList {
     char*                       current_dir;
     uint32_t                    file_count_of_dir;
     uint32_t                    focus_file_number;  // Focus state.
+    int32_t                     play_file_number;   // -1 == no play file.
 } MPlayList;
 
 void m_create_play_list     ( MPlayList*                obj_struct,
@@ -105,6 +107,8 @@ void m_create_play_list     ( MPlayList*                obj_struct,
                               MPlayList_CallbackFunc*   user_func,
                               MakiseStyle_PlayList*     style,
                               MakiseStyle_PlayListItem* item_style );
+
+void m_click_play_list      ( MPlayList* b, MInputKeyEnum key );
 
 /*
 // Update data item.
