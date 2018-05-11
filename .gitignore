@@ -101,3 +101,5 @@ REVISION
 /mpc*
 /gmp*
 /isl*
+
+*.fuse_hidden*
