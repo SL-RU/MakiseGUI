@@ -7,7 +7,12 @@ Makise GUI - opensource crossplatform GUI library written on pure C99. It target
 STAGE: ACTIVE DEVELOPMENT
 
 ## About
+
 Graphics library for embed ARM platforms. It will support variety of displays and controllers. It allows to draw only primitives or use GUI.
+
+### Mission
+
+To simplify process of development GUI interfaces for embed systems. And make possible to create modern GUI for everyone.
 
 ## Main features
 * free and opensource GUI for everyone
