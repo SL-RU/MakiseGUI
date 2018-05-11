@@ -9,7 +9,7 @@
 #include "makise_text.h"
 #include "fonts.h"
 
-#ifdef FONTS_DEFAULT5X7
+#ifdef MAKISE_FONTS_DEFAULT5X7
 
 const uint8_t Default5x7_table [] =
 {

@@ -93,12 +93,6 @@ typedef struct _MakiseDriver
     uint32_t size;          //size of the buffer
     uint16_t posx;          //last pos of floating buffer
     uint16_t posy;          //last pos of floating buffer
-    
-    uint8_t (*init) (MakiseGUI* gui);
-    uint8_t (*start)(MakiseGUI* gui);
-    uint8_t (*sleep)(MakiseGUI* gui);
-    uint8_t (*awake)(MakiseGUI* gui);
-    uint8_t (*set_backlight)(MakiseGUI* gui, uint8_t);
 } MakiseDriver;
 
 typedef struct _MakiseGUI
@@ -121,7 +115,7 @@ typedef struct _MakiseGUI
  */
 uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer);
 void makise_deinit(MakiseGUI* gui);
-uint8_t makise_start(MakiseGUI * gui);
+//uint8_t makise_start(MakiseGUI * gui);
 uint32_t makise_pget(MakiseBuffer *b, uint32_t x, uint32_t y);
 void makise_pset(MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c);
 

@@ -37,8 +37,17 @@ v#ifndef MAKISE_CONFIG_H
 #define MAKISE_E_TOGGLE            1
 #define MAKISE_E_FSVIEWER          MAKISE_E_FSVIEWER_FATFS
 //or #define MAKISE_E_FSVIEWER          MAKISE_E_FSVIEWER_STDIO
+
 #define MAKISE_UNICODE             1
 #define MAKISE_DISPLAY_INVERTED    0
+
+
+// FONTS. Uncomment to use
+#define MAKISE_FONTS_DEFAULT10X20
+//#define MAKISE_FONTS_DEFAULT8X13
+#define MAKISE_FONTS_DEFAULT6X10
+//#define MAKISE_FONTS_DEFAULT5X7
+
 
 #define MAKISE_MUTEX               0
 

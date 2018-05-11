@@ -38,17 +38,17 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     return lenb;
 }
 
-uint8_t makise_start(MakiseGUI * gui) {
-    if( gui == 0 || gui->driver == 0 )
-        return M_ZERO_POINTER;
+/* uint8_t makise_start(MakiseGUI * gui) { */
+/*     if( gui == 0 || gui->driver == 0 ) */
+/*         return M_ZERO_POINTER; */
     
-    if(gui->driver->start == 0)
-    {
-	MAKISE_DEBUG_OUTPUT("WARNING driver start is ZERO\n");
-	return M_OK;
-    }
-    return gui->driver->start(gui);
-}
+/*     if(gui->driver->start == 0) */
+/*     { */
+/* 	MAKISE_DEBUG_OUTPUT("WARNING driver start is ZERO\n"); */
+/* 	return M_OK; */
+/*     } */
+/*     return gui->driver->start(gui); */
+/* } */
 
 uint32_t kpset, kpset32, kpsett;
 inline uint32_t makise_pget(MakiseBuffer *b, uint32_t x, uint32_t y)
