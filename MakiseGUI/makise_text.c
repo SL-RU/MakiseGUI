@@ -47,9 +47,9 @@ void makise_d_char(MakiseBuffer *b, uint16_t ch, int16_t x, int16_t y, const Mak
 }
 
 void makise_d_string(MakiseBuffer *b,
-		     char *s, uint32_t len,
-		     int16_t x, int16_t y, MDTextPlacement place,
-		     const MakiseFont *font, uint32_t c)
+                     const char *s, uint32_t len,
+                     int16_t x, int16_t y, MDTextPlacement place,
+                     const MakiseFont *font, uint32_t c)
 {
     uint32_t width, i = 0;
 
@@ -103,7 +103,7 @@ void makise_d_string(MakiseBuffer *b,
     }
 }
 
-uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font)
+uint32_t makise_d_string_width(const char *s, uint32_t len, const MakiseFont *font)
 {
     uint32_t width , i = 0;
     uint32_t ch, res = 0;
