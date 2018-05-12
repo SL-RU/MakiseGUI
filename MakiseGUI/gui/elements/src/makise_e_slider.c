@@ -145,7 +145,7 @@ static uint8_t draw   (MElement* b, MakiseGUI *gui)
 
     }
     
-    //makise_d_string(b->gui->buffer,
+    //makise_d_string(gui->buffer,
 //		    ((MSlider*)b->data)->text, MDTextAll,
 //		    b->position.real_x + b->position.width / 2,
 //		    b->position.real_y + b->position.height / 2,

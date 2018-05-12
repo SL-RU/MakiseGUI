@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-    static uint8_t draw   (MElement* b, MakiseGUI *gui);
+static MResult draw ( MElement* b, MakiseGUI *gui );
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
@@ -41,7 +41,7 @@ void m_create_text_field(MTextField* b, MContainer *c,
     MAKISE_DEBUG_OUTPUT("Text field %d created\n", e->id);
 }
 
-uint8_t draw ( MElement* b, MakiseGUI *gui ) {
+static MResult draw ( MElement* b, MakiseGUI *gui ) {
     MTextField *t = (MTextField*)b->data;
     MakiseStyleTheme *th = &t->state ?
 	&t->style->normal :

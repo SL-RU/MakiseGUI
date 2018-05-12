@@ -5,7 +5,7 @@
 
 static char name[] = "MessageWindow";
 
-static uint8_t draw ( MElement* b );
+static MResult draw ( MElement* b, MakiseGUI *gui );
 
 void m_create_message_window (	MMessageWindow*						b,
 								MContainer*							c,
@@ -17,7 +17,7 @@ void m_create_message_window (	MMessageWindow*						b,
 	b->s	 = s;
 
 	MElement *e = &b->el;
-	m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
+	m_element_create(e, name, b,
 			 1, 1, pos,
 			 &draw,
 			 0,
@@ -30,11 +30,11 @@ void m_create_message_window (	MMessageWindow*						b,
 	MAKISE_DEBUG_OUTPUT("MessageWindow %d created\n", e->id);
 }
 
-static uint8_t draw ( MElement* b ) {
+static MResult draw ( MElement* b, MakiseGUI *gui ) {
 	MMessageWindow *e = ( MMessageWindow* )b->data;
 
 	// Draw edging.
-	makise_d_rect_filled( b->gui->buffer,
+	makise_d_rect_filled( gui->buffer,
 							b->position.real_x,	b->position.real_y,
 							b->position.width,
 							b->position.height,
@@ -53,7 +53,7 @@ static uint8_t draw ( MElement* b ) {
 	if ( height_offset < 0 ) return M_OK;
 	height_offset /= 2;
 
-	makise_d_string_frame( b->gui->buffer,
+	makise_d_string_frame( gui->buffer,
 							e->s, MDTextAll,
 							b->position.real_x + 2,
 							b->position.real_y + height_offset,
