@@ -120,7 +120,8 @@ void m_slist_remove     ( MSList *l, MSList_Item *item );                   // R
 void m_slist_set_array  ( MSList *l, MSList_Item *array, uint32_t len );    // Set new data source. Simple array.
 void m_slist_set_list   ( MSList *l, MSList_Item *first );                  // Set linked list as new data source.
 
-void m_slist_set_text_string ( MSList *l, const char* text );
+    
+void m_slist_set_header ( MSList *l, const char* text );
 
 /* void m_slist_set_onselection(MSList *l, void (*onselection)(MSList *l, MSList_Item selected)); */
 /* void m_slist_set_click(MSList *l, void (*click)(MSList *l, MSList_Item selected)); */

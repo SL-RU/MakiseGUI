@@ -768,8 +768,12 @@ void m_slist_set_list ( MSList *l, MSList_Item *first ) {
     M_E_MUTEX_RELEASE(l);
 }
 
-void m_slist_set_text_string ( MSList *l, const char* text ) {
-	l->text	=	text;
+void m_slist_set_header ( MSList *l, const char* text ) {
+    if ( l == 0 )
+	return;
+    M_E_MUTEX_REQUEST(l);
+    l->text = text;
+    M_E_MUTEX_RELEASE(l);
 }
 
 
