@@ -14,6 +14,9 @@ void m_create_canvas( MCanvas*            b,
                       MPosition           pos,
                       MakiseStyle_Canvas*  style )
 {
+    //clear structure
+    memset(b, 0, sizeof(MCanvas));
+
     MElement *e = &b->el;
 
     m_element_create(e, name, b,

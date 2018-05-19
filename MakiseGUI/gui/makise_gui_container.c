@@ -2,6 +2,12 @@
 
 void makise_g_cont_init(MContainer *c)
 {
+    if(c == 0)
+        return;
+    
+    //clear structure
+    memset(c, 0, sizeof(MContainer));
+
     c->first = 0;
     c->last = 0;
     c->position = 0;
@@ -330,7 +336,7 @@ uint8_t makise_g_cont_call   (MContainer *cont, MakiseGUI *gui, uint8_t type)
 MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data)
 {
     if(cont == 0)
-	return M_ZERO_POINTER;
+	return M_INPUT_ERROR;
 #if MAKISE_GUI_INPUT_POINTER_ENABLE == 1
     
 #endif
@@ -406,7 +412,7 @@ MFocusEnum _makise_g_cont_focus_nextprev(MContainer *cont,
 					 uint8_t next, uint8_t first_t)
 {
     if(cont == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
 
     if(cont->first == 0)
 	return M_G_FOCUS_NOT_NEEDED;

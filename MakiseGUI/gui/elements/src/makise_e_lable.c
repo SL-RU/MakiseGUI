@@ -11,6 +11,9 @@ void m_create_lable( MLable*             b,
                      MPosition           pos,
                      MakiseStyle_Lable*   style )
 {
+    //clear structure
+    memset(b, 0, sizeof(MLable));
+    
     MElement *e = &b->el;
 
     m_element_create(e, name, b,

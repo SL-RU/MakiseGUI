@@ -10,6 +10,9 @@ void makise_gui_init ( MHost* host )
     if ( host == NULL )
         return;
 
+    //clear structure
+    memset(host, 0, sizeof(MHost));
+    
     // init gui host
     makise_g_cont_init(&host->host);
     host->host.host = host;

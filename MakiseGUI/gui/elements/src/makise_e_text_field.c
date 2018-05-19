@@ -18,6 +18,9 @@ void m_create_text_field(MTextField* b, MContainer *c,
 			 uint8_t enable_scroll,
 			 MakiseStyle_TextField *style)
 {
+    //clear structure
+    memset(b, 0, sizeof(MTextField));
+
     MElement *e = &b->el;
     m_element_create(e, name, b,
 		     1, 1, pos,

@@ -42,6 +42,9 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		   uint32_t size,
 		   MakiseStyle *style)
 {
+    //clear structure
+    memset(b, 0, sizeof(MTabs));
+
     MElement *e = &b->el;
     MElement *et = &b->tabs_el;
     MElement *eh = &b->header_el;

@@ -11,6 +11,9 @@ void m_element_create(MElement *e, char *name, void* data,
 		      uint8_t  is_parent,
 		      MContainer *children)
 {
+    //clear structure
+    memset(e, 0, sizeof(MElement));
+
     e->id = makise_g_newid();
     e->name                 = name;
 
@@ -80,7 +83,7 @@ uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
 MInputResultEnum m_element_input(MElement* el, MInputData data)
 {
     if(el == 0)
-	return M_ZERO_POINTER;
+	return M_INPUT_ERROR;
 
     MInputResultEnum r = M_INPUT_NOT_HANDLED;
     if(el->input != 0)
@@ -94,7 +97,7 @@ MInputResultEnum m_element_input(MElement* el, MInputData data)
 MFocusEnum m_element_focus(MElement* el, MFocusEnum act )
 {
     if(el == 0)
-	return M_ZERO_POINTER;
+	return M_G_FOCUS_ERROR;
     
     MFocusEnum r = M_G_FOCUS_NOT_NEEDED;
     if(el->focus != 0)

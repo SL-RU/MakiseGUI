@@ -14,6 +14,9 @@ void m_create_button( MButton*              b,
                       MPosition             pos,
                       MakiseStyle_Button*    style )
 {
+    //clear structure
+    memset(b, 0, sizeof(MButton));
+
     b->text         = 0;
 
     b->click        = 0;

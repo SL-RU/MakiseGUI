@@ -16,7 +16,12 @@ void m_create_fsviewer( MFSViewer*                  b,
                         MPosition                   pos,
                         MFSViewer_Type              type,
                         MakiseStyle_FSViewer*       style,
-                        MakiseStyle_FSViewer_Item*  item_style ) {
+                        MakiseStyle_FSViewer_Item*  item_style )
+{
+    //clear structure
+    memset(b, 0, sizeof(MFSViewer));
+
+    
     MElement *e = &b->el;
     m_element_create(e, name, b,
 		     1, MFocusPrior_Focusble, pos,

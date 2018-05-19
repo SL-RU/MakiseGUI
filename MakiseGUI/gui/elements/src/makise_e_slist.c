@@ -17,7 +17,11 @@ void m_create_slist( MSList*                b,
 		     void                   ( *click )          ( MSList *l, MSList_Item *selected ),
 		     MSList_Type            type,
 		     MakiseStyle_SList*     style,
-		     MakiseStyle_SListItem* item_style) {
+		     MakiseStyle_SListItem* item_style)
+{
+    //clear structure
+    memset(b, 0, sizeof(MSList));
+
     MElement *e = &b->el;
     m_element_create(e, name, b,
 		     1, MFocusPrior_Focusble,

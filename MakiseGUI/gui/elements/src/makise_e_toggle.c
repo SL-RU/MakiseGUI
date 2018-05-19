@@ -17,6 +17,9 @@ void m_create_toggle(MToggle* b, MContainer *c,
 		     void (*toggled)(MToogle* b, uint8_t state),
 		     MakiseStyle *style)
 {
+    //clear structure
+    memset(b, 0, sizeof(MToggle));
+
     MElement *e = &b->el;
 
     m_element_create(e, name, b,

@@ -12,6 +12,9 @@ void m_create_slider(MSlider* b, MContainer *c,
 		     MSlider_Type type,
 		     const MakiseStyle *style)
 {
+    //clear structure
+    memset(b, 0, sizeof(MSlider));
+    
     MElement *e = &b->el;
 
     m_element_create(e, name, b,
