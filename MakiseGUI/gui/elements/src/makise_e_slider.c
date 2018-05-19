@@ -10,7 +10,7 @@ static char name[] = "Slider";
 void m_create_slider(MSlider* b, MContainer *c,
 		     MPosition pos,
 		     MSlider_Type type,
-		     MakiseStyle *style)
+		     const MakiseStyle *style)
 {
     MElement *e = &b->el;
 
@@ -37,7 +37,7 @@ void m_create_slider(MSlider* b, MContainer *c,
 
 static uint8_t draw   (MElement* b, MakiseGUI *gui)
 {
-    MakiseStyleTheme *th = 0;
+    const MakiseStyleTheme *th = 0;
 
     MSlider *s = ((MSlider*)b->data);
 

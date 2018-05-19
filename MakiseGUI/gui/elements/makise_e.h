@@ -23,7 +23,7 @@ extern "C" {
 #include "makise_e_message_window.h"
 
 void _m_e_helper_draw_box_param ( MakiseBuffer* b, MPosition *p, uint32_t border_color, uint32_t bg_color, uint16_t double_border );
-void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th );
+void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, const MakiseStyleTheme *th );
 
 #ifdef __cplusplus
 }
