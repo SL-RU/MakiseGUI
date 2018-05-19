@@ -9,15 +9,15 @@ static MInputResultEnum input  (MElement* b, MInputData data);
 
 static char *name = "SList";
 
-void m_create_slist( MSList*                b,
-		     MContainer*            c,
-		     MPosition              pos,
-		     char*                  text,
-		     void                   ( *onselection )    ( MSList *l, MSList_Item *selected ),
-		     void                   ( *click )          ( MSList *l, MSList_Item *selected ),
-		     MSList_Type            type,
-		     MakiseStyle_SList*     style,
-		     MakiseStyle_SListItem* item_style)
+void m_create_slist( MSList*                      b,
+	                 MContainer*                  c,
+	                 MPosition                    pos,
+	                 char*                        text,
+	                 void                         ( *onselection )    ( MSList *l, MSList_Item *selected ),
+	                 void                         ( *click )          ( MSList *l, MSList_Item *selected ),
+	                 MSList_Type                  type,
+	                 const MakiseStyle_SList*     style,
+        	         const MakiseStyle_SListItem* item_style)
 {
     //clear structure
     memset(b, 0, sizeof(MSList));
@@ -69,7 +69,7 @@ static void setup_text_scroll(MSList *l)
 
 //draw line frome the list
 static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
-			MakiseStyleTheme_SList *c_th,
+		    const MakiseStyleTheme_SList *c_th,
 			uint32_t x, uint32_t y,
 			uint32_t w, uint32_t eh ) {
 
@@ -160,9 +160,9 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
 
 static uint8_t draw ( MElement* b, MakiseGUI *gui ) {
     MSList *l = (MSList*)b->data;
-    MakiseStyleTheme_SList *th    = l->state ? &l->style->focused : &l->style->normal;
-    MakiseStyleTheme_SList *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
-    MakiseStyleTheme_SList *i_nom = &l->item_style->normal,
+    const MakiseStyleTheme_SList *th    = l->state ? &l->style->focused : &l->style->normal;
+    const MakiseStyleTheme_SList *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
+    const MakiseStyleTheme_SList *i_nom = &l->item_style->normal,
 
 	*c_th = 0;
     
@@ -767,6 +767,11 @@ void m_slist_set_list ( MSList *l, MSList_Item *first ) {
     }
     M_E_MUTEX_RELEASE(l);
 }
+
+void m_slist_set_text_string ( MSList *l, const char* text ) {
+	l->text	=	text;
+}
+
 
 #endif
 
