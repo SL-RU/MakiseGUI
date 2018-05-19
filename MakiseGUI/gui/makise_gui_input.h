@@ -62,7 +62,8 @@ typedef struct
 typedef enum
 {
     M_INPUT_HANDLED,
-    M_INPUT_NOT_HANDLED
+    M_INPUT_NOT_HANDLED,
+    M_INPUT_ERROR
 } MInputResultEnum;
 
 
