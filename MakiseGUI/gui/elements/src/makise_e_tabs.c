@@ -24,7 +24,7 @@ static uint8_t host_predraw(MElement* b);
 static MInputResultEnum host_input  (MElement* b, MInputData data);
 static MFocusEnum host_focus  (MElement* b, MFocusEnum act);
 
-static uint8_t draw   (MElement* b);
+static MResult draw (MElement* b, MakiseGUI *gui);
 static uint8_t predraw(MElement* b);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
@@ -50,7 +50,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
     makise_g_cont_init(host);
     
     //tab themselve
-    m_element_create(et, (c == 0) ? 0 : c->gui, name, b,
+    m_element_create(et, name, b,
 		     1, 1, pos,
 		     &draw,
 		     &predraw,
@@ -59,7 +59,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		     &focus,
 		     1, 0);
     //main element - host for everything else
-    m_element_create(e, (c == 0) ? 0 : c->gui, host_name, b,
+    m_element_create(e, host_name, b,
 		     1, 1, pos,
 		     &host_draw,
 		     &host_predraw,
@@ -68,7 +68,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		     &host_focus,
 		     1, host);
     //header
-    m_element_create(eh, (c == 0) ? 0 : c->gui, header_name, b,
+    m_element_create(eh, header_name, b,
 		     1, 1, pos,
 		     &header_draw,
 		     0,
@@ -77,7 +77,6 @@ void m_create_tabs(MTabs* b, MContainer *c,
 		     &header_focus,
 		     0, 0);
 
-    host->gui = c->gui;
     host->el = e;
     host->position = &e->position;
 
@@ -120,8 +119,7 @@ void m_create_tabs(MTabs* b, MContainer *c,
 }
 
 
-uint8_t draw   (MElement* b)
-{
+static MResult draw (MElement* b, MakiseGUI *gui) {
     MakiseStyleTheme *th = 0;
 
     if(((MTabs*)b->data)->state == 0)
@@ -131,7 +129,7 @@ uint8_t draw   (MElement* b)
     
     MTabs *t = ((MTabs*)b->data);
     
-    _m_e_helper_draw_box(b->gui->buffer, &b->position, th);
+    _m_e_helper_draw_box( gui->buffer, &b->position, th );
 
     if(t->len == 0 || t->tabs == 0)
 	return M_OK;
@@ -142,7 +140,7 @@ uint8_t draw   (MElement* b)
 	b->children = &t->tabs[t->selected].cont;
     }
 
-    return makise_g_cont_call(&t->tabs[t->selected].cont, M_G_CALL_DRAW);
+    return makise_g_cont_call( &t->tabs[t->selected].cont, gui, M_G_CALL_DRAW );
 //    return M_OK;
 }
 uint8_t predraw(MElement* b)
@@ -158,7 +156,7 @@ uint8_t predraw(MElement* b)
 	b->children = &t->tabs[t->selected].cont;
     }
 
-    return makise_g_cont_call(&t->tabs[t->selected].cont, M_G_CALL_PREDRAW);
+    return makise_g_cont_call(&t->tabs[t->selected].cont, gui, M_G_CALL_PREDRAW);
 }
 void _m_tabs_select_tab(MTabs *t, uint32_t s)
 {
@@ -251,7 +249,7 @@ void init_tabs(MTabs* b)
 }
 
 
-uint8_t header_draw   (MElement* b)
+static MResult draw ( MElement* b, MakiseGUI *gui ) {
 {
     MTabs *t = ((MTabs*)b->data);
     
@@ -259,7 +257,7 @@ uint8_t header_draw   (MElement* b)
     {
 	uint32_t w = b->position.width / t->len;
 	for (uint32_t i = 0; i < t->len; i++) {
-	    makise_d_rect_filled(b->gui->buffer,
+	    makise_d_rect_filled(gui->buffer,
 				 b->position.real_x + w * i, b->position.real_y,
 				 w, b->position.height,
 				 (t->selected != i) ?
@@ -268,7 +266,7 @@ uint8_t header_draw   (MElement* b)
 				 (t->selected != i) ?
 				 t->style->unactive.bg_color :
 				 t->style->active.bg_color);
-	    makise_d_string_frame(b->gui->buffer,
+	    makise_d_string_frame(gui->buffer,
 				  t->tabs[i].header , MDTextAll,
 				  b->position.real_x + w * i + 3,
 				  b->position.real_y, w - 6,
@@ -282,7 +280,7 @@ uint8_t header_draw   (MElement* b)
     {
 	uint32_t h = b->position.height / t->len;
 	for (uint32_t i = 0; i < t->len; i++) {
-	    makise_d_rect_filled(b->gui->buffer,
+	    makise_d_rect_filled(gui->buffer,
 				 b->position.real_x, b->position.real_y + h * i,
 				 b->position.width, h,
 				 (t->selected != i) ?
@@ -291,7 +289,7 @@ uint8_t header_draw   (MElement* b)
 				 (t->selected != i) ?
 				 t->style->unactive.bg_color :
 				 t->style->active.bg_color);
-	    makise_d_string_frame(b->gui->buffer,
+	    makise_d_string_frame(gui->buffer,
 				  t->tabs[i].header , MDTextAll,
 				  b->position.real_x + 3, b->position.real_y + h * i,
 				  b->position.width - 6, h,

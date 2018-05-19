@@ -16,18 +16,14 @@ extern "C" {
 #include "makise_e_buttons.h"
 #include "makise_e_canvas.h"
 #include "makise_e_lable.h"
-#include "makise_e_progress_bar.h"
 #include "makise_e_slider.h"
-#include "makise_e_slist.h"
 #include "makise_e_tabs.h"
 #include "makise_e_text_field.h"
 #include "makise_e_toggle.h"
 #include "makise_e_message_window.h"
-#include "makise_e_fsviewer.h"
-#include "makise_e_play_list.h"
 
 void _m_e_helper_draw_box_param ( MakiseBuffer* b, MPosition *p, uint32_t border_color, uint32_t bg_color, uint16_t double_border );
-void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th );
+void _m_e_helper_draw_box(MakiseBuffer* b, MPosition *p, const MakiseStyleTheme *th );
 
 #ifdef __cplusplus
 }

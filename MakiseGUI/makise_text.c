@@ -47,9 +47,9 @@ void makise_d_char(MakiseBuffer *b, uint16_t ch, int16_t x, int16_t y, const Mak
 }
 
 void makise_d_string(MakiseBuffer *b,
-		     char *s, uint32_t len,
-		     int16_t x, int16_t y, MDTextPlacement place,
-		     const MakiseFont *font, uint32_t c)
+                     const char *s, uint32_t len,
+                     int16_t x, int16_t y, MDTextPlacement place,
+                     const MakiseFont *font, uint32_t c)
 {
     uint32_t width, i = 0;
 
@@ -103,7 +103,7 @@ void makise_d_string(MakiseBuffer *b,
     }
 }
 
-uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font)
+uint32_t makise_d_string_width(const char *s, uint32_t len, const MakiseFont *font)
 {
     uint32_t width , i = 0;
     uint32_t ch, res = 0;
@@ -134,7 +134,7 @@ uint32_t makise_d_string_width(char *s, uint32_t len, const MakiseFont *font)
     return res;
 }
 
-uint32_t makise_d_string_height_get ( char*             s,
+uint32_t makise_d_string_height_get ( const char*       s,
                                       uint32_t          len,
                                       uint16_t          width_window,
                                       const MakiseFont* font,
@@ -299,7 +299,7 @@ char *     makise_d_string_get_line (
 
 //draw multiline text in the defined frame
 void makise_d_string_frame(MakiseBuffer *b,
-			   char *s, uint32_t len,
+			   const char *s, uint32_t len,
 			   int16_t x, int16_t y, uint16_t w, uint16_t h,
 			   const MakiseFont *font, uint16_t line_spacing, uint32_t c)
 {
@@ -374,7 +374,7 @@ static const struct validUTF8Sequence
     {0x100000, 0x10FFFF, 4, {0xF4, 0xF4, 0x80, 0x8F, 0x80, 0xBF, 0x80, 0xBF}} 
 };
 
-uint32_t makise_d_utf_char_id(char *s, uint32_t len, uint8_t *bts)
+uint32_t makise_d_utf_char_id( const char *s, uint32_t len, uint8_t *bts)
 {
     if(len == 0)
     {

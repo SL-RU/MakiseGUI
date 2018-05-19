@@ -1,6 +1,6 @@
 #include "makise_e.h"
 
-void _m_e_helper_draw_box( MakiseBuffer* b, MPosition *p, MakiseStyleTheme *th ) {
+void _m_e_helper_draw_box( MakiseBuffer* b, MPosition *p, const MakiseStyleTheme *th ) {
     _m_e_helper_draw_box_param( b, p, th->border_c, th->bg_color, th->double_border );
 }
 

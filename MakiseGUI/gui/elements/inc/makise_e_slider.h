@@ -21,28 +21,28 @@ typedef enum {
 typedef struct _MSlider MSlider;
 
 typedef struct _MSlider {
-    MakiseGUI*          gui;
-    MElement            el;
+    MakiseGUI*                gui;
+    MElement                  el;
 
-    int32_t           *value_p;      //pointer to value
-    int32_t            value;        //value
-    int32_t            value_max;    //minimal possible value
-    int32_t            value_min;    //max possible value
+    int32_t*                  value_p;      //pointer to value
+    int32_t                   value;        //value
+    int32_t                   value_max;    //minimal possible value
+    int32_t                   value_min;    //max possible value
 
-    MSlider_Type       type;         //is slider readonly or you can control it
+    MSlider_Type              type;         //is slider readonly or you can control it
 
     void (*onchange)   (MSlider* b, int32_t val );    // When value changed by user
     void (*onfocus )   (MSlider* b, MFocusEnum type); // type == M_G_FOCUS_GET when focus recieved and M_G_FOCUS_LEAVE when dropped.
 
-    MakiseStyle*        style;
-    uint8_t             state; //focus state
+    const MakiseStyle*        style;
+    uint8_t                   state; //focus state
 } MSlider;
 
-void m_create_slider( MSlider*          b,
-                      MContainer*       c,
-                      MPosition         pos,
-                      MSlider_Type      type,
-                      MakiseStyle*      style );
+void m_create_slider( MSlider*                b,
+                      MContainer*             c,
+                      MPosition               pos,
+                      MSlider_Type            type,
+                      const MakiseStyle*      style );
 
 void m_slider_set_range(MSlider* b, int32_t i, int32_t j);
 void    m_slider_set_value        (MSlider* b, int32_t v);
