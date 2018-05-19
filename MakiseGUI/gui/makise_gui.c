@@ -296,7 +296,7 @@ void makise_g_print_tree(MHost *host)
     if(host == 0)
 	return;
     MAKISE_MUTEX_REQUEST(&host->mutex);
-    MAKISE_DEBUG_PRINT("tree:\n");
+    MAKISE_DEBUG_OUTPUT("tree:\n");
     MContainer *c = &host->host;    
     _makise_g_print_tree(c, 0);
     MAKISE_MUTEX_RELEASE(&host->mutex);
