@@ -15,11 +15,6 @@ void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Su
     d->size          = 0;
     d->posx          = 0;
     d->posy          = 0;
-    d->init          = &makise_sdl2_init;
-    d->start         = &makise_sdl2_start;
-    d->sleep         = &makise_sdl2_sleep;
-    d->awake         = &makise_sdl2_awake;
-    d->set_backlight = &makise_sdl2_set_backlight;
 
     _makise_sdl2_screen = s;
 }

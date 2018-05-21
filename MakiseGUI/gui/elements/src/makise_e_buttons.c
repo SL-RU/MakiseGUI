@@ -103,7 +103,7 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     return M_OK;
 }
 
-static uint8_t input  ( MElement* b, MInputData data )
+static MInputResultEnum input  ( MElement* b, MInputData data )
 {
     MButton *e          = b->data;
     uint8_t res = M_INPUT_NOT_HANDLED;
