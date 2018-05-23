@@ -3,7 +3,9 @@
 #define MAX_POLY_CORNERS   200
 
 
-
+#define MSWAP(type, i, j) {type t = i; i = j; j = t;}
+#define MMIN(X, Y) (((X) < (Y)) ? (X) : (Y))
+#define MMAX(X, Y) (((X) > (Y)) ? (X) : (Y))
 
 
 //**************************************************************************************
@@ -28,7 +30,8 @@ void makise_d_point(MakiseBuffer* b, uint16_t x, uint16_t y, uint32_t c)
 void makise_d_rect( MakiseBuffer* b,
                     int16_t x,  int16_t y,
                     uint16_t w, uint16_t h,
-                    uint32_t c) {
+                    uint32_t c)
+{
     if ( x >= b->width || y >= b->height || c == MC_Transparent )
         return;
 
@@ -71,7 +74,8 @@ void makise_d_rect_filled ( MakiseBuffer* b,
                             int16_t x,  int16_t y,
                             uint16_t w, uint16_t h,
                             uint32_t c,
-                            uint32_t fill_c ) {
+                            uint32_t fill_c )
+{
     if ( fill_c == MC_Transparent ) {
         makise_d_rect( b, x, y, w, h, c );
         return;
@@ -123,7 +127,10 @@ void makise_d_rect_filled ( MakiseBuffer* b,
     }    
 }
 
-void makise_d_circle ( MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t r, uint32_t c ) {
+void makise_d_circle (MakiseBuffer* b,
+                      uint16_t xc, uint16_t yc,
+                      uint16_t r, uint32_t c )
+{
     if ( c == MC_Transparent ) return;
     
     // Middle point algorythm
@@ -161,7 +168,10 @@ void makise_d_circle ( MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t r, ui
     }
 }
 
-void makise_d_circle_filled ( MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_t r, uint32_t c, uint32_t fill_c ) {
+void makise_d_circle_filled (MakiseBuffer* b,
+                             uint16_t xc, uint16_t yc,
+                             uint16_t r, uint32_t c, uint32_t fill_c )
+{
     if ( fill_c == MC_Transparent ) {
         makise_d_circle( b, xc, yc, r, c );
         return;
@@ -214,26 +224,61 @@ void makise_d_circle_filled ( MakiseBuffer* b, uint16_t xc, uint16_t yc, uint16_
     }
 }
 
-void makise_d_line ( MakiseBuffer* b, int16_t x0, int16_t y0, int16_t x1, int16_t y1, uint32_t c ) {
+void makise_d_line (MakiseBuffer* b,
+                    int16_t x0, int16_t y0,
+                    int16_t x1, int16_t y1, uint32_t c )
+{
     if ( c == MC_Transparent )                  return;
     if ( x1 < 0 && x0 < 0 )                     return;
     if ( x1 >= b->width && x0 >= b->width )     return;
     if ( y1 < 0 && y0 < 0 )                     return;
     if ( y1 >= b->height && y0 >= b->height )    return;
+    
+    int dx, dy;
+    if(x0 > x1) { MSWAP(int, x0, x1); MSWAP(int, y0, y1);  }
+    dy = y1 - y0; dx = x1 - x0;
+    if(dx == 0) {
+        //if vertical
+        if(x0 < b->border.x || x0 > b->border.ey)
+            return;
+    } else {
+        // LEFT BORDER
+        if(x0 < b->border.x) {
+            y0 = y0 + ((b->border.x - x0) * dy / dx);
+            x0 = b->border.x;
+        }
+        // RIGHT BORDER
+        dy = y1 - y0; dx = x1 - x0;
+        if(x1 > b->border.ex) {
+            y1 = y1 + ((b->border.ex - x1) * dy / dx);
+            x1 = b->border.ex;
+        }
+    }
 
-    x1 = x1 < b->border.x ? b->border.x : x1;
-    y1 = y1 < b->border.y ? b->border.y : y1;
-    x0 = x0 < b->border.x ? b->border.x : x0;
-    y0 = y0 < b->border.y ? b->border.y : y0;
+    // UPPER BORDER
+    if(y0 > y1) { MSWAP(int, x0, x1); MSWAP(int, y0, y1);  }
+    dy = y1 - y0; dx = x1 - x0;
+    if(dy == 0) {
+        //if horizontal
+        if(y0 < b->border.y || y0 > b->border.ey)
+            return;
+    } else {
+        if(y0 < b->border.y) {
+            x0 = x0 + ((b->border.y - y0) * dx / dy);
+            y0 = b->border.y;
+        }
+        // BOTTOM BORDER
+        dy = y1 - y0; dx = x1 - x0;
+        if(y1 > b->border.ey) {
+            x1 = x1 + ((b->border.ey - y1) * dx / dy);
+            y1 = b->border.ey;
+        }
+    }
     
-    x0 =  x0 < b->border.ex-1 ? x0 : b->border.ex - 1;
-    x1 =  x1 < b->border.ex-1 ? x1 : b->border.ex - 1;
-    y0 =  y0 < b->border.ey-1 ? y0 : b->border.ey - 1;
-    y1 =  y1 < b->border.ey-1 ? y1 : b->border.ey - 1;
-    
-    int16_t dy = 0;
-    
-    dy = abs( y0 - y1 );                                    // The difference between the y's
+    int dirx = x0<x1 ? 1 : -1,
+        diry = y0<y1 ? 1 : -1; 
+    dy = abs( y0 - y1 );
+    dx = abs( x0 - x1 );
     
     if ( dy == 0 ) {                                        // If line is horizontal we can memset it
         uint32_t C = 0;                                     // byte filled with colors for memset
@@ -255,6 +300,7 @@ void makise_d_line ( MakiseBuffer* b, int16_t x0, int16_t y0, int16_t x1, int16_
             kb += 1;
             j += 32/b->pixeldepth;
         }
+        j-=1;
         while (j <= x1) {
             makise_pset_fast(b, j, y0, c);
             j++;
@@ -262,19 +308,21 @@ void makise_d_line ( MakiseBuffer* b, int16_t x0, int16_t y0, int16_t x1, int16_
         return;
     }
 
-    int dx = abs(x1-x0), sx = x0<x1 ? 1 : -1;
-    int sy = y0<y1 ? 1 : -1; 
     int err = (dx>dy ? dx : -dy)/2, e2;
- 
+    
     for(;;){
         makise_pset_fast( b, x0, y0, c );
         if (x0==x1 && y0==y1) break;
         e2 = err;
-        if (e2 >-dx) { err -= dy; x0 += sx; }
-        if (e2 < dy) { err += dx; y0 += sy; }
+        if (e2 >-dx) { err -= dy; x0 += dirx; }
+        if (e2 < dy) { err += dx; y0 += diry; }
     }
 }
-void makise_d_polyline ( MakiseBuffer*b, MakisePoint* points, uint32_t count, uint32_t c ) {
+
+void makise_d_polyline (MakiseBuffer*b,
+                        MakisePoint* points, uint32_t count,
+                        uint32_t c )
+{
     if ( count == 0 || points == 0 || c == MC_Transparent ) return;
 
     uint32_t i = 0;
@@ -284,7 +332,11 @@ void makise_d_polyline ( MakiseBuffer*b, MakisePoint* points, uint32_t count, ui
     }
 }
 
-void makise_dex_polyline(MakiseBuffer*b, int32_t x, int32_t y, double rot, MakisePoint* points, uint32_t count, uint32_t c) {
+void makise_dex_polyline(MakiseBuffer*b,
+                         int32_t x, int32_t y, double rot,
+                         MakisePoint* points,
+                         uint32_t count, uint32_t c)
+{
     if ( count == 0 || points == 0 || c == MC_Transparent ) return;
 
     if ( x == 0 && y == 0 && rot == 0)
@@ -307,7 +359,11 @@ void makise_dex_polyline(MakiseBuffer*b, int32_t x, int32_t y, double rot, Makis
     }
 }
 
-void makise_d_triangle_filled(MakiseBuffer*b, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c, uint32_t c_fill)
+void makise_d_triangle_filled ( MakiseBuffer*b,
+                                int32_t x0, int32_t y0,
+                                int32_t x1, int32_t y1,
+                                int32_t x2, int32_t y2,
+                                uint32_t c, uint32_t c_fill)
 {
         
 }
