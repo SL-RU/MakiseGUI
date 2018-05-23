@@ -239,8 +239,8 @@ void makise_d_line (MakiseBuffer* b,
     dy = y1 - y0; dx = x1 - x0;
     if(dx == 0) {
         //if vertical
-        if(x0 < b->border.x || x0 > b->border.ey)
-            return;
+        //if(x0 < b->border.x || x1 > b->border.ey)
+        //return;
     } else {
         // LEFT BORDER
         if(x0 < b->border.x) {
@@ -260,8 +260,8 @@ void makise_d_line (MakiseBuffer* b,
     dy = y1 - y0; dx = x1 - x0;
     if(dy == 0) {
         //if horizontal
-        if(y0 < b->border.y || y0 > b->border.ey)
-            return;
+        /* if(y0 < b->border.y || y1 > b->border.ey) */
+        /*     return; */
     } else {
         if(y0 < b->border.y) {
             x0 = x0 + ((b->border.y - y0) * dx / dy);
@@ -358,6 +358,63 @@ void makise_dex_polyline(MakiseBuffer*b,
         ly = cy;
     }
 }
+/*
+Draw down part of triangle
+uy lx *-------------* rx
+       \           /
+        \         /
+         \       /
+          \     /
+           \   /
+            \ /
+             * mx, my
+ */
+static void draw_down_tri (MakiseBuffer*b,
+                           int32_t uy, int32_t lx, int32_t rx,
+                           int32_t mx, int32_t my, 
+                           uint32_t c)
+{
+    if(lx > rx) MSWAP(int32_t, lx, rx);
+    int32_t ldx = abs(lx - mx), rdx = abs(rx - mx),
+        dy = abs(my - uy),
+        rerr = 0, lerr = 0, re2 = 0, le2 = 0,
+        ldirx = mx - lx < 0 ? -1 : 1, rdirx = mx - rx < 0 ? -1 : 1,
+        diry = my - uy < 0 ? -1 : 1,
+        lxx = lx, rxx = rx;
+    ldirx = mx - lx == 0 ? 0 : ldirx;
+    lerr = (ldx > dy ? ldx : -dy) / 2;
+    
+    rdirx = mx - rx == 0 ? 0 : rdirx;
+    rerr = (rdx > dy ? rdx : -dy) / 2;
+
+    diry = my - uy == 0 ? 0 : diry;
+    if(diry == 0)
+        return;
+    
+    int32_t y = uy;
+    uint8_t lc = 1;
+    for(;;) {
+
+        if(y == my) break;
+        re2 = rerr; le2 = lerr;
+        if(le2 > -ldx && lc) { lerr -= dy; lxx += ldirx; }
+        if(re2 > -rdx && !lc) { rerr -= dy; rxx += rdirx; }
+        if(le2 < dy)
+            lc = 0;
+        if(le2 < dy && re2 < dy) {
+            if(diry == 1)
+                makise_d_line(b, lxx, y, rxx - (rxx - lxx > 2 ? 1 : 0), y, c);
+            lc = 1;
+            y += diry;
+            lerr += ldx; rerr += rdx;
+            if(diry == -1 && y != my)
+                makise_d_line(b, lxx + (rxx - lxx > 2 ? 1 : 0), y, rxx - (rxx - lxx > 2 ? 1 : 0), y, c);
+
+            /* makise_d_point(b, lxx, y, MC_Red); */
+            /* makise_d_point(b, rxx, y, MC_Red); */
+        }
+    }
+}
 
 void makise_d_triangle_filled ( MakiseBuffer*b,
                                 int32_t x0, int32_t y0,
@@ -365,5 +422,30 @@ void makise_d_triangle_filled ( MakiseBuffer*b,
                                 int32_t x2, int32_t y2,
                                 uint32_t c, uint32_t c_fill)
 {
-        
+    if(y0 > y1) { MSWAP(int, x0, x1); MSWAP(int, y0, y1); }
+    if(y0 > y2) { MSWAP(int, x0, x2); MSWAP(int, y0, y2); }
+    int32_t uy = y0, ux = x0, //upper point
+        mx, my, // middle point
+        bx, by; //bottom point
+    if(y1 < y2) {
+        mx = x1; my = y1;
+        bx = x2; by = y2;
+    } else {
+        mx = x2; my = y2;
+        bx = x1; by = y1;
+    }
+
+    int32_t mmx = bx - ux;
+    mmx = ux + (mmx * my - mmx * uy) / (by - uy);
+
+    draw_down_tri(b, my, mx, mmx, ux, uy, c_fill);
+    draw_down_tri(b, my, mx, mmx, bx, by, c_fill);
+    
+    makise_d_line(b, x0, y0, x1, y1, c);
+    makise_d_line(b, x0, y0, x2, y2, c);
+    makise_d_line(b, x2, y2, x1, y1, c);
+    
+    makise_d_point(b, x0, y0, MC_Cyan);
+    makise_d_point(b, x1, y1, MC_Cyan);
+    makise_d_point(b, x2, y2, MC_Cyan);
 }
