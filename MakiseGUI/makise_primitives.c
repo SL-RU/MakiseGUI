@@ -445,7 +445,92 @@ void makise_d_triangle_filled ( MakiseBuffer*b,
     makise_d_line(b, x0, y0, x2, y2, c);
     makise_d_line(b, x2, y2, x1, y1, c);
     
-    makise_d_point(b, x0, y0, MC_Cyan);
-    makise_d_point(b, x1, y1, MC_Cyan);
-    makise_d_point(b, x2, y2, MC_Cyan);
+    /* makise_d_point(b, x0, y0, MC_Cyan); */
+    /* makise_d_point(b, x1, y1, MC_Cyan); */
+    /* makise_d_point(b, x2, y2, MC_Cyan); */
 }
+
+void makise_d_rect_rounded( MakiseBuffer* b,        
+                            int16_t  xc, int16_t yc,  
+                            uint16_t w, uint16_t h,
+                            uint16_t r,
+                            uint32_t c,             
+                            uint32_t fill_c )
+{
+    if ( fill_c == MC_Transparent ) {
+        makise_d_circle( b, xc, yc, r, c );
+        return;
+    }
+
+    // Middle point algorythm
+    int16_t f = 1 - r;
+    int16_t ddF_x = 1;
+    int16_t ddF_y = -2 * r;
+    int16_t x = 0;
+    int16_t y = r;
+    int16_t is_tr = (c != MC_Transparent);
+    /* makise_pset(b, xc,     yc + r,     c); */
+    /* makise_pset(b, xc,     yc - r + h, c); */
+    /* makise_pset(b, xc + r, yc, c); */
+    /* makise_pset(b, xc - r, yc, c); */
+
+    while ( x < y ) {
+    // ddF_x == 2 * x + 1;
+    // ddF_y == -2 * y;
+    // f == x*x + y*y - r*r + 2*x - y + 1;
+        if( f >= 0 ) {
+            y--;
+            ddF_y += 2;
+            f += ddF_y;
+        }
+        x++;
+        ddF_x += 2;
+        f += ddF_x;
+
+        makise_d_line(b,
+                      xc - x + is_tr + r,     yc + y + h - r - 1,
+                      xc + x - is_tr + w - r, yc + y + h - r - 1,
+                      fill_c);
+        makise_d_line(b,
+                      xc - x + is_tr + r,     yc - y + r,
+                      xc + x - is_tr + w - r, yc - y + r,
+                      fill_c);
+        makise_d_line(b,
+                      xc - y + is_tr + r,     yc + x + h - r - 1,
+                      xc + y - is_tr + w - r, yc + x + h - r - 1,
+                      fill_c);
+        makise_d_line(b,
+                      xc - y + is_tr + r,     yc - x + r,
+                      xc + y - is_tr + w - r, yc - x + r,
+                      fill_c);
+
+        makise_pset(b, xc + x + w - r - 1, yc + y + h - r - 1, c);
+        makise_pset(b, xc + y + w - r - 1, yc + x + h - r - 1, c);
+        
+        makise_pset(b, xc - x + r, yc + y + h - r - 1, c);
+        makise_pset(b, xc - y + r, yc + x + h - r - 1, c);
+        
+        makise_pset(b, xc + x + w - r - 1, yc - y + r, c);
+        makise_pset(b, xc + y + w - r - 1, yc - x + r, c);
+        
+        makise_pset(b, xc - x + r, yc - y + r, c);
+        makise_pset(b, xc - y + r, yc - x + r, c);
+
+    }
+    //center fill
+    makise_d_rect_filled(b, xc, yc + r, w, h - 2 * r, fill_c, fill_c);
+    
+    //horizontal border
+    makise_d_line(b,
+                  xc + r - 2,     yc,
+                  xc + w - r + 1, yc, c);
+    makise_d_line(b,
+                  xc + r - 2,     yc + h - 1,
+                  xc + w - r + 1, yc + h - 1, c);
+    //vertical border
+    makise_d_line(b, xc, yc + r, xc, yc + h - r, c);
+    makise_d_line(b, xc + w - 1, yc + r, xc + w - 1, yc + h - r, c);
+
+    makise_d_circle_filled(b, xc, yc, r, c, fill_c);
+}
+// TODO: Fix circle agorythm

@@ -39,6 +39,12 @@ void makise_dex_polyline(MakiseBuffer*b, int32_t x, int32_t y, double rot, Makis
 
 void makise_d_triangle_filled(MakiseBuffer*b, int32_t x0, int32_t y0, int32_t x1, int32_t y1, int32_t x2, int32_t y2, uint32_t c, uint32_t c_fill);
 
+void makise_d_rect_rounded( MakiseBuffer* b,        
+                            int16_t  x, int16_t y,  
+                            uint16_t w, uint16_t h,
+                            uint16_t r,
+                            uint32_t c,             
+                            uint32_t fill_c );    
 //**************************************************************************
 
 #ifdef __cplusplus
