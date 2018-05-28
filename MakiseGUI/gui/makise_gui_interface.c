@@ -1,85 +1,81 @@
 #include "makise_gui_interface.h"
 
+#define MM_REQUEST(e) MAKISE_MUTEX_REQUEST(&e->host->mutex)
+#define MM_RELEASE(e) MAKISE_MUTEX_RELEASE(&e->host->mutex)
+
 void mi_cont_add(MContainer *cont, MElement *el)
 {
     if(cont == 0 || cont->host == 0)
 	return;
-    MHost *h = cont->host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
+    MM_REQUEST(el);
 
     makise_g_cont_add(cont, el);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MM_RELEASE(el);
 }
 void mi_cont_rem(MElement *el)
 {
     if(el == 0 || el->host == 0)
 	return;
-    MHost *h = el->host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
+    MM_REQUEST(el);
     makise_g_cont_rem(el);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MM_RELEASE(el);
 }
 void mi_cont_clear(MContainer *cont)
 {
     if(cont == 0 || cont->host == 0)
 	return;
-    MHost *h = cont->host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
+    MM_REQUEST(cont);
 
     makise_g_cont_clear(cont);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MM_RELEASE(cont);
 }
 int32_t mi_cont_insert(MContainer * cont, MElement *el, uint32_t index)
 {
     if(cont == 0 || cont->host == 0)
 	return -1;
-    MHost *h = cont->host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
+    MM_REQUEST(cont);
 
     int32_t e = makise_g_cont_insert(cont, el, index);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MM_RELEASE(cont);
     return e;
 }
 void mi_cont_replace(MElement *e1, MElement *e2)
 {
     if(e1 == 0 || e1->host == 0)
 	return;
-    MHost *h = e1->host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
-
+    MM_REQUEST(e1);
+    
     makise_g_cont_replace(e1, e2);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MM_RELEASE(e1);
 }
 MFocusEnum mi_focus(MElement *el, MFocusEnum event)
 {
     if(el == 0 || el->host == 0)
 	return M_G_FOCUS_ERROR;
-    MHost *h = el->host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
-
+    MM_REQUEST(el);
+    
     MFocusEnum e = makise_g_focus(el, event);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    
+    MM_RELEASE(el);
     return e;
 }
 MFocusEnum mi_focus_next(MHost *host)
 {
     if(host == 0)
 	return M_G_FOCUS_ERROR;
-    MHost *h = host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
+    MAKISE_MUTEX_REQUEST(&host->mutex);
 
     MFocusEnum e = makise_g_host_focus_next(host);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MAKISE_MUTEX_RELEASE(&host->mutex);
     return e;
 }
 MFocusEnum mi_focus_prev(MHost *host)
 {
     if(host == 0)
 	return M_G_FOCUS_ERROR;
-    MHost *h = host;
-    MAKISE_MUTEX_REQUEST(&h->mutex);
+    MAKISE_MUTEX_REQUEST(&host->mutex);
 
     MFocusEnum e = makise_g_host_focus_prev(host);
-    MAKISE_MUTEX_RELEASE(&h->mutex);
+    MAKISE_MUTEX_RELEASE(&host->mutex);
     return e;
 }

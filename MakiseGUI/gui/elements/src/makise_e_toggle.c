@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-static uint8_t draw   (MElement* b, MakiseGUI *gui);
+static MResult draw   (MElement* b, MakiseGUI *gui);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
@@ -42,7 +42,7 @@ void m_create_toggle(MToggle* b, MContainer *c,
     MAKISE_DEBUG_OUTPUT("Toggle %d created\n", e->id);
 }
 
-uint8_t draw   (MElement* b, MakiseGUI *gui)
+MResult draw   (MElement* b, MakiseGUI *gui)
 {
     MakiseStyleTheme *th = 0,
 	*th_b = ((MToggle*)b->data)->state ?
@@ -70,20 +70,22 @@ uint8_t draw   (MElement* b, MakiseGUI *gui)
 		    th->font_col);
 
     makise_d_rect_filled(gui->buffer,
-			 b->position.real_x +
-			 b->position.width -
-			 b->position.height,
-			 b->position.real_y,
+			 (MPoint){ b->position.real_x +
+                                 b->position.width -
+                                 b->position.height,
+                                 b->position.real_y },
 			 b->position.height, b->position.height,
+                         th->thickness,
 			 th->border_c,
 			 th->bg_color);
 
     makise_d_rect_filled(gui->buffer,
-			 b->position.real_x +
-			 b->position.width -
-			 b->position.height + 2,
-			 b->position.real_y + 2,
+			 (MPoint){ b->position.real_x +
+                                 b->position.width -
+                                 b->position.height + 2,
+                                 b->position.real_y + 2},
 			 b->position.height-4, b->position.height-4,
+                         th_b->thickness,
 			 th_b->border_c,
 			 th_b->bg_color);
     

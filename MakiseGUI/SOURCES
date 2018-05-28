@@ -1,6 +1,7 @@
 makise.c
 makise_colors.c
 makise_primitives.c
+makise_primitives_default_drawer.c
 makise_text.c
 makise_bitmap.c
 gui/makise_gui.c

@@ -3,21 +3,21 @@
 #if ( MAKISE_E_SLIST > 0 )
 
 
-static uint8_t draw   (MElement* b, MakiseGUI *gui  );
+static MResult draw   (MElement* b, MakiseGUI *gui  );
 static MFocusEnum focus(MElement* b,  MFocusEnum act);
 static MInputResultEnum input  (MElement* b, MInputData data);
 
 static char *name = "SList";
 
 void m_create_slist( MSList*                      b,
-	                 MContainer*                  c,
-	                 MPosition                    pos,
-	                 char*                        text,
-	                 void                         ( *onselection )    ( MSList *l, MSList_Item *selected ),
-	                 void                         ( *click )          ( MSList *l, MSList_Item *selected ),
-	                 MSList_Type                  type,
-	                 const MakiseStyle_SList*     style,
-        	         const MakiseStyle_SListItem* item_style)
+                     MContainer*                  c,
+                     MPosition                    pos,
+                     char*                        text,
+                     void                         ( *onselection )    ( MSList *l, MSList_Item *selected ),
+                     void                         ( *click )          ( MSList *l, MSList_Item *selected ),
+                     MSList_Type                  type,
+                     const MakiseStyle_SList*     style,
+                     const MakiseStyle_SListItem* item_style)
 {
     //clear structure
     memset(b, 0, sizeof(MSList));
@@ -69,24 +69,28 @@ static void setup_text_scroll(MSList *l)
 
 //draw line frome the list
 static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
-		    const MakiseStyleTheme_SList *c_th,
+                        const MakiseStyleTheme *c_th,
 			uint32_t x, uint32_t y,
 			uint32_t w, uint32_t eh ) {
 
     makise_d_rect_filled( gui->buffer,
-			  x, y, w, eh,
+			  (MPoint){x, y}, w, eh,
+                          c_th->thickness,
 			  c_th->border_c, c_th->bg_color);
     
     switch ( l->type ) {
     case MSList_Checkbox:
 	makise_d_rect(gui->buffer,
-		      x, y, eh, eh,
+		      (MPoint){x, y}, eh, eh,
+                      c_th->thickness,
 		      c_th->font_col);
 
 	if ( ci->value ) {
 	    uint32_t d = eh > 21 ? 5 : 2;
 	    makise_d_rect_filled(gui->buffer,
-				 x + d, y + d, eh - d * 2, eh - d * 2,
+				 (MPoint){x + d, y + d},
+                                 eh - d * 2, eh - d * 2,
+                                 c_th->thickness,
 				 c_th->font_col, l->item_style->active.font_col);
 	}
 	x += eh;
@@ -96,22 +100,27 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
     case MSList_RadioButton:
 	if ( eh < 21 ) {
 	    makise_d_circle( gui->buffer,
-			     x + eh / 2,            y + eh / 2, eh / 2 - 1,
-			     c_th->font_col );
+			     (MPoint){x + eh / 2, y + eh / 2}, eh / 2 - 1,
+                             c_th->thickness,
+			     c_th->font_col  );
 	    if ( ci->value )
 		makise_d_circle_filled( gui->buffer,
-					x + eh / 2,     y + eh / 2, eh / 2 - 3,
+					(MPoint){x + eh / 2, y + eh / 2},
+                                        eh / 2 - 3,
+                                        c_th->thickness,
 					c_th->font_col,
 					l->item_style->active.font_col);
 	    x += eh + 1;
 	    w -= eh + 1;
 	} else {
 	    makise_d_circle( gui->buffer,
-			     x + 10,    y + eh/2, 10,
+			     (MPoint){x + 10, y + eh/2}, 10,
+                             c_th->thickness,
 			     c_th->font_col );
 	    if(ci->value)
 		makise_d_circle_filled( gui->buffer,
-					x + 10, y + eh/2, 7,
+					(MPoint){x + 10, y + eh/2}, 7,
+                                        c_th->thickness,
 					c_th->font_col,
 					l->item_style->active.font_col);
 	    x += 22;
@@ -158,17 +167,17 @@ static void draw_item ( MSList_Item *ci, MSList *l, MakiseGUI *gui,
     makise_rem_border(gui->buffer, border);
 }
 
-static uint8_t draw ( MElement* b, MakiseGUI *gui ) {
+static MResult draw ( MElement* b, MakiseGUI *gui ) {
     MSList *l = (MSList*)b->data;
-    const MakiseStyleTheme_SList *th    = l->state ? &l->style->focused : &l->style->normal;
-    const MakiseStyleTheme_SList *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
-    const MakiseStyleTheme_SList *i_nom = &l->item_style->normal,
+    const MakiseStyleTheme *th    = l->state ? &l->style->focused : &l->style->normal;
+    const MakiseStyleTheme *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
+    const MakiseStyleTheme *i_nom = &l->item_style->normal,
 
 	*c_th = 0;
     
     //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
-				th->border_c, th->bg_color, th->double_border );
+				th->border_c, th->bg_color, th->thickness );
 
     uint32_t i = 0, start = 0, end = 0;
     int16_t y = b->position.real_y,
@@ -194,8 +203,8 @@ static uint8_t draw ( MElement* b, MakiseGUI *gui ) {
 	h -= l->style->font->height + 4;    // 2 pixel line (up and down) + 2 space (up and down).
 
 	makise_d_line( gui->buffer,
-		       b->position.real_x, y,
-		       b->position.real_x + b->position.width,
+		       (MPoint){b->position.real_x, y},
+		       (MPoint){b->position.real_x + b->position.width},
 		       y,
 		       th->border_c);
     }
@@ -293,17 +302,24 @@ static uint8_t draw ( MElement* b, MakiseGUI *gui ) {
     // Drawing scroll.
     if ( l->style->scroll_width != 0 ) {
 	makise_d_rect_filled( gui->buffer,
-			      b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
+			      (MPoint){ b->position.real_x
+                                      + b->position.width
+                                      - l->style->scroll_width - 1,
+                                      b->position.real_y },
 			      l->style->scroll_width + 1,
 			      l->el.position.height,
+                              th->thickness,
 			      th->border_c,
 			      l->style->scroll_bg_color );
 
 	makise_d_rect_filled( gui->buffer,
-			      b->position.real_x + b->position.width - l->style->scroll_width - 1,
-			      y,               // BUG!
+			      (MPoint){ b->position.real_x
+                                      + b->position.width
+                                      - l->style->scroll_width - 1,
+                                      y },
 			      l->style->scroll_width + 1,
 			      sh + 1,
+                              th->thickness,
 			      th->border_c,
 			      l->style->scroll_color );
     }
@@ -380,7 +396,7 @@ static MInputResultEnum input_cursor_click ( MSList* l, MElement *b, int32_t cx,
 
     MSList_Item *ci = 0;
 
-    if ( ec == 0 ) return M_ERROR;
+    if ( ec == 0 ) return M_INPUT_ERROR;
     
     len = l->len;
 
@@ -399,7 +415,7 @@ static MInputResultEnum input_cursor_click ( MSList* l, MElement *b, int32_t cx,
 	    ci = ci->next;
 	    ti ++;
 	}
-	if ( i == UINT32_MAX )  return M_ERROR; //if we didn't found it
+	if ( i == UINT32_MAX )  return M_INPUT_ERROR; //if we didn't found it
     }
     //compute start index of element to display & the last
     if ( ec >= len ) {

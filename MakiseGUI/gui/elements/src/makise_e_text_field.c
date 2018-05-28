@@ -100,19 +100,24 @@ static MResult draw ( MElement* b, MakiseGUI *gui ) {
 
     
 	makise_d_rect_filled( gui->buffer,
-			      b->position.real_x + b->position.width
-			      - t->style->scroll_width - 1,
-			      b->position.real_y,
+			      (MPoint){ b->position.real_x
+                                      + b->position.width
+                                      - t->style->scroll_width - 1,
+                                      b->position.real_y },
 			      t->style->scroll_width + 1,
 			      t->el.position.height,
+                              1,
 			      th->border_c,
 			      t->style->scroll_bg_color );
 
 	makise_d_rect_filled( gui->buffer,
-			      b->position.real_x + b->position.width - t->style->scroll_width - 1,
-			      y,               // BUG!
+			      (MPoint){b->position.real_x
+                                      + b->position.width
+                                      - t->style->scroll_width - 1,
+                                      y },
 			      t->style->scroll_width + 1,
 			      sh + 1,
+                              1,
 			      th->border_c,
 			      t->style->scroll_color );
     }

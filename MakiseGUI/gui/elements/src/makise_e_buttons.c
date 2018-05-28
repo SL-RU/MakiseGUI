@@ -50,7 +50,7 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     }
     
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
-                                th->border_c, th->bg_color,th->double_border );
+                                th->border_c, th->bg_color,th->thickness );
 
     uint32_t wt = makise_d_string_width(e->text, MDTextAll, e->style->font),
 	wb = 0, w = 0, sx = 3, bity = 0;
@@ -96,7 +96,6 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
 			     b->position.real_x + wb + sx,
 			     b->position.real_y + bity,
 			     MDTextPlacement_LeftUp, e->style->font, th->font_col);
-
     }
     
     //printf("Button %d dr\n", b->id);

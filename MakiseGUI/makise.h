@@ -20,11 +20,11 @@ typedef enum {
 #include <stdint.h>
 #include "makise_config.h"
 #include "makise_colors.h"
+#include "makise_primitives.h"
 #include "makise_text.h"
 #include "makise_bitmap.h"
-#include "makise_primitives.h"
 
-    
+
 //if DEBUG OUTPUT disabled or MAKISE_DEBUG_OUTPUT isn't defined
 //if you want debug output define that in makise_config.h:
 //#define MAKISE_DEBUG_OUTPUT printf
@@ -79,6 +79,10 @@ typedef struct _MakiseBuffer
     uint32_t size;          //size of the buffer
 
     MakiseBufferBorder border; //allowed region for new drawing
+
+    MResult  ( *drawer )(
+        const MakiseBuffer*,
+        const MDPrimitive* ); // primitive drawer. See documentation. Or use &makise_primitives_default_drawer
 } MakiseBuffer;
 
 typedef struct _MakiseDriver
@@ -115,24 +119,13 @@ typedef struct _MakiseGUI
  */
 uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer);
 void makise_deinit(MakiseGUI* gui);
-//uint8_t makise_start(MakiseGUI * gui);
-uint32_t makise_pget(MakiseBuffer *b, uint32_t x, uint32_t y);
-void makise_pset(MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c);
 
-/**
- * get point without checking borders
- */
-uint32_t makise_pget_fast(MakiseBuffer *b, uint32_t x, uint32_t y);
-/**
- * set point without checking borders
- */
-void makise_pset_fast(MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c);
 
 //if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
 void makise_render(MakiseGUI *gui, uint8_t partial_render);
 
 /**
- * set new border. This region must be smaller then previous. It will be cropped.
+ * set new border. This region must be smaller then previous. Else it will be cropped.
  * Borders need for drawing GUI. For gui elements do not leave their & their parent's
  * borders.
  * After setting border & drawing it you need to call makise_rem_border.
@@ -143,6 +136,7 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render);
  */
 MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorder b);
 void makise_rem_border(MakiseBuffer *buffer, MakiseBufferBorderData b);
+
 
 #ifdef __cplusplus
 }

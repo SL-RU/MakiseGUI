@@ -8,6 +8,7 @@ extern "C" {
 #include <stdint.h>
 #include "makise_config.h"
 
+typedef uint32_t MColor;
 #define MC_Transparent UINT32_MAX
 
 #if defined MAKISEGUI_BUFFER_DEPTH && MAKISEGUI_BUFFER_DEPTH <= 4
@@ -34,7 +35,7 @@ typedef enum
     MC_Maroon          ,
     MC_Navy            ,
 #endif
-} MColor;
+} MColorPalette;
 #endif
 
 #if MAKISEGUI_BUFFER_DEPTH == 16 && MAKISEGUI_BUFFER_DEPTH == MAKISEGUI_DRIVER_DEPTH

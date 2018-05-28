@@ -38,15 +38,18 @@ void makise_gui_init ( MHost* host )
 #endif
 }
 
-void makise_gui_autoinit(MHost *host,
-		     MakiseGUI *gui,
-		     MakiseDriver *driver,
-		     uint32_t* (*get_buffer)(uint32_t size),
-		     MInputData(*inp_handler)(MInputData d,
-					      MInputResultEnum res),
-		     void (*draw)(MakiseGUI* gui),
-		     void (*predraw)(MakiseGUI* gui),
-		     void (*update)(MakiseGUI* gui))
+void makise_gui_autoinit ( MHost *host,
+                           MakiseGUI *gui,
+                           MakiseDriver *driver,
+                           uint32_t* (*get_buffer)(uint32_t size),
+                           MInputData(*inp_handler)(MInputData d,
+                                                    MInputResultEnum res),
+                           void (*draw)(MakiseGUI* gui),
+                           void (*predraw)(MakiseGUI* gui),
+                           void (*update)(MakiseGUI* gui),
+                           MResult  ( *drawer )(
+                               const MakiseBuffer*,
+                               const MDPrimitive*))
 {
     makise_gui_init(host); //init gui host
     
@@ -65,6 +68,11 @@ void makise_gui_autoinit(MHost *host,
     gui->predraw = predraw;
     gui->draw = draw;
     gui->update = update;
+    
+#ifdef MAKISE_PRIMITIVES_DRAWER_DEFAULT
+    if(drawer == 0)
+        gui->buffer->drawer = &makise_primitives_default_drawer;
+#endif
 }
 
 uint32_t makise_g_newid()

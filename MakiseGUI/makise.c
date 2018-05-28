@@ -38,66 +38,6 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     return lenb;
 }
 
-/* uint8_t makise_start(MakiseGUI * gui) { */
-/*     if( gui == 0 || gui->driver == 0 ) */
-/*         return M_ZERO_POINTER; */
-    
-/*     if(gui->driver->start == 0) */
-/*     { */
-/* 	MAKISE_DEBUG_OUTPUT("WARNING driver start is ZERO\n"); */
-/* 	return M_OK; */
-/*     } */
-/*     return gui->driver->start(gui); */
-/* } */
-
-uint32_t kpset, kpset32, kpsett;
-inline uint32_t makise_pget(MakiseBuffer *b, uint32_t x, uint32_t y)
-{
-    if((x) < (b)->width && (y) < (b)->height)
-    {							
-	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-	kpset32 = kpset/32;
-	return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
-    }						
-    return 0;
-}
-
-inline void makise_pset(MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c)
-{
-    if((x) < b->border.ex && (y) < b->border.ey &&
-       (x) >= b->border.x && (y) >= b->border.y)		
-    {									
-	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-	kpset32 = kpset/32;
-	kpsett = kpset - kpset32*32;
-
-	if(((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett))) == c)
-	    return;
-	
-	(b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
-    }
-}
-inline uint32_t makise_pget_fast(MakiseBuffer *b, uint32_t x, uint32_t y)
-{
-    kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-    kpset32 = kpset/32;
-    return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
-}
-
-inline void makise_pset_fast(MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c)
-{
-    kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-    kpset32 = kpset/32;
-    kpsett = kpset - kpset32*32;
-    
-    if ( ( ( b )->depthmask & ( ( b )->buffer[ kpset32 ] >> ( kpsett ) ) ) == c )
-        return;
-    
-    (b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
-}
-
-
-
 //if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
 void makise_render(MakiseGUI *gui, uint8_t partial_render)
 {
@@ -115,7 +55,7 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render)
     {
 	m = d->posy + d->buffer_height;
 	d->posy += d->buffer_height;
-	partial_render = 1;
+	//partial_render = 1;
     }
     else if(partial_render == 1) //render first half (called by halfcplt callback)
     {

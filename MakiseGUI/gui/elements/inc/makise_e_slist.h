@@ -11,13 +11,6 @@ extern "C" {
 
 #include "makise_e.h"
 
-typedef struct {
-    uint32_t bg_color;
-    uint32_t font_col;
-    uint32_t border_c;
-
-    uint16_t double_border;
-} MakiseStyleTheme_SList;
 
 typedef struct {
     const MakiseFont*       font;
@@ -32,9 +25,9 @@ typedef struct {
     uint32_t                scroll_bg_color; //may be 0
     uint32_t                scroll_color;
 
-    MakiseStyleTheme_SList  normal;
-    MakiseStyleTheme_SList  focused;
-    MakiseStyleTheme_SList  active;
+    MakiseStyleTheme  normal;
+    MakiseStyleTheme  focused;
+    MakiseStyleTheme  active;
 } MakiseStyle_SList;
 
 typedef struct {
@@ -44,9 +37,9 @@ typedef struct {
     //text scroll
     uint32_t                text_scroll_speed;
     
-    MakiseStyleTheme_SList  normal;
-    MakiseStyleTheme_SList  focused;
-    MakiseStyleTheme_SList  active;
+    MakiseStyleTheme  normal;
+    MakiseStyleTheme  focused;
+    MakiseStyleTheme  active;
 } MakiseStyle_SListItem;
     
     

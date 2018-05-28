@@ -13,7 +13,7 @@ typedef struct _MakiseStyleTheme
     uint32_t font_col;
     uint32_t border_c;
 
-    uint16_t double_border;
+    uint16_t thickness;
 } MakiseStyleTheme;
 
 typedef struct _MakiseStyle {
