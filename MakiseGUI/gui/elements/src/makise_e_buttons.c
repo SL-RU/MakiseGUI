@@ -40,7 +40,7 @@ void m_create_button( MButton*              b,
 
 static MResult draw ( MElement* b, MakiseGUI *gui )
 {
-    MakiseTheme_Button* th = 0;
+    MakiseStyleTheme* th = 0;
     MButton *e      = b->data;
 
     switch ( e->state ) {

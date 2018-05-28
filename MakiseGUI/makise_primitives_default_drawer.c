@@ -114,8 +114,6 @@ void makise_pdd_rect( const MakiseBuffer* b,
     if(w == 0 || h == 0)
         return;
 
-    w-=1;
-    h-=1;
     
     makise_pdd_line(b, x, y, x + w, y, c);
     makise_pdd_line(b, x, y + h, x + w, y + h, c);
@@ -163,8 +161,7 @@ void makise_pdd_rect_filled ( const MakiseBuffer* b,
     if ( w == 0 || h == 0 )
         return;
 
-    h -= 1;
-    w -= 1;
+
 
     if ( c != MC_Transparent ) {
         makise_pdd_line( b, x, y, x + w, y, c );
@@ -365,15 +362,15 @@ void makise_pdd_line (const MakiseBuffer* b,
     if ( x1 < 0 && x0 < 0 )                     return;
     if ( x1 >= b->width && x0 >= b->width )     return;
     if ( y1 < 0 && y0 < 0 )                     return;
-    if ( y1 >= b->height && y0 >= b->height )    return;
+    if ( y1 >= b->height && y0 >= b->height )   return;
     
     int dx, dy;
     if(x0 > x1) { MSWAP(int, x0, x1); MSWAP(int, y0, y1);  }
     dy = y1 - y0; dx = x1 - x0;
     if(dx == 0) {
-        //if vertical
-        //if(x0 < b->border.x || x1 > b->border.ey)
-        //return;
+        //if horizontal
+        if(MMIN(y0, y1) < b->border.y || MMAX(y0, y1) > b->border.ey)
+            return;
     } else {
         // LEFT BORDER
         if(x0 < b->border.x) {
@@ -392,9 +389,9 @@ void makise_pdd_line (const MakiseBuffer* b,
     if(y0 > y1) { MSWAP(int, x0, x1); MSWAP(int, y0, y1);  }
     dy = y1 - y0; dx = x1 - x0;
     if(dy == 0) {
-        //if horizontal
-        /* if(y0 < b->border.y || y1 > b->border.ey) */
-        /*     return; */
+        //if vertical
+        if(MMIN(x0, x1) < b->border.x || MMAX(x0, x1) > b->border.ex)
+            return;
     } else {
         if(y0 < b->border.y) {
             x0 = x0 + ((b->border.y - y0) * dx / dy);
@@ -513,6 +510,8 @@ void makise_pdd_triangle_filled ( const MakiseBuffer*b,
                                   int32_t x2, int32_t y2,
                                   MColor c, MColor c_fill)
 {
+    if(b == 0 || (c == MC_Transparent && c_fill == MC_Transparent) ) return;
+    
     if(y0 > y1) { MSWAP(int, x0, x1); MSWAP(int, y0, y1); }
     if(y0 > y2) { MSWAP(int, x0, x2); MSWAP(int, y0, y2); }
     int32_t uy = y0, ux = x0, //upper point
@@ -603,8 +602,12 @@ void makise_pdd_rect_rounded( const MakiseBuffer* b,
                               MColor c,             
                               MColor c_fill )
 {
-    if(r == 0)
+    if(b == 0 || (w == 0 && h == 0) ) return;
+    
+    if(r == 0) {
         makise_pdd_rect_filled(b, xc, yc, w, h, c, c_fill);
+        return;
+    }
     
     if(c_fill != MC_Transparent)
         _makise_pdd_rect_rounded(b, xc, yc, w, h, r, c, c_fill, 1);

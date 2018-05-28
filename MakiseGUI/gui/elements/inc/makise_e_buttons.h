@@ -12,22 +12,13 @@ extern "C" {
 #include "makise_e.h"
 
 typedef struct {
-    uint32_t bg_color;
-    uint32_t font_col;
-    uint32_t border_c;
-
-    uint16_t thickness;
-} MakiseTheme_Button;
-
-
-typedef struct {
     const MakiseFont* font;
     
     uint32_t bitmap_gap; //gap between text and bitmap if it exists
     
-    MakiseTheme_Button normal;
-    MakiseTheme_Button focused;
-    MakiseTheme_Button active;
+    MakiseStyleTheme normal;
+    MakiseStyleTheme focused;
+    MakiseStyleTheme active;
 } MakiseStyle_Button;
 
 // Button - simple button. executes click() function when OK clicked.
