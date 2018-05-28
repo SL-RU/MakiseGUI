@@ -77,7 +77,7 @@ void makise_gui_init(MHost *host);
 void makise_gui_autoinit ( MHost *host,
                            MakiseGUI *gui,
                            MakiseDriver *driver,
-                           uint32_t* (*get_buffer)(uint32_t size),
+                           void* (*get_buffer)(uint32_t size),
                            MInputData (*inp_handler)(MInputData d,
                                                      MInputResultEnum res),
                            void (*draw)(MakiseGUI* gui),

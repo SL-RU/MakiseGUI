@@ -20,7 +20,8 @@ inline uint32_t makise_pget(const MakiseBuffer *b, uint32_t x, uint32_t y)
     {							
 	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
 	kpset32 = kpset/32;
-	return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
+	return (b)->depthmask &
+            (((uint32_t*)(b)->buffer)[kpset32] >> (kpset-(kpset32)*32));
     }						
     return 0;
 }
@@ -34,17 +35,20 @@ inline void makise_pset(const MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t 
 	kpset32 = kpset/32;
 	kpsett = kpset - kpset32*32;
 
-	if(((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett))) == c)
+	if(((b)->depthmask & (((uint32_t*)(b)->buffer)[kpset32] >> (kpsett))) == c)
 	    return;
 	
-	(b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
+	((uint32_t*)(b)->buffer)[kpset32] =
+            (((uint32_t*)(b)->buffer)[kpset32] &
+             ~((b)->depthmask << kpsett)) | (c << kpsett); 
     }
 }
 inline uint32_t makise_pget_fast(const MakiseBuffer *b, uint32_t x, uint32_t y)
 {
     kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
     kpset32 = kpset/32;
-    return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
+    return (b)->depthmask &
+        (((uint32_t*)(b)->buffer)[kpset32] >> (kpset-(kpset32)*32));
 }
 
 inline void makise_pset_fast(const MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c)
@@ -53,10 +57,13 @@ inline void makise_pset_fast(const MakiseBuffer *b, uint32_t x, uint32_t y, uint
     kpset32 = kpset/32;
     kpsett = kpset - kpset32*32;
     
-    if ( ( ( b )->depthmask & ( ( b )->buffer[ kpset32 ] >> ( kpsett ) ) ) == c )
+    if ( ( ( b )->depthmask &
+           (((uint32_t*)(b)->buffer)[ kpset32 ] >> ( kpsett ) ) ) == c )
         return;
     
-    (b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
+    ((uint32_t*)(b)->buffer)[kpset32] =
+        (((uint32_t*)(b)->buffer)[kpset32] &
+         ~((b)->depthmask << kpsett)) | (c << kpsett); 
 }
 
 
@@ -185,30 +192,12 @@ void makise_pdd_circle (const MakiseBuffer* b,
 {
     if ( c == MC_Transparent ) return;
     
-    // Middle point algorythm
-    int16_t f = 1 - r;
-    int16_t ddF_x = 1;
-    int16_t ddF_y = -2 * r;
     int16_t x = 0;
     int16_t y = r;
+    int16_t d = 5 - (4 * r);
+    int16_t dA = 12, dB = 20 - 8 * r;
 
-    makise_pset(b, xc, yc + r, c);
-    makise_pset(b, xc, yc - r, c);
-    makise_pset(b, xc + r, yc, c);
-    makise_pset(b, xc - r, yc, c);
-
-    while ( x < y ) {
-        // ddF_x == 2 * x + 1;
-        // ddF_y == -2 * y;
-        // f == x*x + y*y - r*r + 2*x - y + 1;
-        if ( f >= 0 ) {
-            y--;
-            ddF_y += 2;
-            f += ddF_y;
-        }
-        x++;
-        ddF_x += 2;
-        f += ddF_x;
+    while(x < y) {
         makise_pset(b, xc + x, yc + y, c);
         makise_pset(b, xc - x, yc + y, c);
         makise_pset(b, xc + x, yc - y, c);
@@ -217,6 +206,97 @@ void makise_pdd_circle (const MakiseBuffer* b,
         makise_pset(b, xc - y, yc + x, c);
         makise_pset(b, xc + y, yc - x, c);
         makise_pset(b, xc - y, yc - x, c);
+        if (d < 0) { 
+            d += dA;
+            dB += 8;
+        } else {
+            y--;
+            d += dB;
+            dB += 16;
+        }
+        x++;
+        dA += 8;
+    }
+    makise_pset(b, xc + x, yc + y, c);
+    makise_pset(b, xc - x, yc + y, c);
+    makise_pset(b, xc + x, yc - y, c);
+    makise_pset(b, xc - x, yc - y, c);
+}
+
+/* One of Abrash's ellipse algorithms  */
+void draw_ellipse(const MakiseBuffer* p,
+                  int x, int y, int a, int b,
+                  MColor color, MColor c_fill)
+{
+    int wx, wy;
+    int thresh;
+    int asq = a * a;
+    int bsq = b * b;
+    int xa, ya;
+
+    makise_pset(p, x, y+b, color);
+    makise_pset(p, x, y-b, color);
+
+    wx = 0;
+    wy = b;
+    xa = 0;
+    ya = asq * 2 * b;
+    thresh = asq / 4 - asq * b;
+
+    for (;;) {
+        thresh += xa + bsq;
+
+        if (thresh >= 0) {
+            ya -= asq * 2;
+            thresh -= ya;
+            wy--;
+        }
+
+        xa += bsq * 2;
+        wx++;
+
+        if (xa >= ya)
+          break;
+
+         makise_pset(p, x+wx, y-wy, color);
+         makise_pset(p, x-wx, y-wy, color);
+         makise_pset(p, x+wx, y+wy, color);
+         makise_pset(p, x-wx, y+wy, color);
+
+    }
+
+     makise_pset(p, x+a, y, color);
+     makise_pset(p, x-a, y, color);
+
+    wx = a;
+    wy = 0;
+    xa = bsq * 2 * a;
+
+    ya = 0;
+    thresh = bsq / 4 - bsq * a;
+
+    for (;;) {
+        thresh += ya + asq;
+
+        if (thresh >= 0) {
+            xa -= bsq * 2;
+            thresh = thresh - xa;
+            wx--;
+        }
+
+        ya += asq * 2;
+        wy++;
+
+        if (ya > xa)
+          break;
+
+
+         
+         makise_pset(p, x+wx, y-wy, color);
+         makise_pset(p, x-wx, y-wy, color);
+
+         makise_pset(p, x+wx, y+wy, color);
+         makise_pset(p, x-wx, y+wy, color);
     }
 }
 
@@ -224,56 +304,57 @@ void makise_pdd_circle_filled (const MakiseBuffer* b,
                                uint16_t xc, uint16_t yc,
                                uint16_t r, MColor c, MColor c_fill )
 {
+    
     if ( c_fill == MC_Transparent ) {
         makise_pdd_circle( b, xc, yc, r, c );
         return;
     }
 
-    // Middle point algorythm
-    int16_t f = 1 - r;
-    int16_t ddF_x = 1;
-    int16_t ddF_y = -2 * r;
+
     int16_t x = 0;
     int16_t y = r;
-    int16_t is_tr = (c != MC_Transparent);
-    makise_pdd_line(b, xc - r, yc, xc + r, yc, c_fill);
-    makise_pset(b, xc, yc + r, c);
-    makise_pset(b, xc, yc - r, c);
-    makise_pset(b, xc + r, yc, c);
-    makise_pset(b, xc - r, yc, c);
+    int16_t d = 5 - (4 * r);
+    int16_t dA = 12, dB = 20 - 8 * r;
+    //int16_t is_tr = (c != MC_Transparent);
 
     while ( x < y ) {
-        // ddF_x == 2 * x + 1;
-        // ddF_y == -2 * y;
-        // f == x*x + y*y - r*r + 2*x - y + 1;
-        if( f >= 0 ) {
-            y--;
-            ddF_y += 2;
-            f += ddF_y;
-        }
-        x++;
-        ddF_x += 2;
-        f += ddF_x;
-
         if ( y != r ) {
-            makise_pdd_line(b, xc - x + is_tr, yc + y, xc + x - is_tr, yc + y, c_fill);
-            makise_pdd_line(b, xc - x + is_tr, yc - y, xc + x - is_tr, yc - y, c_fill);
+            makise_pdd_line(b,
+                            xc - x, yc + y,
+                            xc + x, yc + y, c_fill);
+            makise_pdd_line(b,
+                            xc - x, yc - y,
+                            xc + x, yc - y, c_fill);
         }
         if ( x != r ) {
-            makise_pdd_line(b, xc - y + is_tr, yc + x, xc + y - is_tr, yc + x, c_fill);
-            makise_pdd_line(b, xc - y + is_tr, yc - x, xc + y - is_tr, yc - x, c_fill);
+            makise_pdd_line(b,
+                            xc - y, yc + x,
+                            xc + y, yc + x, c_fill);
+            makise_pdd_line(b,
+                            xc - y, yc - x,
+                            xc + y, yc - x, c_fill);
         }
-        if ( is_tr ) {
-            makise_pset(b, xc + x, yc + y, c);
-            makise_pset(b, xc - x, yc + y, c);
-            makise_pset(b, xc + x, yc - y, c);
-            makise_pset(b, xc - x, yc - y, c);
-            makise_pset(b, xc + y, yc + x, c);
-            makise_pset(b, xc - y, yc + x, c);
-            makise_pset(b, xc + y, yc - x, c);
-            makise_pset(b, xc - y, yc - x, c);
+
+        if (d < 0) { 
+            d += dA;
+            dB += 8;
+        } else {
+            y--;
+            d += dB;
+            dB += 16;
         }
+        x++;
+        dA += 8;
     }
+
+    makise_pdd_line(b,
+                    xc - x, yc + y,
+                    xc + x, yc + y, c_fill);
+    makise_pdd_line(b,
+                    xc - x, yc - y,
+                    xc + x, yc - y, c_fill);
+    
+    makise_pdd_circle( b, xc, yc, r, c );
 }
 
 void makise_pdd_line (const MakiseBuffer* b,
@@ -348,7 +429,7 @@ void makise_pdd_line (const MakiseBuffer* b,
 
         kb = (y0*(b->width) + j) * (b)->pixeldepth/32;
         while ( j <= x1 && x1 - j >= 32/b->pixeldepth ) {
-            b->buffer[kb] = C;
+            ((uint32_t*)b->buffer)[kb] = C;
             kb += 1;
             j += 32/b->pixeldepth;
         }
@@ -421,9 +502,7 @@ static void draw_down_tri (const MakiseBuffer*b,
             lerr += ldx; rerr += rdx;
             if(diry == -1 && y != my)
                 makise_pdd_line(b, lxx + (rxx - lxx > 2 ? 1 : 0), y, rxx - (rxx - lxx > 2 ? 1 : 0), y, c);
-
-            /* makise_d_point(b, lxx, y, MC_Red); */
-            /* makise_d_point(b, rxx, y, MC_Red); */
+            
         }
     }
 }
@@ -456,10 +535,65 @@ void makise_pdd_triangle_filled ( const MakiseBuffer*b,
     makise_pdd_line(b, x0, y0, x1, y1, c);
     makise_pdd_line(b, x0, y0, x2, y2, c);
     makise_pdd_line(b, x2, y2, x1, y1, c);
+}
+
+void _makise_pdd_rect_rounded(const MakiseBuffer* b,        
+                              int16_t  xc, int16_t yc,  
+                              uint16_t w, uint16_t h,
+                              uint16_t r,
+                              MColor c,             
+                              MColor c_fill,
+                              uint8_t it)
+{
+    int16_t x = 0;
+    int16_t y = r;
+    int16_t d = 5 - (4 * r);
+    int16_t dA = 12, dB = 20 - 8 * r;
     
-    /* makise_d_point(b, x0, y0, MC_Cyan); */
-    /* makise_d_point(b, x1, y1, MC_Cyan); */
-    /* makise_d_point(b, x2, y2, MC_Cyan); */
+    while(x <= y)
+    {
+        if(it) {
+            makise_pdd_line(b,
+                            xc - x + r,     yc + y + h - r - 1,
+                            xc + x + w - r - 1, yc + y + h - r - 1,
+                            c_fill);
+            makise_pdd_line(b,
+                            xc - x + r,     yc - y + r,
+                            xc + x + w - r - 1, yc - y + r,
+                            c_fill);
+            makise_pdd_line(b,
+                            xc - y + r,     yc + x + h - r - 1,
+                            xc + y + w - r - 1, yc + x + h - r - 1,
+                            c_fill);
+            makise_pdd_line(b,
+                            xc - y + r,     yc - x + r,
+                            xc + y + w - r - 1, yc - x + r,
+                            c_fill);
+        } else {
+            makise_pset(b, xc + x + w - r - 1, yc + y + h - r - 1, c);
+            makise_pset(b, xc + y + w - r - 1, yc + x + h - r - 1, c);
+        
+            makise_pset(b, xc - x + r, yc + y + h - r - 1, c);
+            makise_pset(b, xc - y + r, yc + x + h - r - 1, c);
+        
+            makise_pset(b, xc + x + w - r - 1, yc - y + r, c);
+            makise_pset(b, xc + y + w - r - 1, yc - x + r, c);
+        
+            makise_pset(b, xc - x + r, yc - y + r, c);
+            makise_pset(b, xc - y + r, yc - x + r, c);
+        }
+        
+        if (d < 0) { 
+            d += dA;
+            dB += 8;
+        } else {
+            y--;
+            d += dB;
+            dB += 16;
+        }
+        x++;
+        dA += 8;
+    }
 }
 
 void makise_pdd_rect_rounded( const MakiseBuffer* b,        
@@ -469,66 +603,14 @@ void makise_pdd_rect_rounded( const MakiseBuffer* b,
                               MColor c,             
                               MColor c_fill )
 {
-    if ( c_fill == MC_Transparent ) {
-        makise_pdd_circle( b, xc, yc, r, c );
-        return;
-    }
-
-    // Middle point algorythm
-    int16_t f = 1 - r;
-    int16_t ddF_x = 1;
-    int16_t ddF_y = -2 * r;
-    int16_t x = 0;
-    int16_t y = r;
-    int16_t is_tr = (c != MC_Transparent);
-    /* makise_pset(b, xc,     yc + r,     c); */
-    /* makise_pset(b, xc,     yc - r + h, c); */
-    /* makise_pset(b, xc + r, yc, c); */
-    /* makise_pset(b, xc - r, yc, c); */
-
-    while ( x < y ) {
-        // ddF_x == 2 * x + 1;
-        // ddF_y == -2 * y;
-        // f == x*x + y*y - r*r + 2*x - y + 1;
-        if( f >= 0 ) {
-            y--;
-            ddF_y += 2;
-            f += ddF_y;
-        }
-        x++;
-        ddF_x += 2;
-        f += ddF_x;
-
-        makise_pdd_line(b,
-                      xc - x + is_tr + r,     yc + y + h - r - 1,
-                      xc + x - is_tr + w - r, yc + y + h - r - 1,
-                      c_fill);
-        makise_pdd_line(b,
-                      xc - x + is_tr + r,     yc - y + r,
-                      xc + x - is_tr + w - r, yc - y + r,
-                      c_fill);
-        makise_pdd_line(b,
-                      xc - y + is_tr + r,     yc + x + h - r - 1,
-                      xc + y - is_tr + w - r, yc + x + h - r - 1,
-                      c_fill);
-        makise_pdd_line(b,
-                      xc - y + is_tr + r,     yc - x + r,
-                      xc + y - is_tr + w - r, yc - x + r,
-                      c_fill);
-
-        makise_pset(b, xc + x + w - r - 1, yc + y + h - r - 1, c);
-        makise_pset(b, xc + y + w - r - 1, yc + x + h - r - 1, c);
-        
-        makise_pset(b, xc - x + r, yc + y + h - r - 1, c);
-        makise_pset(b, xc - y + r, yc + x + h - r - 1, c);
-        
-        makise_pset(b, xc + x + w - r - 1, yc - y + r, c);
-        makise_pset(b, xc + y + w - r - 1, yc - x + r, c);
-        
-        makise_pset(b, xc - x + r, yc - y + r, c);
-        makise_pset(b, xc - y + r, yc - x + r, c);
-
-    }
+    if(r == 0)
+        makise_pdd_rect_filled(b, xc, yc, w, h, c, c_fill);
+    
+    if(c_fill != MC_Transparent)
+        _makise_pdd_rect_rounded(b, xc, yc, w, h, r, c, c_fill, 1);
+    if(c != MC_Transparent && c != c_fill)
+        _makise_pdd_rect_rounded(b, xc, yc, w, h, r, c, c_fill, 0);
+    
     //center fill
     makise_pdd_rect_filled(b, xc, yc + r, w, h - 2 * r, c_fill, c_fill);
     
@@ -543,9 +625,7 @@ void makise_pdd_rect_rounded( const MakiseBuffer* b,
     makise_pdd_line(b, xc, yc + r, xc, yc + h - r, c);
     makise_pdd_line(b, xc + w - 1, yc + r, xc + w - 1, yc + h - r, c);
 
-    //makise_d_circle_filled(b, xc, yc, r, c, c_fill);
 }
-// TODO: Fix circle agorythm
 
 MResult makise_primitives_default_drawer(const MakiseBuffer* b, const MDPrimitive *p)
 {
@@ -558,9 +638,10 @@ MResult makise_primitives_default_drawer(const MakiseBuffer* b, const MDPrimitiv
                                     p->points[0].x, p->points[0].y,
                                     p->color);
         break;
-    case MP_Rectangle: makise_pdd_rect_filled(b,
-                                              p->points[0].x, p->points[0].y,
-                                              p->w, p->h, p->color, p->color_fill);
+    case MP_Rectangle:
+        makise_pdd_rect_rounded(b,
+                                p->points[0].x, p->points[0].y,
+                                p->w, p->h, p->r, p->color, p->color_fill);
         break;
     case MP_Line: makise_pdd_line
             ( b,

@@ -75,7 +75,7 @@ typedef struct _MakiseBuffer
     uint16_t width;         //real width
     uint32_t pixeldepth;    //smaller or equals to real depth
     uint32_t depthmask;     //example: mask like 0b111 is for depth 3bit
-    uint32_t *buffer;       //virtual buffer
+    void     *buffer;       //virtual buffer
     uint32_t size;          //size of the buffer
 
     MakiseBufferBorder border; //allowed region for new drawing
