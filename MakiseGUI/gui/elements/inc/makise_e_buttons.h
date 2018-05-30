@@ -15,6 +15,7 @@ typedef struct {
     const MakiseFont* font;
     
     uint32_t bitmap_gap; //gap between text and bitmap if it exists
+    uint32_t active_delay; //delay in frames while active state will be on after click
     
     MakiseStyleTheme normal;
     MakiseStyleTheme focused;

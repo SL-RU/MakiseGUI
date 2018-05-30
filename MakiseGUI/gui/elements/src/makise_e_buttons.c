@@ -52,7 +52,8 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
                                 th->border_c, th->bg_color,th->thickness );
 
-    uint32_t wt = makise_d_string_width(e->text, MDTextAll, e->style->font),
+    uint32_t wt = makise_d_string_get_width(gui->buffer,
+                                            e->text, MDTextAll, e->style->font),
 	wb = 0, w = 0, sx = 3, bity = 0;
 
     if(e->bitmap != 0)
@@ -115,7 +116,7 @@ static MInputResultEnum input  ( MElement* b, MInputData data )
            || data.key == M_KEY_CURSOR
 #endif
           ) && data.event == M_INPUT_CLICK && e->click != 0 && res == 1 ) {
-        e->state = 2;
+        e->state = e->style->active_delay;
         e->click(e);
         return M_INPUT_HANDLED;
     }

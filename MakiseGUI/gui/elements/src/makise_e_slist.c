@@ -62,9 +62,7 @@ static void setup_text_scroll(MSList *l)
 {
     //text scroll setup
     l->text_scroll_x = 0;
-    l->text_scroll_width =
-	makise_d_string_width(l->selected->text, MDTextAll,
-			      l->item_style->font);
+    l->text_scroll_width = UINT32_MAX;
 }
 
 //draw line frome the list
@@ -172,13 +170,19 @@ static MResult draw ( MElement* b, MakiseGUI *gui ) {
     const MakiseStyleTheme *th    = l->state ? &l->style->focused : &l->style->normal;
     const MakiseStyleTheme *i_foc = l->state ? &l->item_style->focused : &l->item_style->active;
     const MakiseStyleTheme *i_nom = &l->item_style->normal,
-
 	*c_th = 0;
     
     //printf("%d %d %d %d\n", b->position.real_x, b->position.real_y, b->position.width, b->position.height);
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
 				th->border_c, th->bg_color, th->thickness );
 
+    if(l->text_scroll_width == UINT32_MAX)
+        l->text_scroll_width = makise_d_string_get_width(
+            gui->buffer,
+            l->selected->text, MDTextAll,
+            l->item_style->font);
+
+    
     uint32_t i = 0, start = 0, end = 0;
     int16_t y = b->position.real_y,
 	x = b->position.real_x + l->style->left_margin;

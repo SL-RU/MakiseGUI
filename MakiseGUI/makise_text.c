@@ -1,7 +1,9 @@
 #include "makise_text.h"
 #include <stdio.h>
 
-static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t y, const MakiseFont *font, MColor c, uint16_t width)
+static void _makise_draw_char(const MakiseBuffer *b,
+                              uint16_t ind, int16_t x, int16_t y,
+                              const MakiseFont *font, MColor c, uint16_t width)
 {
     uint32_t bitCounter, rawIndex, colIndex;
     const uint8_t * ptrByte;
@@ -11,6 +13,7 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t 
        x <= b->border.x - width ||
        y <= b->border.y - font->height)
 	return;
+
     
     ptrByte = &font->table[font->char_index[ind]];
     bitCounter = 0;
@@ -32,10 +35,17 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t 
     }
 }
 
-void makise_d_char(MakiseBuffer *b,
+void makise_d_char(const MakiseBuffer *b,
                    uint16_t ch, int16_t x, int16_t y,
                    const MakiseFont *font, MColor c)
 {
+    if(b == 0) return;
+    
+    if(b->text_drawer != 0 && b->text_drawer->d_char != 0) {
+        b->text_drawer->d_char(b, ch, x, y, font, c);
+        return;
+    }
+    
     uint32_t width;
 
     ch = (uint8_t)ch - font->offset;
@@ -48,11 +58,18 @@ void makise_d_char(MakiseBuffer *b,
     _makise_draw_char(b, ch, x, y, font, c, width);
 }
 
-void makise_d_string(MakiseBuffer *b,
+void makise_d_string(const MakiseBuffer *b,
                      const char *s, uint32_t len,
                      int16_t x, int16_t y, MDTextPlacement place,
                      const MakiseFont *font, MColor c)
 {
+    if(b == 0) return;
+    
+    if(b->text_drawer != 0 && b->text_drawer->string != 0) {
+        b->text_drawer->string(b, s, len, x, y, place, font, c);
+        return;
+    }
+    
     uint32_t width, i = 0;
 
     if(s == 0)
@@ -60,16 +77,16 @@ void makise_d_string(MakiseBuffer *b,
     
     if(place == MDTextPlacement_Center )
     {
-	width = makise_d_string_width(s, len, font);
+	width = makise_d_string_get_width(b, s, len, font);
 	x -= width / 2;
 	y -= font->height / 2;
     } else if(place == MDTextPlacement_CenterUp )
     {
-	width = makise_d_string_width(s, len, font);
+	width = makise_d_string_get_width(b, s, len, font);
 	x -= width / 2;
     } else if(place == MDTextPlacement_CenterDown )
     {
-	width = makise_d_string_width(s, len, font);
+	width = makise_d_string_get_width(b, s, len, font);
 	x -= width / 2;
 	y -= font->height;
     }
@@ -105,13 +122,20 @@ void makise_d_string(MakiseBuffer *b,
     }
 }
 
-uint32_t makise_d_string_width(const char *s, uint32_t len, const MakiseFont *font)
+uint32_t makise_d_string_get_width(const MakiseBuffer *b,
+                                   const char *s,
+                                   uint32_t len,
+                                   const MakiseFont *font)
 {
+    if(s == 0)
+	return 0;
+    
+    if(b->text_drawer != 0 && b->text_drawer->get_width != 0) {
+        return b->text_drawer->get_width(b, s, len, font);
+    }
     uint32_t width , i = 0;
     uint32_t ch, res = 0;
 
-    if(s == 0)
-	return 0;
     
     while (i < len && s[i]) {
 #if MAKISE_UNICODE
@@ -136,11 +160,22 @@ uint32_t makise_d_string_width(const char *s, uint32_t len, const MakiseFont *fo
     return res;
 }
 
-uint32_t makise_d_string_height_get ( const char*       s,
+uint32_t makise_d_string_height_get ( const MakiseBuffer *b,
+                                      const char*       s,
                                       uint32_t          len,
                                       uint16_t          width_window,
                                       const MakiseFont* font,
-                                      uint32_t          font_line_spacing ) {
+                                      uint32_t          font_line_spacing )
+{
+    if(s == 0)
+	return 0;
+    
+    if(b->text_drawer != 0 && b->text_drawer->get_height != 0) {
+        return b->text_drawer->get_height(b, s, len,
+                                          width_window,
+                                          font, font_line_spacing);
+    }
+    
     uint32_t i = 0;
     uint32_t height = font->height;
     uint32_t width = 0;
@@ -181,18 +216,21 @@ uint32_t makise_d_string_height_get ( const char*       s,
  * @param font 
  * @return count of text lines
  */
-uint32_t    makise_d_string_get_line_count (
-                                     char *s,
-                                     uint32_t len,
-                                     uint16_t w,
-                                     const MakiseFont *font )
+uint32_t    makise_d_string_get_line_count ( const MakiseBuffer *b,
+                                             const char *s,
+                                             uint32_t len,
+                                             uint16_t w,
+                                             const MakiseFont *font )
 {
+    if(s == 0)
+	return 0;
+    
+    if(b->text_drawer != 0 && b->text_drawer->get_line_count != 0) {
+        return b->text_drawer->get_line_count(b, s, len, w, font);
+    }
     uint32_t width, i = 0;
 
     uint32_t ch, xt = 0, lines = 1;
-
-    if(s == 0)
-	return 0;
 
     while ( i < len && s[i] ) {
 	if(s[i] == '\n' || s[i] == '\r')
@@ -240,22 +278,24 @@ uint32_t    makise_d_string_get_line_count (
  * @param font font
  * @return pointer tobeginning og n's line
  */
-char *     makise_d_string_get_line (
-                                     char *s,
-                                     uint32_t len,
-				     uint32_t n,
-                                     uint16_t w,
-                                     const MakiseFont *font )
+char *     makise_d_string_get_line ( const MakiseBuffer *b,
+                                      char *s,
+                                      uint32_t len,
+                                      uint32_t n,
+                                      uint16_t w,
+                                      const MakiseFont *font )
 {
+    if(s == 0)
+	return 0;
+    
+    if(b->text_drawer != 0 && b->text_drawer->get_line != 0) {
+        return b->text_drawer->get_line(b, s, len, n, w, font);
+    }
     uint32_t width, i = 0;
 
     uint32_t ch, xt = 0, lines = 0;
 
-    if(s == 0)
-	return s;
-    if(n == 0)
-	return s;
-
+    
     while ( i < len && s[i] ) {
 	if(s[i] == '\n' || s[i] == '\r')
 	{
@@ -300,7 +340,7 @@ char *     makise_d_string_get_line (
 }
 
 //draw multiline text in the defined frame
-void makise_d_string_frame(MakiseBuffer *b,
+void makise_d_string_frame(const MakiseBuffer *b,
 			   const char *s, uint32_t len,
 			   int16_t x, int16_t y, uint16_t w, uint16_t h,
 			   const MakiseFont *font, uint16_t line_spacing, MColor c)

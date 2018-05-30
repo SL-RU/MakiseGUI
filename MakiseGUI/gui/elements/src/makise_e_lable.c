@@ -43,7 +43,10 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
                                 e->style->border_c, e->style->bg_color, e->style->double_border );
 
-
+    if(e->text_width == INT32_MAX)
+        e->text_width = makise_d_string_get_width(gui->buffer, e->text,
+                                                  MDTextAll, e->style->font);
+    
     if ( e->text != 0 ) {
 	int32_t dx = 0, scrlx = e->scroll_x / 100;
 	if(e->scroll_enable)
@@ -82,7 +85,7 @@ void m_lable_set_text( MLable *b,
     m_element_mutex_request(&b->el);
     
     b->text = text;
-    b->text_width = makise_d_string_width(text, MDTextAll, b->style->font);
+    b->text_width = INT32_MAX;
     b->scroll_x = 0;
     
     m_element_mutex_release(&b->el);

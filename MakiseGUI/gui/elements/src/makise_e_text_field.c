@@ -46,7 +46,7 @@ void m_create_text_field(MTextField* b, MContainer *c,
 
 static MResult draw ( MElement* b, MakiseGUI *gui ) {
     MTextField *t = (MTextField*)b->data;
-    MakiseStyleTheme *th = &t->state ?
+    MakiseStyleTheme *th = t->state ?
 	&t->style->normal :
 	&t->style->focused;
     
@@ -55,12 +55,14 @@ static MResult draw ( MElement* b, MakiseGUI *gui ) {
     if(t->total_lines == UINT32_MAX)
 	//if total line count wasn't calculated yet
 	t->total_lines = makise_d_string_get_line_count(
+            gui->buffer,
 	    t->text,
 	    t->len,
 	    t->el.position.width - 4,
 	    t->style->font);
     
     char *c = makise_d_string_get_line(
+        gui->buffer,
 	t->text,
 	t->len,
 	t->current_line,

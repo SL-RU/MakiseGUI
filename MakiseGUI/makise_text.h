@@ -5,9 +5,12 @@
 extern "C" {
 #endif
 
+    
+typedef struct _MakiseTextDrawer MakiseTextDrawer;
+    
 #include <string.h>
-#include "makise.h"
 #include "makise_config.h"    
+#include "makise.h"
 
 #define MDTextAll UINT32_MAX 
 
@@ -39,42 +42,61 @@ typedef struct _MakiseFont {
     uint16_t            space_char;
 } MakiseFont;
 
-    typedef struct {
-        void (*d_char)( MakiseBuffer *b,
-                        uint16_t ch,
-                        int16_t x, int16_t y,
-                        const MakiseFont* font,
-                        MColor c );
-        void (*d_string)( MakiseBuffer *b,
-                          const char *s,
-                          uint32_t len,
-                          int16_t x, int16_t y,
-                          MDTextPlacement place,
-                          const MakiseFont* font,
-                          MColor c);
-        uint32_t (*get_string_width)( const char* s,
-                                      uint32_t len,
-                                      const MakiseFont* font );
-        void (*d_string_frame)( MakiseBuffer *b,
-                                const char *s,
-                                uint32_t len,
-                                int16_t x, int16_t y,
-                                uint16_t w, uint16_t h,
-                                const MakiseFont *font,
-                                uint16_t line_spacing,
-                                MColor c );
+typedef struct _MakiseTextDrawer {
+    void (*d_char             ) ( const MakiseBuffer *b,
+                                  uint16_t ch,
+                                  int16_t x, int16_t y,
+                                  const MakiseFont* font,
+                                  MColor c );
+    void (*string             ) ( const MakiseBuffer *b,
+                                  const char *s,
+                                  uint32_t len,
+                                  int16_t x, int16_t y,
+                                  MDTextPlacement place,
+                                  const MakiseFont* font,
+                                  MColor c);
+    void (*string_frame       ) ( const MakiseBuffer *b,
+                                  const char *s,
+                                  uint32_t len,
+                                  int16_t x, int16_t y,
+                                  uint16_t w, uint16_t h,
+                                  const MakiseFont *font,
+                                  uint16_t line_spacing,
+                                  MColor c );
+    uint32_t (*get_width      ) ( const MakiseBuffer *b,
+                                  const char* s,
+                                  uint32_t len,
+                                  const MakiseFont* font );
+    uint32_t (*get_line_count)  ( const MakiseBuffer *b,
+                                  const char *s,
+                                  uint32_t len,
+                                  uint16_t w,
+                                  const MakiseFont *font );
+    char*    (*get_line      )  ( const MakiseBuffer *b,
+                                  char *s,
+                                  uint32_t len,
+                                  uint32_t n,
+                                  uint16_t w,
+                                  const MakiseFont *font);
+    uint32_t (*get_height    )  ( const MakiseBuffer *b,
+                                  const char*       s,
+                                  uint32_t          len,
+                                  uint16_t          width_window,
+                                  const MakiseFont* font,
+                                  uint32_t          font_line_spacing);
 
-    } MakiseTextDrawer;
+} MakiseTextDrawer;
+    
 
 // Draw single char.
-void        makise_d_char          ( MakiseBuffer *b,
+void        makise_d_char          ( const MakiseBuffer *b,
                                      uint16_t ch,
                                      int16_t x, int16_t y,
                                      const MakiseFont* font,
                                      MColor c );
 
 // Draw string.
-void        makise_d_string        ( MakiseBuffer *b,
+void        makise_d_string        ( const MakiseBuffer *b,
                                      const char *s,
                                      uint32_t len,
                                      int16_t x, int16_t y,
@@ -83,12 +105,13 @@ void        makise_d_string        ( MakiseBuffer *b,
                                      MColor c);
 
 // Get width of string being drew using that font.
-uint32_t    makise_d_string_width  ( const char* s,
-                                     uint32_t len,
-                                     const MakiseFont* font );
+uint32_t    makise_d_string_get_width  ( const MakiseBuffer *b,
+                                         const char* s,
+                                         uint32_t len,
+                                         const MakiseFont* font );
 
 // Draw multiline text in the defined frame.
-void        makise_d_string_frame  ( MakiseBuffer *b,
+void        makise_d_string_frame  ( const MakiseBuffer *b,
                                      const char *s,
                                      uint32_t len,
                                      int16_t x, int16_t y,
@@ -106,10 +129,11 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
  * @param font 
  * @return count of text lines
  */
-uint32_t makise_d_string_get_line_count(char *s,
-					uint32_t len,
-					uint16_t w,
-					const MakiseFont *font );
+uint32_t makise_d_string_get_line_count ( const MakiseBuffer *b,
+                                          const char *s,
+                                          uint32_t len,
+                                          uint16_t w,
+                                          const MakiseFont *font );
     
 /**
  * Returns pointer to the n's line. It calculates returns, wraps and etc.
@@ -121,19 +145,21 @@ uint32_t makise_d_string_get_line_count(char *s,
  * @param font font
  * @return pointer tobeginning og n's line
  */
-char * makise_d_string_get_line(char *s,
-				uint32_t len,
-				uint32_t n,
-				uint16_t w,
-				const MakiseFont *font);
+char * makise_d_string_get_line ( const MakiseBuffer *b,
+                                  char *s,
+                                  uint32_t len,
+                                  uint32_t n,
+                                  uint16_t w,
+                                  const MakiseFont *font );
 
     
 // Get height text for user width window.
-uint32_t makise_d_string_height_get( const char*             s,
-				    uint32_t          len,
-				    uint16_t          width_window,
-				    const MakiseFont* font,
-				    uint32_t          font_line_spacing);
+uint32_t makise_d_string_get_height( const MakiseBuffer *b,
+                                     const char*             s,
+                                     uint32_t          len,
+                                     uint16_t          width_window,
+                                     const MakiseFont* font,
+                                     uint32_t          font_line_spacing);
 
 
 #if MAKISE_UNICODE    
@@ -145,7 +171,7 @@ uint32_t makise_d_string_height_get( const char*             s,
  * @param bts bytes per char
  * @return 0 if is error. Else - unicode index of char
  */
-    uint32_t makise_d_utf_char_id( const char *s, uint32_t len, uint8_t *bts);
+uint32_t makise_d_utf_char_id( const char *s, uint32_t len, uint8_t *bts);
     
 /**
  * Get index of utf-8 character in the font table
@@ -154,10 +180,10 @@ uint32_t makise_d_string_height_get( const char*             s,
  * @param font font
  * @return -1 if is error. Else - index of char in the table
  */
-    uint32_t makise_d_utf_char_font(uint32_t c, const MakiseFont *font);
+uint32_t makise_d_utf_char_font(uint32_t c, const MakiseFont *font);
 
-    uint32_t makise_d_utf16_string_decode(uint8_t *utf16,
-					  uint8_t *utf8, uint32_t count);
+uint32_t makise_d_utf16_string_decode(uint8_t *utf16,
+                                      uint8_t *utf8, uint32_t count);
 #endif //unicode
 
 #ifdef __cplusplus

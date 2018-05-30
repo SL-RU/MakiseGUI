@@ -20,8 +20,8 @@ typedef enum {
 #include <stdint.h>
 #include "makise_config.h"
 #include "makise_colors.h"
-#include "makise_primitives.h"
 #include "makise_text.h"
+#include "makise_primitives.h"
 #include "makise_bitmap.h"
 
 
@@ -83,6 +83,7 @@ typedef struct _MakiseBuffer
     MResult  ( *drawer )(
         const MakiseBuffer*,
         const MDPrimitive* ); // primitive drawer. See documentation. Or use &makise_primitives_default_drawer
+    MakiseTextDrawer *text_drawer;
 } MakiseBuffer;
 
 typedef struct _MakiseDriver

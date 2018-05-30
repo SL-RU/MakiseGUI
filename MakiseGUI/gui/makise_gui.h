@@ -85,7 +85,8 @@ void makise_gui_autoinit ( MHost *host,
                            void (*update)(MakiseGUI* gui),
                            MResult  ( *drawer )(
                                const MakiseBuffer*,
-                               const MDPrimitive* ));
+                               const MDPrimitive* ),
+                           MakiseTextDrawer *text_drawer);
 
 uint32_t makise_g_newid();
 /**
