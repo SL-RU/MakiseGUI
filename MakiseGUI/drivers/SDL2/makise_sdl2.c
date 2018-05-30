@@ -28,11 +28,6 @@ void makise_sdl2_draw(MakiseGUI* gui)
     {
 	d->gui->draw(d->gui);
     }
-
-    makise_d_circle(gui->buffer, (MPoint){50, 100}, 20, 1, MC_White);
-    makise_d_circle_filled(gui->buffer, (MPoint){250, 100}, 20, 1, MC_Green, MC_Red);
-    makise_d_rect_filled(gui->buffer, (MPoint){150, 100}, 50, 30, 1, MC_Cyan, MC_Blue);
-    makise_d_rect(gui->buffer, (MPoint){80, 100}, 50, 30, 1, MC_Cyan);
     
     uint32_t y = 0      , //start position y
 	x = 0,
