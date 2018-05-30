@@ -19,27 +19,6 @@ void makise_sdl2_driver(MakiseDriver* d, uint32_t width, uint32_t height, SDL_Su
     _makise_sdl2_screen = s;
 }
 
-uint8_t makise_sdl2_init (MakiseGUI* gui)
-{
-    return M_OK;
-}
-uint8_t makise_sdl2_start(MakiseGUI* gui)
-{
-    return M_OK;
-}
-uint8_t makise_sdl2_sleep(MakiseGUI* gui)
-{
-    return M_OK;
-}
-uint8_t makise_sdl2_awake(MakiseGUI* gui)
-{
-    return M_OK;
-}
-uint8_t makise_sdl2_set_backlight(MakiseGUI* gui, uint8_t b)
-{
-    return M_OK;
-}
-
 void makise_sdl2_draw(MakiseGUI* gui)
 {
     MakiseDriver * d = gui->driver;
@@ -50,6 +29,11 @@ void makise_sdl2_draw(MakiseGUI* gui)
 	d->gui->draw(d->gui);
     }
 
+    makise_d_circle(gui->buffer, (MPoint){50, 100}, 20, 1, MC_White);
+    makise_d_circle_filled(gui->buffer, (MPoint){250, 100}, 20, 1, MC_Green, MC_Red);
+    makise_d_rect_filled(gui->buffer, (MPoint){150, 100}, 50, 30, 1, MC_Cyan, MC_Blue);
+    makise_d_rect(gui->buffer, (MPoint){80, 100}, 50, 30, 1, MC_Cyan);
+    
     uint32_t y = 0      , //start position y
 	x = 0,
 	cu = 0,
@@ -59,7 +43,6 @@ void makise_sdl2_draw(MakiseGUI* gui)
     for (; y < d->lcd_height; y++) {	
 	for (x = 0; x < d->lcd_width; x+=1)
 	{
-//	    c = makise_color_get(((((uint32_t*)gui->buffer->buffer)[cu]) >> bu) & gui->buffer->depthmask);
 	    c = makise_pget(gui->buffer, x, y);
 	    bu += gui->buffer->pixeldepth;
 	    if(bu>=32)
@@ -70,16 +53,13 @@ void makise_sdl2_draw(MakiseGUI* gui)
 
 	    uint16_t R8 = ((c >> 11)             * 8 );
 	    uint16_t G8 = (((c >> 5) & 0b111111) * 4 );
-	    uint16_t B8 = (((c     ) & 0b11111 ) * 8 );
-//	    printf("%d", B8);
-	    
+	    uint16_t B8 = (((c     ) & 0b11111 ) * 8 );	    
 	    
 	    pixmem32 = (Uint32*) _makise_sdl2_screen->pixels  + y*_makise_sdl2_screen->pitch/4 + x;
 	    *pixmem32 = (R8 << 16) | (G8<<8) | (B8 << 0) ;
 
 	}
     }
-//    printf("f\n");
     memset(gui->buffer->buffer, 0, 960000);
 
     
