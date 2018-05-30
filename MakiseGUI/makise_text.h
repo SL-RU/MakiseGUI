@@ -20,6 +20,8 @@ typedef enum {
 
 
 typedef struct _MakiseFont {
+    char*               name;  //optional
+    uint16_t            size;  //optional
     const uint8_t*      table; //draw data
     uint16_t            width; //common width
     uint16_t            height; //common height
@@ -37,13 +39,39 @@ typedef struct _MakiseFont {
     uint16_t            space_char;
 } MakiseFont;
 
+    typedef struct {
+        void (*d_char)( MakiseBuffer *b,
+                        uint16_t ch,
+                        int16_t x, int16_t y,
+                        const MakiseFont* font,
+                        MColor c );
+        void (*d_string)( MakiseBuffer *b,
+                          const char *s,
+                          uint32_t len,
+                          int16_t x, int16_t y,
+                          MDTextPlacement place,
+                          const MakiseFont* font,
+                          MColor c);
+        uint32_t (*get_string_width)( const char* s,
+                                      uint32_t len,
+                                      const MakiseFont* font );
+        void (*d_string_frame)( MakiseBuffer *b,
+                                const char *s,
+                                uint32_t len,
+                                int16_t x, int16_t y,
+                                uint16_t w, uint16_t h,
+                                const MakiseFont *font,
+                                uint16_t line_spacing,
+                                MColor c );
+
+    } MakiseTextDrawer;
 
 // Draw single char.
 void        makise_d_char          ( MakiseBuffer *b,
                                      uint16_t ch,
                                      int16_t x, int16_t y,
                                      const MakiseFont* font,
-                                     uint32_t c );
+                                     MColor c );
 
 // Draw string.
 void        makise_d_string        ( MakiseBuffer *b,
@@ -52,7 +80,7 @@ void        makise_d_string        ( MakiseBuffer *b,
                                      int16_t x, int16_t y,
                                      MDTextPlacement place,
                                      const MakiseFont* font,
-                                     uint32_t c);
+                                     MColor c);
 
 // Get width of string being drew using that font.
 uint32_t    makise_d_string_width  ( const char* s,
@@ -67,7 +95,7 @@ void        makise_d_string_frame  ( MakiseBuffer *b,
                                      uint16_t w, uint16_t h,
                                      const MakiseFont *font,
                                      uint16_t line_spacing,
-                                     uint32_t c );
+                                     MColor c );
 /**
  * Get total line count of the text in the frame with selected width.
  * Methods calculates line wraps and new line returns.

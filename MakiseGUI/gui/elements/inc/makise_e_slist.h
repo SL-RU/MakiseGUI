@@ -22,8 +22,8 @@ typedef struct {
 
     //scroll
     uint8_t                 scroll_width;
-    uint32_t                scroll_bg_color; //may be 0
-    uint32_t                scroll_color;
+    MColor                  scroll_bg_color; //may be 0
+    MColor                  scroll_color;
 
     MakiseStyleTheme  normal;
     MakiseStyleTheme  focused;

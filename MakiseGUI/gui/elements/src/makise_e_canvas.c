@@ -47,7 +47,7 @@ void m_create_canvas( MCanvas*            b,
 
 static MResult draw (MElement* b, MakiseGUI *gui)
 {
-    MakiseStyleTheme_Canvas*     th = 0;
+    MakiseStyleTheme*     th = 0;
     MCanvas*                    c  = b->data;
 
     switch( c->state ) {
@@ -56,7 +56,7 @@ static MResult draw (MElement* b, MakiseGUI *gui)
     }
 
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
-                                th->border_c, th->bg_color,th->double_border );
+                                th->border_c, th->bg_color,th->thickness );
 
     return makise_g_cont_call(&c->cont, gui, M_G_CALL_DRAW);
 }

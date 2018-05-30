@@ -13,15 +13,8 @@ extern "C" {
 
 
 typedef struct {
-    uint32_t bg_color;
-    uint32_t border_c;
-
-    uint16_t double_border;
-} MakiseStyleTheme_Canvas;
-
-typedef struct {
-    MakiseStyleTheme_Canvas normal;
-    MakiseStyleTheme_Canvas focused;
+    MakiseStyleTheme normal;
+    MakiseStyleTheme focused;
 } MakiseStyle_Canvas;
 
 

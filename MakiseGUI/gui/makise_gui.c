@@ -72,6 +72,10 @@ void makise_gui_autoinit ( MHost *host,
 #ifdef MAKISE_PRIMITIVES_DRAWER_DEFAULT
     if(drawer == 0)
         gui->buffer->drawer = &makise_primitives_default_drawer;
+    else
+        gui->buffer->drawer = drawer;
+#else
+    gui->buffer->drawer = drawer;
 #endif
 }
 

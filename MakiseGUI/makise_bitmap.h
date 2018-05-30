@@ -19,7 +19,7 @@ typedef struct _MakiseBitmap {
 void makise_d_bitmap ( MakiseBuffer *b,
                        int32_t x, int32_t y,
                        const MakiseBitmap *i,
-                       uint32_t c );
+                       MColor c );
 
 #ifdef __cplusplus
 }

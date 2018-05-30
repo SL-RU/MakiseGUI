@@ -3,8 +3,8 @@
 void makise_d_bitmap ( MakiseBuffer *b,
                        int32_t x, int32_t y,
                        const MakiseBitmap *i,
-                       uint32_t c ) {
-    if(i == 0 || c == MC_Transparent)
+                       MColor c ) {
+    if(i == 0 || MC_IS_Transparent(c))
 	return;
     
     uint32_t bitCounter, rawIndex, colIndex;
@@ -24,7 +24,7 @@ void makise_d_bitmap ( MakiseBuffer *b,
                 ptrByte++;
             }
             if ( *ptrByte & ( 1 << bitCounter ) ) {
-                makise_pset( b, x+colIndex, y+rawIndex, c );
+                makise_d_point( b, (MPoint){x+colIndex, y+rawIndex}, c );
             }
             bitCounter++;
         }

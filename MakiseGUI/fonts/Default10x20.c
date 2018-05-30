@@ -195,24 +195,18 @@ const uint16_t Default10x20_unicode [] =
 #endif
 
 const MakiseFont F_Default10x20 = {
-    Default10x20_table,
-    10,
-    20,
-#if 10 == 0
-    Default10x20_width,
-#else
-    0,
-#endif
-    Default10x20_offset,
+    .table      = Default10x20_table,
+    .width      = 10,
+    .height     = 20,
+    .char_width = 0,
+    .char_index = Default10x20_offset,
+    .offset     = 32,
+    .num_char   = 95,
+    .space_char = 0,
 #if MAKISE_UNICODE
-    Default10x20_unicode,
+    .unicode_index = Default10x20_unicode,
+    .num_uni    = 159,
 #endif
-    32,
-    95,
-#if MAKISE_UNICODE
-    159,
-#endif
-    0
 };
 
 #endif

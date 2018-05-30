@@ -1,7 +1,7 @@
 #include "makise_text.h"
 #include <stdio.h>
 
-static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t y, const MakiseFont *font, uint32_t c, uint16_t width)
+static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t y, const MakiseFont *font, MColor c, uint16_t width)
 {
     uint32_t bitCounter, rawIndex, colIndex;
     const uint8_t * ptrByte;
@@ -25,14 +25,16 @@ static void _makise_draw_char(MakiseBuffer *b, uint16_t ind, int16_t x, int16_t 
 	    }
 	    if(*ptrByte & (1<<bitCounter))
 	    {
-		makise_pset(b, x+colIndex, y+rawIndex, c);
+		makise_d_point(b, (MPoint){x+colIndex, y+rawIndex}, c);
 	    }
 	    bitCounter++;
 	}
     }
 }
 
-void makise_d_char(MakiseBuffer *b, uint16_t ch, int16_t x, int16_t y, const MakiseFont *font, uint32_t c)
+void makise_d_char(MakiseBuffer *b,
+                   uint16_t ch, int16_t x, int16_t y,
+                   const MakiseFont *font, MColor c)
 {
     uint32_t width;
 
@@ -49,7 +51,7 @@ void makise_d_char(MakiseBuffer *b, uint16_t ch, int16_t x, int16_t y, const Mak
 void makise_d_string(MakiseBuffer *b,
                      const char *s, uint32_t len,
                      int16_t x, int16_t y, MDTextPlacement place,
-                     const MakiseFont *font, uint32_t c)
+                     const MakiseFont *font, MColor c)
 {
     uint32_t width, i = 0;
 
@@ -301,7 +303,7 @@ char *     makise_d_string_get_line (
 void makise_d_string_frame(MakiseBuffer *b,
 			   const char *s, uint32_t len,
 			   int16_t x, int16_t y, uint16_t w, uint16_t h,
-			   const MakiseFont *font, uint16_t line_spacing, uint32_t c)
+			   const MakiseFont *font, uint16_t line_spacing, MColor c)
 {
     int32_t width, i = 0;
 

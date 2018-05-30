@@ -13,10 +13,10 @@ extern "C" {
 
 typedef struct {
     const MakiseFont*   font;
-    uint32_t            font_col;
+    MColor              font_col;
 
-    uint32_t            bg_color;
-    uint32_t            border_c;
+    MColor              bg_color;
+    MColor              border_c;
 
     uint32_t            scroll_speed; // speed of scroll if text doesn't fit. 0 - not scroll. pixels per 100 draw calls
     
@@ -33,7 +33,7 @@ typedef struct {
     uint32_t            text_width;
 
     uint8_t             scroll_enable;
-    uint32_t             scroll_x;
+    uint32_t            scroll_x;
 
     MakiseStyle_Lable*  style;
 } MLable;

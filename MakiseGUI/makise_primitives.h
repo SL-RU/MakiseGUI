@@ -164,7 +164,7 @@ void makise_d_circle_filled   ( const MakiseBuffer* b,
  * @return 
  */
 void makise_d_polyline        ( const MakiseBuffer* b,
-                                const MPoint* points, MColor count,
+                                const MPoint* points, uint32_t count,
                                 uint16_t thickness,
                                 MColor c );
 /**
@@ -181,7 +181,7 @@ void makise_d_polyline        ( const MakiseBuffer* b,
 void makise_dex_polyline      ( const MakiseBuffer* b,
                                 MPoint pos,
                                 double rot,
-                                const MPoint* points, MColor count,
+                                const MPoint* points, uint32_t count,
                                 uint16_t thickness,
                                 MColor c );
 /**

@@ -17,8 +17,8 @@ typedef struct {
 
     //scroll
     uint8_t                 scroll_width; //if == 0 then total line count won't be calculated
-    uint32_t                scroll_bg_color; //may be 0
-    uint32_t                scroll_color;
+    MColor                scroll_bg_color; //may be 0
+    MColor                scroll_color;
 
     
     MakiseStyleTheme  normal;

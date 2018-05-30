@@ -19,9 +19,14 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     
     driver->gui = gui;
     buffer->gui = gui;
-    
+
+#ifdef MAKISEGUI_BUFFER_DEPTHMASK
     buffer->depthmask = MAKISEGUI_BUFFER_DEPTHMASK;
     buffer->pixeldepth = MAKISEGUI_BUFFER_DEPTH;
+#else
+    buffer->depthmask = 0;
+    buffer->pixeldepth = 0;
+#endif
     buffer->width = driver->lcd_width;
     buffer->height = driver->lcd_height;
 

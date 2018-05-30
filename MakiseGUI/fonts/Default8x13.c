@@ -196,24 +196,18 @@ const uint16_t Default8x13_unicode [] =
 #endif
 
 const MakiseFont F_Default8x13 = {
-    Default8x13_table,
-    8,
-    13,
-#if 8 == 0
-    Default8x13_width,
-#else
-    0,
-#endif
-    Default8x13_offset,
+    .table      = Default8x13_table,
+    .width      = 8,
+    .height     = 13,
+    .char_width = 0,
+    .char_index = Default8x13_offset,
+    .offset     = 32,
+    .num_char   = 95,
+    .space_char = 0,
 #if MAKISE_UNICODE
-    Default8x13_unicode,
+    .unicode_index = Default8x13_unicode,
+    .num_uni       = 159,
 #endif
-    32,
-    95,
-#if MAKISE_UNICODE
-    159,
-#endif
-    0
 };
 
 #endif

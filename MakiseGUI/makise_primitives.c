@@ -177,11 +177,11 @@ void makise_d_triangle_filled ( const MakiseBuffer* b,
 
 /*---------------------------------------------------------------*/
 void makise_d_polyline        ( const MakiseBuffer* b,
-                                const MPoint* points, MColor count,
+                                const MPoint* points, uint32_t count,
                                 uint16_t thickness,
                                 MColor c )
 {
-    if ( b == 0 || count == 0 || points == 0 || c == MC_Transparent ) return;
+    if ( b == 0 || count == 0 || points == 0 || MC_IS_Transparent(c) ) return;
     
     uint32_t i = 0;
     
@@ -195,11 +195,11 @@ void makise_d_polyline        ( const MakiseBuffer* b,
 void makise_dex_polyline      ( const MakiseBuffer* b,
                                 MPoint pos,
                                 double rot,
-                                const MPoint* points, MColor count,
+                                const MPoint* points, uint32_t count,
                                 uint16_t thickness,
                                 MColor c )
 {
-    if ( count == 0 || points == 0 || c == MC_Transparent ) return;
+    if ( count == 0 || points == 0 || MC_IS_Transparent(c) ) return;
 
     if ( pos.x == 0 && pos.y == 0 && rot == 0)
         makise_d_polyline(b, points, count, thickness, c);
