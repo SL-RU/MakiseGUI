@@ -122,9 +122,7 @@ void m_fsviewer_loadchunk(MFSViewer *l, uint32_t required_id)
 		//Without LFN
 		strncpy(l->buffer[bi].name, fno.fname, 13);
 #endif
-		l->buffer[bi].text_width =
-		    makise_d_string_width(l->buffer[bi].name, MDTextAll,
-					  l->item_style->font);
+		l->buffer[bi].text_width = INT16_MAX;
 		l->buffer[bi].scroll_x = 0;
 
 		//l->buffer[bi].sclust = 

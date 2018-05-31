@@ -32,8 +32,8 @@ void makise_gui_init ( MHost* host )
 
     //init mutexes
 #if MAKISE_MUTEX
-    m_mutex_create(&inp->mutex);
-    m_mutex_create(&host->mutex);
+    inp->mutex = m_mutex_create();
+    host->mutex = m_mutex_create();
     //m_mutex_create(&_makise_new_id_mutex);
 #endif
 }
@@ -93,9 +93,9 @@ uint32_t makise_g_newid()
 
 uint8_t makise_g_host_call   (MHost *host, MakiseGUI *gui, MElementCall type)
 {
-    MAKISE_MUTEX_REQUEST(&host->mutex);
+    MAKISE_MUTEX_REQUEST(host->mutex);
     MContainer *cont = &host->host;
-    MAKISE_MUTEX_RELEASE(&host->mutex);
+    MAKISE_MUTEX_RELEASE(host->mutex);
     
     uint8_t r = makise_g_cont_call(cont, gui, type);
     return r;
@@ -103,9 +103,9 @@ uint8_t makise_g_host_call   (MHost *host, MakiseGUI *gui, MElementCall type)
 
 MInputResultEnum makise_g_host_input  (MHost *host, MInputData d)
 {
-    MAKISE_MUTEX_REQUEST(&host->mutex);
+    MAKISE_MUTEX_REQUEST(host->mutex);
     MContainer *cont = &host->host;
-    MAKISE_MUTEX_RELEASE(&host->mutex);
+    MAKISE_MUTEX_RELEASE(host->mutex);
     
     uint8_t r = makise_g_cont_input(cont, d);
     return r;
@@ -312,9 +312,9 @@ void makise_g_print_tree(MHost *host)
 {
     if(host == 0)
 	return;
-    MAKISE_MUTEX_REQUEST(&host->mutex);
+    MAKISE_MUTEX_REQUEST(host->mutex);
     MAKISE_DEBUG_OUTPUT("tree:\n");
     MContainer *c = &host->host;    
     _makise_g_print_tree(c, 0);
-    MAKISE_MUTEX_RELEASE(&host->mutex);
+    MAKISE_MUTEX_RELEASE(host->mutex);
 }

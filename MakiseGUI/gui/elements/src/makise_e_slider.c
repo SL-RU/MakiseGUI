@@ -63,41 +63,46 @@ static uint8_t draw   (MElement* b, MakiseGUI *gui)
 	    (s->value_max - s->value_min);
 	//borders
 	makise_d_rect_filled(gui->buffer,
-			     b->position.real_x,
-			     b->position.real_y,
+			     (MPoint){b->position.real_x,
+                                     b->position.real_y},
 			     3,
 			     b->position.height,
+                             th->thickness,
 			     th->border_c,
 			     th->border_c);
 	makise_d_rect_filled(gui->buffer,
-			     b->position.real_x + b->position.width - 3,
-			     b->position.real_y,
+			     (MPoint){b->position.real_x + b->position.width - 3,
+                                     b->position.real_y},
 			     3,
 			     b->position.height,
+                             th->thickness,
 			     th->border_c,
 			     th->border_c);
 	//filled part
 	makise_d_rect_filled(gui->buffer,
-			     b->position.real_x + 2,
-			     b->position.real_y + b->position.height/6,
+			     (MPoint){b->position.real_x + 2,
+                                     b->position.real_y + b->position.height/6},
 			     val,
 			     b->position.height*4/6,
+                             th->thickness,
 			     th->font_col,
 			     th->font_col);
 	//empty part
 	makise_d_rect(gui->buffer,
-		      b->position.real_x + val + 3,
-		      b->position.real_y + b->position.height/6,
+		      (MPoint){b->position.real_x + val + 3,
+                              b->position.real_y + b->position.height/6},
 		      b->position.width - val - 5,
 		      b->position.height*4/6,
+                      th->thickness,
 		      th->font_col);
 	if(s->type == MSlider_Type_ReadWrite)
 	    //line
 	    makise_d_line(gui->buffer,
-			  b->position.real_x + val + 2,
-			  b->position.real_y,
-			  b->position.real_x + val + 2,
-			  b->position.real_y + b->position.height - 1,
+			  (MPoint){b->position.real_x + val + 2,
+                                  b->position.real_y},
+			  (MPoint){b->position.real_x + val + 2,
+                                  b->position.real_y + b->position.height - 1},
+                          th->thickness,
 			  th->font_col);
 
     }
@@ -108,42 +113,47 @@ static uint8_t draw   (MElement* b, MakiseGUI *gui)
 	val = b->position.height - val - 5;
 	//borders
 	makise_d_rect_filled(gui->buffer,
-			     b->position.real_x,
-			     b->position.real_y,
+			     (MPoint){b->position.real_x,
+                                     b->position.real_y},
 			     b->position.width,
 			     3,
+                             th->thickness,
 			     th->font_col,
 			     th->font_col);
 	makise_d_rect_filled(gui->buffer,
-			     b->position.real_x,
-			     b->position.real_y + b->position.height - 3,
+			     (MPoint){b->position.real_x,
+                                     b->position.real_y + b->position.height - 3},
 			     b->position.width,
 			     3,
+                             th->thickness,
 			     th->font_col,
 			     th->font_col);
 	//filled part
 	makise_d_rect(gui->buffer,
-		      b->position.real_x + b->position.width/6,
-		      b->position.real_y + 2,
+		      (MPoint){b->position.real_x + b->position.width/6,
+                              b->position.real_y + 2},
 		      b->position.width*4/6,
 		      val,
+                      th->thickness,
 		      th->font_col);
 	//empty part
 	makise_d_rect_filled(gui->buffer,
-			     b->position.real_x + b->position.width/6,
-			     b->position.real_y + val + 3,
+			     (MPoint){b->position.real_x + b->position.width/6,
+                                     b->position.real_y + val + 3},
 			     b->position.width*4/6,
 			     b->position.height - val - 5,
+                             th->thickness,
 			     th->font_col,
 			     th->font_col);
 	
 	if(s->type == MSlider_Type_ReadWrite)
 	    //line
 	    makise_d_line(gui->buffer,
-			  b->position.real_x,
-			  b->position.real_y + val + 2,
-			  b->position.real_x + b->position.width - 1,
-			  b->position.real_y + val + 2,
+			  (MPoint){b->position.real_x,
+                                  b->position.real_y + val + 2},
+			  (MPoint){b->position.real_x + b->position.width - 1,
+                                  b->position.real_y + val + 2},
+                          th->thickness,
 			  th->font_col);
 
     }

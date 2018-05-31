@@ -7,13 +7,13 @@ void makise_gui_input_send(MHost *h, MInputData d)
     if(h == 0)
 	return;
 
-    MAKISE_MUTEX_REQUEST(&h->input.mutex);
+    MAKISE_MUTEX_REQUEST(h->input.mutex);
 
     if(h->input.buf_index[h->input.cur_buf]
        >= MAKISE_GUI_INPUT_BUFFER_LEN)
     {
         //if FIFO is overflowen
-	MAKISE_MUTEX_RELEASE(&h->input.mutex);
+	MAKISE_MUTEX_RELEASE(h->input.mutex);
 	return;
     }
     //printf("cur %d ind %d key %d\n", h->input.cur_buf, h->input.buf_index[h->input.cur_buf], d.key);
@@ -21,7 +21,7 @@ void makise_gui_input_send(MHost *h, MInputData d)
     h->input.buffer[h->input.cur_buf]
 	[h->input.buf_index[h->input.cur_buf]++] = d;
 
-    MAKISE_MUTEX_RELEASE(&h->input.mutex);
+    MAKISE_MUTEX_RELEASE(h->input.mutex);
 }
 void makise_gui_input_send_button(MHost *h, MInputKeyEnum key, MInputEventEnum event, uint32_t time)
 {
@@ -127,11 +127,11 @@ void makise_gui_input_perform ( MHost *h )
     if(h == 0)
 	return;
     
-    MAKISE_MUTEX_REQUEST(&h->input.mutex);
+    MAKISE_MUTEX_REQUEST(h->input.mutex);
     
     if(h->input.buf_index == 0)
     {
-	MAKISE_MUTEX_RELEASE(&h->input.mutex);
+	MAKISE_MUTEX_RELEASE(h->input.mutex);
 	return;
     }
     uint8_t k = h->input.cur_buf; //current buffer index
@@ -166,5 +166,5 @@ void makise_gui_input_perform ( MHost *h )
 	l = 1;
     }
     
-    MAKISE_MUTEX_RELEASE(&h->input.mutex);
+    MAKISE_MUTEX_RELEASE(h->input.mutex);
 }

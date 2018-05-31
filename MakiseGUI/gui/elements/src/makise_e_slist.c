@@ -646,7 +646,6 @@ void m_slist_add( MSList *l, MSList_Item *item ) {
     if ( l == 0 || item == 0)
 	return;
     M_E_MUTEX_REQUEST(l);
-    m_element_mutex_request(&l->el);
     if ( l->is_array ) {
 	M_E_MUTEX_RELEASE(l);
 	return;

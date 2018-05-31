@@ -61,9 +61,11 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 			 MakiseStyleTheme_FSViewer_Item *c_th, uint8_t selected,
 			 uint32_t x, uint32_t y, uint32_t w, uint32_t eh)
 {
+    
     //background
     makise_d_rect_filled(gui->buffer,
-			 x, y,  w, eh,
+			 (MPoint){x, y},  w, eh,
+                         c_th->thickness,
 			 c_th->border_c, c_th->bg_color);
     //selection
     if(l->type == MFSViewer_SingleSelect)
@@ -72,7 +74,8 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 	   && l->selected_folder == l->current_folder)
 	{
 	    makise_d_circle_filled(gui->buffer,
-				   x + eh / 2, y + eh / 2, eh / 2 - 3,
+				   (MPoint){x + eh / 2, y + eh / 2}, eh / 2 - 3,
+                                   c_th->thickness,
 				   c_th->icon_col, c_th->icon_col);
 	    x += eh + 1;
 	    w -= eh + 1;
@@ -84,7 +87,8 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 	if(l->style->bitmap_folder == 0)
 	{
 	    makise_d_rect_filled(gui->buffer,
-				 x + 2, y + 2, eh - 4, eh - 4,
+				 (MPoint){x + 2, y + 2}, eh - 4, eh - 4,
+                                 c_th->thickness,
 				 c_th->icon_col, c_th->icon_col);
 	    x += eh + 1;
 	    w -= eh + 1;
@@ -100,6 +104,11 @@ static void draw_item   (MFSViewer_Item *ci, MFSViewer *l, MakiseGUI *gui,
 	}
 	
     }
+    if(ci->text_width == INT16_MAX)
+        ci->text_width = makise_d_string_get_width(gui->buffer,
+                                                   ci->name, MDTextAll,
+                                                   l->item_style->font);
+
     //text scrolling
     int32_t dx = 0, scrlx = ci->scroll_x / 100;
     if(l->item_style->text_scroll_speed &&
@@ -178,8 +187,9 @@ static uint8_t draw ( MElement* b, MakiseGUI *gui )
         h -= l->style->font->height;
 
         makise_d_line( gui->buffer,
-                       b->position.real_x, y,
-                       b->position.real_x + b->position.width, y,
+                       (MPoint){b->position.real_x, y},
+                       (MPoint){b->position.real_x + b->position.width, y},
+                       th->thickness,
                        th->border_c);
 
         ec = h / (eh + 1);
@@ -251,17 +261,25 @@ static uint8_t draw ( MElement* b, MakiseGUI *gui )
     // Drawing scroll.
     if ( l->style->scroll_width != 0 ) {
 	makise_d_rect_filled( gui->buffer,
-			      b->position.real_x + b->position.width - l->style->scroll_width - 1, b->position.real_y,
+			      (MPoint){b->position.real_x
+                                      + b->position.width
+                                      - l->style->scroll_width
+                                      - 1,
+                                      b->position.real_y},
 			      l->style->scroll_width + 1,
 			      l->el.position.height,
+                              th->thickness,
 			      th->border_c,
 			      l->style->scroll_bg_color );
 
 	makise_d_rect_filled( gui->buffer,
-			      b->position.real_x + b->position.width - l->style->scroll_width - 1,
-			      y,
+			      (MPoint){b->position.real_x
+                                      + b->position.width
+                                      - l->style->scroll_width - 1,
+                                      y},
 			      l->style->scroll_width + 1,
 			      sh + 1,
+                              th->thickness,
 			      th->border_c,
 			      l->style->scroll_color );
     }

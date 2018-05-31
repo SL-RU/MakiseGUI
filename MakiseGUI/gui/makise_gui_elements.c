@@ -39,14 +39,14 @@ MResult m_element_mutex_request(MElement* el)
 {
     if(el == 0 || el->host == 0)
 	return M_ERROR;
-    MAKISE_MUTEX_REQUEST(&el->host->mutex);
+    MAKISE_MUTEX_REQUEST(el->host->mutex);
     return M_OK;
 }
 MResult m_element_mutex_release(MElement* el)
 {
     if(el == 0 || el->host == 0)
 	return M_ERROR;
-    MAKISE_MUTEX_RELEASE(&el->host->mutex);
+    MAKISE_MUTEX_RELEASE(el->host->mutex);
     return M_OK;
 }
 

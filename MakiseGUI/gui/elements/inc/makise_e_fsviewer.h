@@ -41,7 +41,7 @@ typedef struct {
     uint32_t border_c;
     uint32_t icon_col;
 
-    uint16_t double_border;
+    uint16_t thickness;
 } MakiseStyleTheme_FSViewer_Item;
 
 
