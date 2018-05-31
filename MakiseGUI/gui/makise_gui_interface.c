@@ -4,7 +4,8 @@
 #define MM_REQUEST(e) MAKISE_MUTEX_t e_mutex = e->host->mutex; MAKISE_MUTEX_REQUEST(e_mutex)
 #define MM_RELEASE(e) MAKISE_MUTEX_RELEASE(e_mutex)
 #else
-
+#define MM_REQUEST(...)
+#define MM_RELEASE(...)
 #endif
 
 void mi_cont_add(MContainer *cont, MElement *el)
