@@ -75,22 +75,21 @@ void makise_d_string(const MakiseBuffer *b,
     if(s == 0)
 	return;
     
-    if(place == MDTextPlacement_Center )
-    {
+    if(place & MDTextPlacement_HCenter ) {
 	width = makise_d_string_get_width(b, s, len, font);
 	x -= width / 2;
-	y -= font->height / 2;
-    } else if(place == MDTextPlacement_CenterUp )
-    {
+    } else if(place & MDTextPlacement_Right) {
 	width = makise_d_string_get_width(b, s, len, font);
-	x -= width / 2;
-    } else if(place == MDTextPlacement_CenterDown )
-    {
-	width = makise_d_string_get_width(b, s, len, font);
-	x -= width / 2;
-	y -= font->height;
+	x -= width;
     }
     
+    if(place & MDTextPlacement_Down ) {
+	y -= font->height;
+    } else if(place & MDTextPlacement_VCenter ) {
+	y -= font->height / 2;
+    }
+
+   
     int32_t ch, xt = x, yt = y;
 
     if(y + font->height < b->border.y ||
