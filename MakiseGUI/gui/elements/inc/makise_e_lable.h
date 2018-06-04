@@ -31,6 +31,7 @@ typedef struct {
 
     char*               text;
     uint32_t            text_width;
+    MDTextPlacement     alignment;
 
     uint8_t             scroll_enable;
     uint32_t            scroll_x;
@@ -49,6 +50,10 @@ void m_lable_set_text( MLable *b,
 char* m_lable_get_text( MLable *b );
 
 void m_lable_enable_scroll( MLable *b, uint8_t enable );
+
+/* void m_lable_set_alignment( MLable *b, */
+/*                             MDTextPlacement alignment); */
+
     
 #ifdef __cplusplus
 }

@@ -15,10 +15,24 @@ typedef struct _MakiseTextDrawer MakiseTextDrawer;
 #define MDTextAll UINT32_MAX 
 
 typedef enum {
-    MDTextPlacement_LeftUp = 0,
-    MDTextPlacement_Center,
-    MDTextPlacement_CenterUp,
-    MDTextPlacement_CenterDown,
+    MDTextPlacement_Left    = 0b000001,
+    MDTextPlacement_Right   = 0b000010,
+    MDTextPlacement_HCenter = 0b000100,
+    MDTextPlacement_Up      = 0b001000,
+    MDTextPlacement_Down    = 0b010000,
+    MDTextPlacement_VCenter = 0b100000,
+
+    MDTextPlacement_LeftUp      = MDTextPlacement_Left   | MDTextPlacement_Up     ,
+    MDTextPlacement_LeftCenter  = MDTextPlacement_Left   | MDTextPlacement_VCenter,
+    MDTextPlacement_LeftDown    = MDTextPlacement_Left   | MDTextPlacement_Down   ,
+    
+    MDTextPlacement_RightCenter = MDTextPlacement_Right  | MDTextPlacement_VCenter,
+    MDTextPlacement_RightUp     = MDTextPlacement_Right  | MDTextPlacement_Up     ,
+    MDTextPlacement_RightDown   = MDTextPlacement_Right  | MDTextPlacement_Down   ,
+
+    MDTextPlacement_Center      = MDTextPlacement_HCenter| MDTextPlacement_VCenter,
+    MDTextPlacement_CenterUp    = MDTextPlacement_HCenter| MDTextPlacement_Up     ,
+    MDTextPlacement_CenterDown  = MDTextPlacement_HCenter| MDTextPlacement_Down   ,
 } MDTextPlacement;
 
 

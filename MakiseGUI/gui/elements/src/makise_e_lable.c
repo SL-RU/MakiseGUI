@@ -29,6 +29,7 @@ void m_create_lable( MLable*             b,
     b->style = style;
     b->scroll_enable = 1; //enable scroll by default
     b->scroll_x = 0;
+    b->alignment = MDTextPlacement_LeftCenter;
 
     makise_g_cont_add(c, e);
     
@@ -49,7 +50,7 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     
     if ( e->text != 0 ) {
 	int32_t dx = 0, scrlx = e->scroll_x / 100;
-	if(e->scroll_enable)
+	if(e->scroll_enable && b->position.width < e->text_width)
 	{
 	    if(scrlx >= (int32_t)e->text_width) {
 		e->scroll_x = 0;
@@ -70,8 +71,8 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
         makise_d_string(gui->buffer,
 			e->text, MDTextAll,
 			(int32_t)(b->position.real_x + 2 + dx),
-			b->position.real_y,             
-			MDTextPlacement_LeftUp,
+			b->position.real_y + b->position.height / 2,
+			MDTextPlacement_LeftCenter,
 			e->style->font,
 			e->style->font_col);
     }
@@ -110,5 +111,16 @@ void m_lable_enable_scroll( MLable *b, uint8_t enable )
     
     M_E_MUTEX_RELEASE(b);
 }
+
+/* void m_lable_set_alignment( MLable *b, */
+/*                             MDTextPlacement alignment) */
+/* { */
+/*     M_E_MUTEX_REQUEST(b);     */
+    
+/*     b->alignment = alignment; */
+    
+/*     M_E_MUTEX_RELEASE(b); */
+/* } */
+
 
 #endif
