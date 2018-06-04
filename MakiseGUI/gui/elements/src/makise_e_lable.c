@@ -41,9 +41,9 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
     MLable *e = b->data;
     
     _m_e_helper_draw_box_param( gui->buffer, &b->position,
-                                e->style->border_c, e->style->bg_color, e->style->double_border );
+                                e->style->border_c, e->style->bg_color, e->style->thickness );
 
-    if(e->text_width == INT32_MAX)
+    if(e->text_width == UINT32_MAX)
         e->text_width = makise_d_string_get_width(gui->buffer, e->text,
                                                   MDTextAll, e->style->font);
     
@@ -82,33 +82,33 @@ static MResult draw ( MElement* b, MakiseGUI *gui )
 void m_lable_set_text( MLable *b,
 		       char   *text)
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
     
     b->text = text;
-    b->text_width = INT32_MAX;
+    b->text_width = UINT32_MAX;
     b->scroll_x = 0;
     
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
 }
 
 char* m_lable_get_text( MLable *b )
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);
 
     char *t = b->text;
     
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
     return t;
 }
 
 void m_lable_enable_scroll( MLable *b, uint8_t enable )
 {
-    m_element_mutex_request(&b->el);
+    M_E_MUTEX_REQUEST(b);    
     
     b->scroll_enable = enable;
     b->scroll_x = 0;
     
-    m_element_mutex_release(&b->el);
+    M_E_MUTEX_RELEASE(b);
 }
 
 #endif

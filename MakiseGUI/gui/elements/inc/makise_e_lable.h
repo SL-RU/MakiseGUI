@@ -20,7 +20,7 @@ typedef struct {
 
     uint32_t            scroll_speed; // speed of scroll if text doesn't fit. 0 - not scroll. pixels per 100 draw calls
     
-    uint16_t            double_border;
+    uint16_t            thickness;
 } MakiseStyle_Lable;
 
 // Lable.
