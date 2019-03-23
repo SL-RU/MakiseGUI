@@ -14,8 +14,8 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
 	  .y = 0,
 	  .w = driver->lcd_width,
 	  .h = driver->lcd_height,
-	  .ex = driver->lcd_width,
-	  .ey = driver->lcd_height };
+	  .ex = driver->lcd_width - 1,
+	  .ey = driver->lcd_height - 1 };
     
     driver->gui = gui;
     buffer->gui = gui;
@@ -108,7 +108,8 @@ MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorde
     if(b.h > buffer->border.h + buffer->border.y - b.y)
 	b.h = buffer->border.h + buffer->border.y - b.y;
 
-    b.ex = b.x + b.w;
+    //b.ex & b.ey are excluded from area
+    b.ex = b.x + b.w; 
     b.ey = b.y + b.h;
 
     MakiseBufferBorder l = buffer->border;

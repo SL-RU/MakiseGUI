@@ -14,7 +14,7 @@ void makise_pdd_line (const MakiseBuffer* b,
                       int16_t x1, int16_t y1, MColor c );
 
 uint32_t kpset, kpset32, kpsett;
-inline uint32_t makise_pget(const MakiseBuffer *b, uint32_t x, uint32_t y)
+inline MColor makise_pget(const MakiseBuffer *b, uint32_t x, uint32_t y)
 {
     if((x) < (b)->width && (y) < (b)->height)
     {							
@@ -26,7 +26,7 @@ inline uint32_t makise_pget(const MakiseBuffer *b, uint32_t x, uint32_t y)
     return 0;
 }
 
-inline void makise_pset(const MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c)
+inline void makise_pset(const MakiseBuffer *b, uint32_t x, uint32_t y, MColor c)
 {
     if((x) < b->border.ex && (y) < b->border.ey &&
        (x) >= b->border.x && (y) >= b->border.y)		
@@ -43,7 +43,7 @@ inline void makise_pset(const MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t 
              ~((b)->depthmask << kpsett)) | (c << kpsett); 
     }
 }
-inline uint32_t makise_pget_fast(const MakiseBuffer *b, uint32_t x, uint32_t y)
+ inline MColor makise_pget_fast(const MakiseBuffer *b, uint32_t x, uint32_t y)
 {
     kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
     kpset32 = kpset/32;
@@ -51,7 +51,7 @@ inline uint32_t makise_pget_fast(const MakiseBuffer *b, uint32_t x, uint32_t y)
         (((uint32_t*)(b)->buffer)[kpset32] >> (kpset-(kpset32)*32));
 }
 
-inline void makise_pset_fast(const MakiseBuffer *b, uint32_t x, uint32_t y, uint32_t c)
+inline void makise_pset_fast(const MakiseBuffer *b, uint32_t x, uint32_t y, MColor c)
 {
     kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
     kpset32 = kpset/32;

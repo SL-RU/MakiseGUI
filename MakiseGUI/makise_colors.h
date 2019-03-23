@@ -64,7 +64,7 @@ typedef enum
 #endif
 
 #if MAKISEGUI_BUFFER_DEPTH != MAKISEGUI_DRIVER_DEPTH
-uint32_t *makise_color_palette;
+extern uint32_t *makise_color_palette;
 #endif
 
 //Get color value from value from buffer display.

@@ -35,7 +35,10 @@ inline uint32_t makise_color_get(uint32_t c)
 
     #elif MAKISEGUI_BUFFER_DEPTH != MAKISEGUI_DRIVER_DEPTH
 
-    return makise_color_palette[c];
+    if(c < 16)
+        return makise_color_palette[c];
+    
+    return 0;
     
     #endif
 }

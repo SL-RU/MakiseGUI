@@ -94,10 +94,10 @@ typedef struct _MFSViewer MFSViewer;
 typedef struct _MFSViewer_Item
 {
 #if MAKISE_E_FSVIEWER == MAKISE_E_FSVIEWER_FATFS
-#if FF_LFN_UNICODE && FF_USE_LFN    
-    char                       name[ FF_MAX_LFN * 2 + 2 ];    // text of item
+#if _LFN_UNICODE && _USE_LFN    
+    char                       name[ _MAX_LFN * 2 + 2 ];    // text of item
 #else
-    char                       name[ FF_MAX_LFN + 2 ];    // text of item
+    char                       name[ _MAX_LFN + 2 ];    // text of item
 #endif
     TCHAR                      fname[13];                 // short file name
     DWORD                      sclust;                    // start of clust
