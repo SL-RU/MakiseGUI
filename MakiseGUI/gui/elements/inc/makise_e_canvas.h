@@ -13,34 +13,37 @@ extern "C" {
 
 
 typedef struct {
-    uint32_t bg_color;
-    uint32_t border_c;
-
-    uint16_t double_border;
-} MakiseStyleTheme_Canvas;
-
-typedef struct {
-    MakiseStyleTheme_Canvas normal;
-    MakiseStyleTheme_Canvas focused;
+    MakiseStyleTheme normal;
+    MakiseStyleTheme focused;
 } MakiseStyle_Canvas;
 
 
 //Canvas - simple container. It's placing elements simply by their position wherever it needed
 typedef struct {
-    MakiseGUI*              gui;
     MElement                el;
-
     MContainer              cont;
+    MakiseStyle_Canvas*     style;
 
-    MakiseStyle_Canvas*      style;
+    MElement *last_focused;
 
     uint8_t                 state;
 } MCanvas;
 
-void m_create_canvas( MCanvas*            b,
-                      MContainer*         c,
-                      MPosition           pos,
-                      MakiseStyle_Canvas*  style );
+void m_create_canvas( MCanvas*              b,
+                      MContainer*           c,
+                      MPosition             pos,
+                      MakiseStyle_Canvas*   style );
+
+
+/**
+ * Set container focus behavior. If isolated then focus won't go to parent's container, else will
+ *
+ * @param b container
+ * @param isolated MContainer_Isolated or MContainer_NotIsolated
+ * @return 
+ */
+void m_canvas_set_isolated(MCanvas* b,
+			   MContainerIsolated_t isolated);
 
 #ifdef __cplusplus
 }

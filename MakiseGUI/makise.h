@@ -10,26 +10,45 @@ typedef struct _MakiseGUI MakiseGUI;
 typedef struct _MakiseBuffer MakiseBuffer;
 typedef struct _MakiseDriver MakiseDriver;
 
-#define M_OK            1
-#define M_ERROR         2
-#define M_ZERO_POINTER  3
+typedef enum {
+    M_OK          ,
+    M_ERROR       ,
+    M_ZERO_POINTER,
+} MResult;
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "makise_config.h"
 #include "makise_colors.h"
 #include "makise_text.h"
 #include "makise_primitives.h"
+#include "makise_bitmap.h"
 
-    
+
 //if DEBUG OUTPUT disabled or MAKISE_DEBUG_OUTPUT isn't defined
 //if you want debug output define that in makise_config.h:
 //#define MAKISE_DEBUG_OUTPUT printf
 #ifndef MAKISE_DEBUG_OUTPUT 
 #define MAKISE_DEBUG_OUTPUT(...)
 #endif
+#ifndef MAKISE_ERROR_OUTPUT 
+#define MAKISE_ERROR_OUTPUT MAKISE_DEBUG_OUTPUT
+#endif    
+#ifndef MAKISE_UNICODE
+#define MAKISE_UNICODE 0
+#endif
+//if MAKISEGUI_DISPLAY_INVERTED == 1 then MC_BLACK = 1
+#ifndef MAKISEGUI_DISPLAY_INVERTED
+#define MAKISEGUI_DISPLAY_INVERTED 0
+#endif
 
+#if defined(MAKISE_MUTEX) && MAKISE_MUTEX
+#define MAKISE_MUTEX_REQUEST(x) m_mutex_request_grant(x)
+#define MAKISE_MUTEX_RELEASE(x) m_mutex_release_grant(x)    
+#else
+#define MAKISE_MUTEX_REQUEST(...)
+#define MAKISE_MUTEX_RELEASE(...)    
+#endif
     
 typedef struct
 {
@@ -56,10 +75,15 @@ typedef struct _MakiseBuffer
     uint16_t width;         //real width
     uint32_t pixeldepth;    //smaller or equals to real depth
     uint32_t depthmask;     //example: mask like 0b111 is for depth 3bit
-    uint32_t *buffer;       //virtual buffer
+    void     *buffer;       //virtual buffer
     uint32_t size;          //size of the buffer
 
     MakiseBufferBorder border; //allowed region for new drawing
+
+    MResult  ( *drawer )(
+        const MakiseBuffer*,
+        const MDPrimitive* ); // primitive drawer. See documentation. Or use &makise_primitives_default_drawer
+    MakiseTextDrawer *text_drawer;
 } MakiseBuffer;
 
 typedef struct _MakiseDriver
@@ -74,17 +98,12 @@ typedef struct _MakiseDriver
     uint32_t size;          //size of the buffer
     uint16_t posx;          //last pos of floating buffer
     uint16_t posy;          //last pos of floating buffer
-    
-    uint8_t (*init) (MakiseGUI* gui);
-    uint8_t (*start)(MakiseGUI* gui);
-    uint8_t (*sleep)(MakiseGUI* gui);
-    uint8_t (*awake)(MakiseGUI* gui);
-    uint8_t (*set_backlight)(MakiseGUI* gui, uint8_t);
 } MakiseDriver;
 
 typedef struct _MakiseGUI
 {
-    MakiseBuffer* buffer;
+    MakiseBuffer *buffer; //to have backwards compatability
+    MakiseBuffer _buffer;
     MakiseDriver* driver;
     void (*draw)(MakiseGUI* gui);
     void (*predraw)(MakiseGUI* gui);
@@ -101,24 +120,13 @@ typedef struct _MakiseGUI
  */
 uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer);
 void makise_deinit(MakiseGUI* gui);
-uint8_t makise_start(MakiseGUI * gui);
-uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y);
-void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c);
 
-/**
- * get point without checking borders
- */
-uint32_t makise_pget_fast(MakiseBuffer *b, uint16_t x, uint16_t y);
-/**
- * set point without checking borders
- */
-void makise_pset_fast(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c);
 
 //if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
 void makise_render(MakiseGUI *gui, uint8_t partial_render);
 
 /**
- * set new border. This region must be smaller then previous. It will be cropped.
+ * set new border. This region must be smaller then previous. Else it will be cropped.
  * Borders need for drawing GUI. For gui elements do not leave their & their parent's
  * borders.
  * After setting border & drawing it you need to call makise_rem_border.
@@ -129,6 +137,7 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render);
  */
 MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorder b);
 void makise_rem_border(MakiseBuffer *buffer, MakiseBufferBorderData b);
+
 
 #ifdef __cplusplus
 }

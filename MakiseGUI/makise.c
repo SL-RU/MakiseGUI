@@ -8,16 +8,25 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     
     buffer->height = driver->lcd_height;
     buffer->width = driver->lcd_width;
-    buffer->border = (MakiseBufferBorder){0, 0, driver->lcd_width,
-					  driver->lcd_height,
-					  driver->lcd_width,
-					  driver->lcd_height}; //allowed region
-                                                               //for new drawings
+    //allowed region for new drawings
+    buffer->border = (MakiseBufferBorder)
+	{ .x = 0,
+	  .y = 0,
+	  .w = driver->lcd_width,
+	  .h = driver->lcd_height,
+	  .ex = driver->lcd_width - 1,
+	  .ey = driver->lcd_height - 1 };
+    
     driver->gui = gui;
     buffer->gui = gui;
-    
+
+#ifdef MAKISEGUI_BUFFER_DEPTHMASK
     buffer->depthmask = MAKISEGUI_BUFFER_DEPTHMASK;
     buffer->pixeldepth = MAKISEGUI_BUFFER_DEPTH;
+#else
+    buffer->depthmask = 0;
+    buffer->pixeldepth = 0;
+#endif
     buffer->width = driver->lcd_width;
     buffer->height = driver->lcd_height;
 
@@ -33,61 +42,6 @@ uint32_t makise_init(MakiseGUI * gui, MakiseDriver* driver, MakiseBuffer* buffer
     
     return lenb;
 }
-
-uint8_t makise_start(MakiseGUI * gui) {
-    if( gui == 0 || gui->driver == 0 )
-        return M_ZERO_POINTER;
-
-    return gui->driver->start(gui);
-}
-
-uint32_t kpset, kpset32, kpsett;
-inline uint32_t makise_pget(MakiseBuffer *b, uint16_t x, uint16_t y)
-{
-    if((x) < (b)->width && (y) < (b)->height)
-    {							
-	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-	kpset32 = kpset/32;
-	return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
-    }						
-    return 0;
-}
-
-inline void makise_pset(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c)
-{
-    if((x) < b->border.ex && (y) < b->border.ey &&
-       (x) >= b->border.x && (y) >= b->border.y)		
-    {									
-	kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-	kpset32 = kpset/32;
-	kpsett = kpset - kpset32*32;
-
-	if(((b)->depthmask & ((b)->buffer[kpset32] >> (kpsett))) == c)
-	    return;
-	
-	(b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
-    }
-}
-inline uint32_t makise_pget_fast(MakiseBuffer *b, uint16_t x, uint16_t y)
-{
-    kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-    kpset32 = kpset/32;
-    return (b)->depthmask & ((b)->buffer[kpset32] >> (kpset-(kpset32)*32));
-}
-
-inline void makise_pset_fast(MakiseBuffer *b, uint16_t x, uint16_t y, uint32_t c)
-{
-    kpset = ((y)*((b)->width) + (x)) * (b)->pixeldepth;
-    kpset32 = kpset/32;
-    kpsett = kpset - kpset32*32;
-    
-    if ( ( ( b )->depthmask & ( ( b )->buffer[ kpset32 ] >> ( kpsett ) ) ) == c )
-        return;
-    
-    (b)->buffer[kpset32] = ((b)->buffer[kpset32] & ~((b)->depthmask << kpsett)) | (c << kpsett); 
-}
-
-
 
 //if partial_render = 0, then entire buffer will be rendered, if == 1, then will be rendered only first part, if == 2 then will be rendered second part
 void makise_render(MakiseGUI *gui, uint8_t partial_render)
@@ -106,7 +60,7 @@ void makise_render(MakiseGUI *gui, uint8_t partial_render)
     {
 	m = d->posy + d->buffer_height;
 	d->posy += d->buffer_height;
-	partial_render = 1;
+	//partial_render = 1;
     }
     else if(partial_render == 1) //render first half (called by halfcplt callback)
     {
@@ -154,7 +108,8 @@ MakiseBufferBorderData makise_add_border(MakiseBuffer *buffer, MakiseBufferBorde
     if(b.h > buffer->border.h + buffer->border.y - b.y)
 	b.h = buffer->border.h + buffer->border.y - b.y;
 
-    b.ex = b.x + b.w;
+    //b.ex & b.ey are excluded from area
+    b.ex = b.x + b.w; 
     b.ey = b.y + b.h;
 
     MakiseBufferBorder l = buffer->border;

@@ -1,5 +1,5 @@
 #ifndef _MAKISE_H_G_Input
-#define _MAKISE_H_G_Input 1
+#define _MAKISE_H_G_Input
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,7 +62,8 @@ typedef struct
 typedef enum
 {
     M_INPUT_HANDLED,
-    M_INPUT_NOT_HANDLED
+    M_INPUT_NOT_HANDLED,
+    M_INPUT_ERROR
 } MInputResultEnum;
 
 
@@ -81,6 +82,10 @@ typedef struct _MInputHostData
                              // second - is cursor input allowed for this session
     MInputCursorEvent last;
 #endif    
+
+#if MAKISE_MUTEX
+    MAKISE_MUTEX_t mutex;
+#endif
     
 } MInputHostData;
     

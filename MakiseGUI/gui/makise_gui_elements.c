@@ -1,19 +1,20 @@
 #include "makise_gui_elements.h"
 
-void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
-		      uint8_t enabled, uint8_t focus_prior,
+void m_element_create(MElement *e, char *name, void* data,
+		      uint8_t enabled, MFocusPriorEnum focus_prior,
 		      MPosition position,
-		      uint8_t    (*draw    )(MElement* el),
-		      uint8_t    (*predraw )(MElement* el),
-		      uint8_t    (*update  )(MElement* el),
+		      MResult    (*draw      )(MElement* el, MakiseGUI *gui),
+		      MResult    (*predraw   )(MElement* el, MakiseGUI *gui),
+		      MResult    (*update    )(MElement* el),
 		      MInputResultEnum (*input   )(MElement* el, MInputData data),
 		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
 		      uint8_t  is_parent,
 		      MContainer *children)
 {
+    //clear structure
+    memset(e, 0, sizeof(MElement));
+
     e->id = makise_g_newid();
-    
-    e->gui                  = gui;
     e->name                 = name;
 
     e->data                 = data;
@@ -31,80 +32,118 @@ void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
     e->next                 = 0;
     e->prev                 = 0;
     e->parent               = 0;
+    e->host                 = 0;
 }
 
-uint8_t m_element_call(MElement* el, uint8_t type)
+MResult m_element_mutex_request(MElement* el)
+{
+    if(el == 0 || el->host == 0)
+	return M_ERROR;
+    MAKISE_MUTEX_REQUEST(el->host->mutex);
+    return M_OK;
+}
+MResult m_element_mutex_release(MElement* el)
+{
+    if(el == 0 || el->host == 0)
+	return M_ERROR;
+    MAKISE_MUTEX_RELEASE(el->host->mutex);
+    return M_OK;
+}
+
+uint8_t m_element_call(MElement* el, MakiseGUI *gui, MElementCall type)
 {
     if(el == 0)
 	return M_ZERO_POINTER;
-
+    
+    uint8_t result = M_ERROR;
+    
     if(type == M_G_CALL_DRAW && el->draw != 0)
     {
-	MakiseBufferBorderData d =makise_add_border(el->gui->buffer,
-						    (MakiseBufferBorder){
-							el->position.real_x,
-							    el->position.real_y,
-							    el->position.width,
-							    el->position.height,
-							    0, 0});
-	uint8_t r = el->draw(el);
-	makise_rem_border(el->gui->buffer, d);
-	return r;
+	MakiseBufferBorderData d = makise_add_border(gui->buffer,
+						     (MakiseBufferBorder)
+                                                     {
+							 .x = el->position.real_x,
+                                                         .y = el->position.real_y,
+                                                         .w = el->position.width,
+							 .h = el->position.height,
+							 .ex = 0,
+                                                         .ey = 0});
+	result = el->draw(el, gui);
+	makise_rem_border(gui->buffer, d);
     }
     if(type == M_G_CALL_PREDRAW && el->predraw != 0)
-	return el->predraw(el);
+    {
+ 	result = el->predraw(el, gui);
+    }
     if(type == M_G_CALL_UPDATE && el->update != 0)
-	return el->update(el);
-
-    return M_ERROR;
+    {
+	result = el->update(el);
+    }
+    return result;
 }
 
-uint8_t m_element_input(MElement* el, MInputData data)
+MInputResultEnum m_element_input(MElement* el, MInputData data)
 {
     if(el == 0)
-	return M_ZERO_POINTER;
+	return M_INPUT_ERROR;
 
+    MInputResultEnum r = M_INPUT_NOT_HANDLED;
     if(el->input != 0)
     {
-	el->input(el, data);
+	r = el->input(el, data);
     }
     
-    return 0;
+    return r;
 }
 
-MPosition mp_rel(int32_t x, int32_t y, uint32_t w, uint32_t h)
+MFocusEnum m_element_focus(MElement* el, MFocusEnum act )
 {
+    if(el == 0)
+	return M_G_FOCUS_ERROR;
+    
+    MFocusEnum r = M_G_FOCUS_NOT_NEEDED;
+    if(el->focus != 0)
+    {
+	r = el->focus(el, act);
+    }
+
+    return r;
+}
+
+MPosition mp_rel (int32_t x, int32_t y, uint32_t w, uint32_t h) {
     return mp_anc(x, y, w, h, MPositionAnchor_LeftUp);
 }
-MPosition mp_anc(int32_t x, int32_t y, uint32_t w, uint32_t h, MPositionAnchor anchor)
-{
+
+MPosition mp_anc( int32_t x, int32_t y, uint32_t w, uint32_t h, MPositionAnchor anchor ) {
     MPosition p;
-    switch (anchor) {
+
+    switch ( anchor ) {
     case MPositionAnchor_LeftUp: 
-	p.left = x;
-	p.up = y;
-	p.horisontal = MPositionStretch_Left;
-	p.vertical = MPositionStretch_Up;
-	break;
+        p.left = x;
+        p.up = y;
+        p.horisontal    = MPositionStretch_Left;
+        p.vertical      = MPositionStretch_Up;
+        break;
     case MPositionAnchor_LeftDown: 
-	p.left = x;
-	p.down = y;
-	p.horisontal = MPositionStretch_Left;
-	p.vertical = MPositionStretch_Down;
-	break;
+        p.left = x;
+        p.down = y;
+        p.horisontal    = MPositionStretch_Left;
+        p.vertical      = MPositionStretch_Down;
+        break;
     case MPositionAnchor_RightUp: 
-	p.right = x;
-	p.up = y;
-	p.horisontal = MPositionStretch_Right;
-	p.vertical = MPositionStretch_Up;
-	break;
-    case MPositionAnchor_RighDown: 
-	p.right = x;
-	p.down = y;
-	p.horisontal = MPositionStretch_Right;
-	p.vertical = MPositionStretch_Down;
-	break;
+        p.right = x;
+        p.up = y;
+        p.horisontal    = MPositionStretch_Right;
+        p.vertical      = MPositionStretch_Up;
+        break;
+    case MPositionAnchor_RighDown:
+        p.right = x;
+        p.down = y;
+        p.horisontal    = MPositionStretch_Right;
+        p.vertical      = MPositionStretch_Down;
+        break;
     }
+
     p.width = w;
     p.height = h;
     return p;

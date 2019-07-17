@@ -4,13 +4,24 @@ MInputData _makise_gui_inp_buffer[MAKISE_GUI_INPUT_BUFFER_LEN] = {0};
 
 void makise_gui_input_send(MHost *h, MInputData d)
 {
-    if(h == 0 ||
-       h->input.buf_index[h->input.cur_buf] >= MAKISE_GUI_INPUT_BUFFER_LEN) //if FIFO is overflowen
+    if(h == 0)
 	return;
+
+    MAKISE_MUTEX_REQUEST(h->input.mutex);
+
+    if(h->input.buf_index[h->input.cur_buf]
+       >= MAKISE_GUI_INPUT_BUFFER_LEN)
+    {
+        //if FIFO is overflowen
+	MAKISE_MUTEX_RELEASE(h->input.mutex);
+	return;
+    }
     //printf("cur %d ind %d key %d\n", h->input.cur_buf, h->input.buf_index[h->input.cur_buf], d.key);
-    h->input.buffer[h->input.cur_buf][
-	h->input.buf_index[h->input.cur_buf]++
-	] = d;
+    //
+    h->input.buffer[h->input.cur_buf]
+	[h->input.buf_index[h->input.cur_buf]++] = d;
+
+    MAKISE_MUTEX_RELEASE(h->input.mutex);
 }
 void makise_gui_input_send_button(MHost *h, MInputKeyEnum key, MInputEventEnum event, uint32_t time)
 {
@@ -57,7 +68,7 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
     if((!h->input.cursor_session & 0b01) && //if session not begun
        (d->event == M_INPUT_PRESSING))
     {
-	MElement *e = makise_g_cont_element_on_point(h->host,
+	MElement *e = makise_g_cont_element_on_point(&h->host,
 						     d->cursor.x, d->cursor.y);
 	if(e != 0) //if element found
 	{
@@ -86,7 +97,7 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
     {
 	if((!h->input.cursor_session & 0b01)) //if session not begun
 	{
-	    MElement *e = makise_g_cont_element_on_point(h->host,
+	    MElement *e = makise_g_cont_element_on_point(&h->host,
 							 d->cursor.x, d->cursor.y);
 	    if(e != 0) //if element found
 	    {
@@ -111,12 +122,18 @@ uint8_t _makise_gui_input_perform_cursor(MHost *h, MInputData *d)
 }
 #endif
 
-void makise_gui_input_perform(MHost *h)
+void makise_gui_input_perform ( MHost *h )
 {
-    if(h == 0 ||
-       h->input.buf_index == 0)
+    if(h == 0)
 	return;
     
+    MAKISE_MUTEX_REQUEST(h->input.mutex);
+    
+    if(h->input.buf_index == 0)
+    {
+	MAKISE_MUTEX_RELEASE(h->input.mutex);
+	return;
+    }
     uint8_t k = h->input.cur_buf; //current buffer index
     MInputResultEnum r;
     MInputData d;
@@ -124,7 +141,7 @@ void makise_gui_input_perform(MHost *h)
     h->input.cur_buf = !k; //switch buffers
     h->input.buf_index[h->input.cur_buf] = 0; //reset index
 
-    uint8_t l = 1;
+    uint8_t l = 1; //cursor flag
     
     for (uint32_t i = 0; i < h->input.buf_index[k]; i++)
     {
@@ -146,6 +163,8 @@ void makise_gui_input_perform(MHost *h)
 		}
 	    }
 	}
+	l = 1;
     }
     
+    MAKISE_MUTEX_RELEASE(h->input.mutex);
 }

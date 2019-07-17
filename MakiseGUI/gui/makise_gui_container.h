@@ -1,28 +1,41 @@
 #ifndef _MAKISE_H_G_CONTAINER
-#define _MAKISE_H_G_CONTAINER 1
+#define _MAKISE_H_G_CONTAINER
 
 #ifdef __cplusplus
-extern "C" {
+//extern "C" {
 #endif
 
 typedef struct _MContainer MContainer;
+typedef struct _MElement MElement;
+typedef struct _MHost MHost;
+typedef struct _MPosition MPosition;
 
-
-#include "makise_gui.h"
-#include "makise_gui_elements.h"
-
+typedef enum {  
+    MContainer_Isolated,   // focus will not go to parent
+    MContainer_NotIsolated // focus will go to parent container
+} MContainerIsolated_t;
+    
 typedef struct _MContainer
 {
-    MakiseGUI*      gui;
-    MElement*       el; //element which is host for the container. Can be zero if it is MHost
-    MPosition*      position; //container position
-    MElement*       first; //pointer to the first element or 0 if container is empty
-    MElement*       last; //pointer to the last element
-    MElement*       focused; //pointer to the focused element. Element must be in the container
+    MElement*       el;      // element which is host for the container. Can be zero if it is MHost
+    MPosition*      position;// container position
+    MElement*       first;   // pointer to the first element or 0 if container is empty
+    MElement*       last;    // pointer to the last element
+    MElement*       focused; // pointer to the focused element. Element must be in the container
+
+    MContainerIsolated_t isolated; // defines focus behavior. If isolated then focus won't go to parents, else - will
     
-//    void (*on_add)(MElement* el);
+    MHost*          host;    // MHost, if exists.
 } MContainer;
 
+#include "makise_gui.h"
+    
+/**
+ * init container's structure
+ *
+ * @param cont container
+ * @return 
+ */
 void makise_g_cont_init(MContainer *c);
 /**
  * add element to new container
@@ -39,6 +52,12 @@ void makise_g_cont_add(MContainer * cont, MElement *el);
  * @return 
  */
 void makise_g_cont_rem(MElement *el);
+/**
+ * Remove all children from container
+ *
+ * @param cont container
+ * @return 
+ */    
 void makise_g_cont_clear(MContainer *cont);
 /**
  * insert element in exact place of container children's list
@@ -75,12 +94,12 @@ int32_t makise_g_cont_contains(MContainer * cont, MElement *el);
 int32_t makise_g_cont_index(MElement *el);
 
 
-uint8_t makise_g_cont_call   (MContainer *cont, uint8_t type);
+uint8_t makise_g_cont_call   (MContainer *cont, MakiseGUI *gui, uint8_t type);
 MInputResultEnum makise_g_cont_input  (MContainer *cont, MInputData data);
 MFocusEnum makise_g_cont_focus_next(MContainer *cont);
 MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
 /**
- * Send leave event to all children elements recursevely
+ * Send leave event to all children elements recursevely and drop focused
  *
  * @param cont 
  * @return 
@@ -88,17 +107,23 @@ MFocusEnum makise_g_cont_focus_prev(MContainer *cont);
 void makise_g_cont_focus_leave(MContainer *cont);
 MElement* makise_g_cont_element_on_point(MContainer *cont, int32_t  x, int32_t y);
 
+/**
+ * lock container's mutex
+ *
+ * @param cont conainer
+ * @return 
+ */
+void makise_g_cont_lock(MContainer *cont);
+/**
+ * unlock container's mutex
+ *
+ * @param cont container
+ * @return 
+ */
+void makise_g_cont_unlock(MContainer *cont);
+
+
 #ifdef __cplusplus
-}
+//}
 #endif
-
 #endif
-
-
-
-
-
-
-
-
-

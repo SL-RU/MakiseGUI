@@ -3,8 +3,6 @@
 #define ILI9340_H
 #include "spi.h"
 #include "gpio.h"
-#include <stdio.h>
-
 
 #include "stm32f4xx_hal.h"
 #include "ili9340_registers.h"

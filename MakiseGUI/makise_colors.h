@@ -8,13 +8,29 @@ extern "C" {
 #include <stdint.h>
 #include "makise_config.h"
 
+#ifndef MAKISE_COLOR_CUSTOM_TYPE
+typedef uint32_t MColor;
 #define MC_Transparent UINT32_MAX
+#endif
+
+#ifndef MC_Transparent
+#define MC_Transparent UINT32_MAX
+#endif
+
+#ifndef MC_IS_Transparent
+#define MC_IS_Transparent(c) (c == MC_Transparent)
+#endif
 
 #if defined MAKISEGUI_BUFFER_DEPTH && MAKISEGUI_BUFFER_DEPTH <= 4
 typedef enum
 {
-    MC_White        = 0,
+#if MAKISEGUI_BUFFER_DEPTH == 1 && MAKISEGUI_DISPLAY_INVERTED
     MC_Black        = 1,
+    MC_White        = 0,
+#else
+    MC_Black        = 0,
+    MC_White        = 1,
+#endif
 #if MAKISEGUI_BUFFER_DEPTH >= 2
     MC_Red             ,
     MC_Green           ,
@@ -29,7 +45,7 @@ typedef enum
     MC_Maroon          ,
     MC_Navy            ,
 #endif
-} MColor;
+} MColorPalette;
 #endif
 
 #if MAKISEGUI_BUFFER_DEPTH == 16 && MAKISEGUI_BUFFER_DEPTH == MAKISEGUI_DRIVER_DEPTH
@@ -48,7 +64,7 @@ typedef enum
 #endif
 
 #if MAKISEGUI_BUFFER_DEPTH != MAKISEGUI_DRIVER_DEPTH
-uint32_t *makise_color_palette;
+extern uint32_t *makise_color_palette;
 #endif
 
 //Get color value from value from buffer display.

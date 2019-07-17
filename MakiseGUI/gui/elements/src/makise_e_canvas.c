@@ -1,13 +1,10 @@
 #include "makise_e_canvas.h"
 
-#if ( MAKISE_E_CANVAS > 0 )
+#if MAKISE_E_CANVAS > 0
 
-#ifdef __cplusplus
-extern "C" {
-#endif
 
-static uint8_t draw   (MElement* b);
-static uint8_t predraw(MElement* b);
+static MResult draw   (MElement* b, MakiseGUI *gui);
+static MResult predraw(MElement* b, MakiseGUI *gui);
 static MInputResultEnum input  (MElement* b, MInputData data);
 static MFocusEnum focus  (MElement* b, MFocusEnum act);
 
@@ -15,11 +12,15 @@ static char name[] = "Canvas";
 void m_create_canvas( MCanvas*            b,
                       MContainer*         c,
                       MPosition           pos,
-                      MakiseStyle_Canvas*  style ) {
+                      MakiseStyle_Canvas*  style )
+{
+    //clear structure
+    memset(b, 0, sizeof(MCanvas));
+
     MElement *e = &b->el;
 
-    m_element_create(e, (c == 0) ? 0 : c->gui, name, b,
-		     1, 1,
+    m_element_create(e, name, b,
+		     1, MFocusPrior_Focusble,
 		     pos,
 		     &draw,
 		     &predraw,
@@ -28,14 +29,15 @@ void m_create_canvas( MCanvas*            b,
 		     &focus,
 		     1, &b->cont);
     
+    makise_g_cont_init( &b->cont );
+
     
     b->style = style;
-
-    makise_g_cont_init( &b->cont );
     
-    b->cont.gui         = c->gui;
     b->cont.el          = e;
     b->cont.position    = &e->position;
+
+    b->last_focused = 0;
 
     makise_g_cont_add(c, e);
     
@@ -43,9 +45,9 @@ void m_create_canvas( MCanvas*            b,
 }
 
 
-static uint8_t draw (MElement* b)
+static MResult draw (MElement* b, MakiseGUI *gui)
 {
-    MakiseStyleTheme_Canvas*     th = 0;
+    MakiseStyleTheme*     th = 0;
     MCanvas*                    c  = b->data;
 
     switch( c->state ) {
@@ -53,33 +55,48 @@ static uint8_t draw (MElement* b)
         default:    th = &c->style->focused;    break;
     }
 
-    _m_e_helper_draw_box_param( b->gui->buffer, &b->position,
-                                th->border_c, th->bg_color,th->double_border );
+    _m_e_helper_draw_box_param( gui->buffer, &b->position,
+                                th->border_c, th->bg_color,th->thickness );
 
-    //printf("Canvas %d dr\n", b->id);
-    return makise_g_cont_call(&c->cont, M_G_CALL_DRAW);
-//    return M_OK;
+    return makise_g_cont_call(&c->cont, gui, M_G_CALL_DRAW);
 }
 
-static uint8_t predraw (MElement* b) {
+static MResult predraw (MElement* b, MakiseGUI *gui)
+{
     MCanvas*            c  = b->data;
-    return makise_g_cont_call(&c->cont, M_G_CALL_PREDRAW);
+    
+    return makise_g_cont_call(&c->cont, gui, M_G_CALL_PREDRAW);
 }
 
-static MInputResultEnum input (MElement* b, MInputData data) {
+static MInputResultEnum input (MElement* b, MInputData data)
+{
     MCanvas*            c  = b->data;
+    MContainer *co = &c->cont;
     if(c->cont.focused == 0)
-    makise_g_cont_focus_next(&(c->cont));
+    {
+	//makise_g_cont_focus_next(co);
+	//TODO: FIX MUTEX HERE
+    }
     if(c->cont.focused != 0)
-    return makise_g_cont_input(&c->cont, data);
+	return makise_g_cont_input(co, data);
+    
     return M_INPUT_NOT_HANDLED;
 }
 
-static MFocusEnum focus (MElement* b, MFocusEnum act) {
+static MFocusEnum focus (MElement* b, MFocusEnum act)
+{
     MCanvas*            c  = b->data;
     switch (act) {
         case M_G_FOCUS_GET:
             c->state = 1;
+
+	    //restore last focused
+	    if(c->cont.focused == 0) {
+		//if no new elements was focused - try restore previous element
+		//   if it still in the container
+		if(makise_g_cont_contains(&c->cont, c->last_focused) != -1)
+		    makise_g_focus(c->last_focused, M_G_FOCUS_GET);
+	    }
             return M_G_FOCUS_OK;
 
         case M_G_FOCUS_GET_NEXT:
@@ -90,7 +107,11 @@ static MFocusEnum focus (MElement* b, MFocusEnum act) {
 
         case M_G_FOCUS_LEAVE:
             c->state = 0;
-            c->cont.focused = 0;
+
+	    //remember focused element to restore later
+	    c->last_focused = c->cont.focused;
+
+	    c->cont.focused = 0;
             return M_G_FOCUS_OK;
 
         case M_G_FOCUS_NEXT:
@@ -104,9 +125,14 @@ static MFocusEnum focus (MElement* b, MFocusEnum act) {
     }   
 }
 
-#ifdef __cplusplus
+void m_canvas_set_isolated(MCanvas* b,
+			   MContainerIsolated_t isolated) {
+    M_E_MUTEX_REQUEST(b);
+    b->el.children->isolated = isolated;
+    b->el.focus_prior = isolated == MContainer_Isolated ?
+	MFocusPrior_FocusbleIsolated : MFocusPrior_Focusble;
+    M_E_MUTEX_RELEASE(b);
 }
-#endif
 
 #endif
 

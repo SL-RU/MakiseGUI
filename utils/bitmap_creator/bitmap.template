@@ -1,0 +1,7 @@
+${comment}static const uint8_t B_${name}_data[] = {
+    $data };
+const MakiseBitmap B_${name} = {
+    .width = $width,
+    .height = $height,
+    .data = B_${name}_data
+};

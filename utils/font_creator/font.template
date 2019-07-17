@@ -1,0 +1,57 @@
+/*
+ * Font name:   $name
+ * Font size:   $size
+ * Font height: $height
+ */
+
+#ifndef ${name}_H
+#define ${name}_H
+#include "makise_text.h"
+#include "fonts.h"
+
+const uint8_t ${name}_table [] =
+{
+$table
+};
+
+#if $const_width == 0
+const uint8_t ${name}_width [] =
+{
+$width
+};
+#endif
+
+const uint16_t ${name}_offset [] =
+{
+$offset
+};
+
+#if MAKISE_UNICODE
+const uint16_t ${name}_unicode [] =
+{
+$unicode
+};
+#endif
+
+const MakiseFont F_${name} = {
+    ${name}_table,
+    $const_width,
+    $height,
+#if $const_width == 0
+    ${name}_width,
+#else
+    0,
+#endif
+    ${name}_offset,
+#if MAKISE_UNICODE
+    ${name}_unicode,
+#endif
+    $first_offset,
+    $first_count,
+#if MAKISE_UNICODE
+    $total_count,
+#endif
+    $space
+};
+
+#endif

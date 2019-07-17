@@ -5,16 +5,14 @@
 extern "C" {
 #endif
 
+#include "makise_config.h"    
+    
 typedef struct _MElement MElement;
-typedef struct _MPosition MPosition;
 
 #define MState_Disable 0b0000
 #define MState_Idle    0b0001
 #define MState_Focused 0b0010
 #define MState_Pressed 0b0100
-
-#include "makise_gui.h"
-#include "makise_gui_container.h"
 
 typedef enum  {
     MPositionAnchor_LeftUp,
@@ -35,6 +33,12 @@ typedef enum {
     MPositionStretch_Down,              // No stretch. anchor is down.
 } MPositionStretchVert;
 
+typedef enum {
+    MFocusPrior_NotFocusble,            // Focus doesn't required
+    MFocusPrior_Focusble,               // Focus is required
+    MFocusPrior_FocusbleIsolated,       // Focus is required but only directly by M_G_FOCUS_GET, not _NEXT or _PREV.
+} MFocusPriorEnum;
+
 typedef struct _MPosition {
     MPositionStretchHor     horisontal;
     MPositionStretchVert    vertical;
@@ -48,52 +52,82 @@ typedef struct _MPosition {
     uint32_t                height;
 
     // It will be calculated automatically
-    int32_t                 real_x;         // Position on the screen.
-    int32_t                 real_y;         // Position on the screen
+    int32_t                 real_x;  // Position on the screen. It will be calculated automatically
+    int32_t                 real_y;  // Position on the screen.It will be calculated automatically
 } MPosition;
 
+#include "makise_gui.h"
+
 typedef struct _MElement {
-    MakiseGUI*              gui;            // Current gui.
-
-    uint32_t                id;             // Unique id.
-    char*                   name;
-    
-    MElement*               prev;           // Previous if exists.
-    MElement*               next;           // Next element if exists.
-    MContainer*             parent;         // Parent element, if exists.
-
-    uint8_t                 enabled;        // If enabled - methods will be executed.
     MPosition               position;       // Relative position of the element.
-
-    uint8_t                 focus_prior;    // Relative position in focus queu. 0 means focus doesn't required.
     
     void*                   data;
 
-    uint8_t                 ( *draw )       ( MElement* el );
-    uint8_t                 ( *predraw )    ( MElement* el );                       // Count real position for every element.
-    uint8_t                 ( *update )     ( MElement* el );
-    MInputResultEnum        ( *input )      ( MElement* el, MInputData data );
-    MFocusEnum              ( *focus )      ( MElement* el, MFocusEnum act );
+    MResult          (*draw      ) (MElement* el, MakiseGUI *gui);
+    MResult          (*predraw   ) (MElement* el, MakiseGUI *gui); // Count real position for every element
+    MResult          (*update    ) (MElement* el );
+    MInputResultEnum (*input     ) (MElement* el, MInputData data);
+    MFocusEnum       (*focus     ) (MElement* el, MFocusEnum act);
     
-
-    uint8_t                 is_parent;      // Is element parent(contains other elements.
-    MContainer*             children;       // Only if element is parent.
+    uint8_t          is_parent;      // Is element parent(contains other elements.
+    MContainer*      children;       // Only if element is parent.
+    MElement*        prev;           // Previous if exists.
+    MElement*        next;           // Next element if exists.
+    MContainer*      parent;         // Parent element, if exists.
+    MHost*           host;           // MHost, if exists.
+    uint8_t          enabled;        // If enabled - methods will be executed.
+    MFocusPriorEnum  focus_prior;    // Defines focus behavior
+    uint32_t         id;             // Unique id.
+    char*            name;
+    
 } MElement;
 
-void m_element_create(MElement *e, MakiseGUI *gui, char *name, void* data,
-              uint8_t enabled, uint8_t focus_prior,
-              MPosition position,
-              uint8_t    (*draw    )(MElement* el),
-              uint8_t    (*predraw )(MElement* el),
-              uint8_t    (*update  )(MElement* el),
-              MInputResultEnum (*input   )(MElement* el, MInputData data),
-              MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
-              uint8_t  is_parent,
-              MContainer *children);
-
-
-uint8_t m_element_call(MElement* el, uint8_t type);
-uint8_t m_element_input(MElement* el, MInputData data);
+/**
+ * Initialize MElement structure
+ *
+ * @param e Pointer to element themself
+ * @param name Human name of the element
+ * @param data pointer to structure with your data
+ * @param enabled is element enabled
+ * @param focus_prior focus prior
+ * @param position MPosition
+ * @param draw draw function
+ * @param predraw predraw function
+ * @param update update function
+ * @param input input function
+ * @param focus focus function
+ * @param is_parent 1 if element is container or parent, else 0
+ * @param children if is_parent==1 then MContainer, else 0
+ * @return 
+ */
+void m_element_create(MElement *e, char *name, void* data,
+		      uint8_t enabled, MFocusPriorEnum focus_prior,
+		      MPosition position,
+		      MResult    (*draw    )(MElement* el, MakiseGUI *gui),
+		      MResult    (*predraw )(MElement* el, MakiseGUI *gui),
+		      MResult    (*update  )(MElement* el),
+		      MInputResultEnum (*input)(MElement* el, MInputData data),
+		      MFocusEnum (*focus   )(MElement* el, MFocusEnum act),
+		      uint8_t  is_parent,
+		      MContainer *children);
+/**
+ * Lock element's mutex
+ *
+ * @param el element
+ * @return result
+ */
+MResult m_element_mutex_request(MElement* el);
+/**
+ * Unlock element's mutex
+ *
+ * @param el element
+ * @return result
+ */
+MResult m_element_mutex_release(MElement* el);
+    
+uint8_t m_element_call(MElement* el,  MakiseGUI *host, MElementCall type);
+MInputResultEnum m_element_input(MElement* el, MInputData data);
+MFocusEnum       m_element_focus(MElement* el, MFocusEnum act );    
 
 /**
  * Create MPosition from relative coordinates & size. Anchor - left up corner

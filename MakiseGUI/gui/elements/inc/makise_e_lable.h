@@ -3,7 +3,7 @@
 
 #include "makise_config.h"
 
-#if ( MAKISE_E_LABLE > 0 )
+#if MAKISE_E_LABLE > 0
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,38 +11,50 @@ extern "C" {
 
 #include "makise_e.h"
 
-/* typedef struct { */
-
-/* } MakiseLableStyleTheme; */
-
 typedef struct {
     const MakiseFont*   font;
-    uint32_t            font_col;
+    MColor              font_col;
 
-    uint32_t            bg_color;
-    uint32_t            border_c;
+    MColor              bg_color;
+    MColor              border_c;
 
-    uint16_t            double_border;
+    uint32_t            scroll_speed; // speed of scroll if text doesn't fit. 0 - not scroll. pixels per 100 draw calls
+    
+    uint16_t            thickness;
 } MakiseStyle_Lable;
 
 // Lable.
 // Simply draws required text.
 // It can be only in one line. And it won't be cutting and folding text.
 typedef struct {
-    MakiseGUI*          gui;
     MElement            el;
 
     char*               text;
+    uint32_t            text_width;
+    MDTextPlacement     alignment;
 
-    MakiseStyle_Lable*   style;
+    uint8_t             scroll_enable;
+    uint32_t            scroll_x;
+
+    MakiseStyle_Lable*  style;
 } MLable;
 
 void m_create_lable( MLable*             b,
                      MContainer*         c,
                      MPosition           pos,
-                     char*               text,
-                     MakiseStyle_Lable*   style );
+                     MakiseStyle_Lable*  style );
 
+void m_lable_set_text( MLable *b,
+		       char   *text);
+
+char* m_lable_get_text( MLable *b );
+
+void m_lable_enable_scroll( MLable *b, uint8_t enable );
+
+/* void m_lable_set_alignment( MLable *b, */
+/*                             MDTextPlacement alignment); */
+
+    
 #ifdef __cplusplus
 }
 #endif
