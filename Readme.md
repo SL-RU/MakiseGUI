@@ -4,7 +4,7 @@ Makise GUI - opensource crossplatform GUI library written on pure C99. It target
 
 ![logo](https://github.com/SL-RU/MakiseGUI/blob/master/MakiseGUI/docs/logo.png)
 
-STAGE: ACTIVE DEVELOPMENT
+STAGE: PASSIVE DEVELOPMENT
 
 ## About
 
